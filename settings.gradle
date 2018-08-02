@@ -1,0 +1,6 @@
+rootProject.name = 'rxrpc'
+include 'rxrpc-core'
+include 'rxrpc-apt'
+include 'rxrpc-client'
+include 'rxrpc-server'
+

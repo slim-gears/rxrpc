@@ -1,0 +1,6 @@
+group 'com.slimgears.rxrpc'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
