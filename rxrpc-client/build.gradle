@@ -1,6 +1,5 @@
-plugins {
-    id 'java'
-}
+apply plugin: 'java'
+apply plugin: 'net.ltgt.apt-idea'
 
 group 'com.slimgears.rxrpc'
 version '1.0-SNAPSHOT'
@@ -12,5 +11,11 @@ repositories {
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    implementation project(':rxrpc-core')
+    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVer"
+    implementation"com.google.auto.value:auto-value-annotations:$autoValueVer"
+    implementation "javax.json:javax.json-api:$jsonApiVer"
+    implementation "com.google.code.findbugs:jsr305:$jsr305Ver"
+    apt "com.google.auto.value:auto-value:$autoValueVer"
+    testCompile "junit:junit:$junitVer"
 }

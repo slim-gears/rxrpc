@@ -1,6 +1,23 @@
 group 'com.slimgears.rxrpc'
 version '1.0-SNAPSHOT'
 
+buildscript {
+    repositories {
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath "net.ltgt.gradle:gradle-apt-plugin:0.13"
+    }
+}
+
+project.ext {
+    rxJavaVer = "2.2.0"
+    autoValueVer = "1.6.2"
+    jsonApiVer = "1.1.2"
+    junitVer = "4.12"
+    jsr305Ver = "3.0.2"
+}
+
 repositories {
     mavenCentral()
 }
