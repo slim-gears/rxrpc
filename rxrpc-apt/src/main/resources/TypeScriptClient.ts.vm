@@ -1,0 +1,12 @@
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+
+export interface $cls.name() {
+#foreach ($m in $cls.methods())
+    $m.name()(#foreach ($p in $m.params())$p.name(): $p.type().name()#end): $m.returnType().name();
+#end
+}
+
+@Injectable()
+export class $cls.name()Impl implements $cls.name() {
+}
