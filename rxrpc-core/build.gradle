@@ -6,4 +6,7 @@ dependencies {
     apt "com.google.auto.value:auto-value:$autoValueVer"
     implementation "javax.json:javax.json-api:$jsonApiVer"
     implementation "com.google.code.findbugs:jsr305:$jsr305Ver"
+    implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVer"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVer"
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVer"
 }

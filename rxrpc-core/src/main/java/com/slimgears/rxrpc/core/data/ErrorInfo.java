@@ -1,5 +1,6 @@
 package com.slimgears.rxrpc.core.data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 
 import javax.annotation.Nullable;
@@ -10,10 +11,10 @@ import java.util.stream.Stream;
 
 @AutoValue
 public abstract class ErrorInfo {
-    public abstract String type();
-    public abstract String message();
-    public abstract List<String> stackTrace();
-    @Nullable public abstract ErrorInfo cause();
+    @JsonProperty public abstract String type();
+    @JsonProperty public abstract String message();
+    @JsonProperty public abstract List<String> stackTrace();
+    @JsonProperty @Nullable public abstract ErrorInfo cause();
 
     public static ErrorInfo create(String type, String message, String[] stackTrace) {
         return new AutoValue_ErrorInfo(type, message, Arrays.asList(stackTrace), null);

@@ -1,6 +1,0 @@
-apply from: "$rootProject.javaGradle"
-
-dependencies {
-    implementation project(':rxrpc-core')
-    testCompile "junit:junit:$junitVer"
-}

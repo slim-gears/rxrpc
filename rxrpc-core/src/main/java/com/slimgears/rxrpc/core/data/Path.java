@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 @AutoValue
 public abstract class Path {
-    private final static Pattern PATH_PATTERN = Pattern.compile("(?<head>\\w+)(?<tail>(/\\w+)+)");
+    private final static Pattern PATH_PATTERN = Pattern.compile("(?<head>\\w+)/?(?<tail>(\\w+/?)*)");
     public abstract String head();
     public abstract String tail();
 

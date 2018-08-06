@@ -5,10 +5,12 @@ import com.slimgears.rxrpc.core.util.Notifier;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 class JettyWebSocketMessageChannel implements MessageChannel, WebSocketListener {
     private final AtomicReference<org.eclipse.jetty.websocket.api.Session> webSocketSession = new AtomicReference<>();
+    private final AtomicReference<Session> channelSession = new AtomicReference<>();
     private final Notifier<Listener> notifier = new Notifier<>();
 
     class InternalSession implements MessageChannel.Session {
@@ -36,7 +38,8 @@ class JettyWebSocketMessageChannel implements MessageChannel, WebSocketListener 
 
 
     @Override
-    public Subscription subscribe(Listener listener) {
+    public synchronized Subscription subscribe(Listener listener) {
+        Optional.ofNullable(channelSession.get()).ifPresent(listener::onConnected);
         return notifier.subscribe(listener)::unsubscribe;
     }
 
@@ -57,9 +60,10 @@ class JettyWebSocketMessageChannel implements MessageChannel, WebSocketListener 
     }
 
     @Override
-    public void onWebSocketConnect(org.eclipse.jetty.websocket.api.Session session) {
+    public synchronized void onWebSocketConnect(org.eclipse.jetty.websocket.api.Session session) {
         this.webSocketSession.set(session);
         MessageChannel.Session msgChannelSession = new InternalSession(session);
+        channelSession.set(msgChannelSession);
         notifier.publish(l -> l.onConnected(msgChannelSession));
     }
 

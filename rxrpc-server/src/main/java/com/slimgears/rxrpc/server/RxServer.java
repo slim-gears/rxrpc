@@ -1,18 +1,17 @@
 package com.slimgears.rxrpc.server;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.value.AutoValue;
-import com.slimgears.rxrpc.core.api.*;
+import com.slimgears.rxrpc.core.api.MessageChannel;
 import com.slimgears.rxrpc.core.data.Invocation;
 import com.slimgears.rxrpc.core.data.Response;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import org.reactivestreams.Publisher;
 
-import javax.json.JsonObject;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -25,7 +24,7 @@ public class RxServer implements AutoCloseable {
     @AutoValue
     public static abstract class Config {
         public abstract MessageChannel.Server server();
-        public abstract JsonEngine jsonEngine();
+        public abstract ObjectMapper objectMapper();
         public abstract EndpointDispatcherFactory dispatcherFactory();
         public abstract EndpointResolver resolver();
 
@@ -36,7 +35,7 @@ public class RxServer implements AutoCloseable {
         @AutoValue.Builder
         public interface Builder {
             Builder server(MessageChannel.Server server);
-            Builder jsonEngine(JsonEngine engine);
+            Builder objectMapper(ObjectMapper mapper);
             Builder dispatcherFactory(EndpointDispatcherFactory dispatcherFactory);
             Builder resolver(EndpointResolver resolver);
             Config build();
@@ -68,11 +67,14 @@ public class RxServer implements AutoCloseable {
         stop();
     }
 
-    private InvocationArguments toArguments(JsonObject argObject) {
+    private InvocationArguments toArguments(Map<String, Object> args) {
         return new InvocationArguments() {
             @Override
             public <T> T get(String key, Class<T> cls) {
-                return config.jsonEngine().decode(argObject.get(key), cls);
+                return Optional
+                        .ofNullable(args.get(key))
+                        .map(cls::cast)
+                        .orElse(null);
             }
         };
     }
@@ -91,7 +93,7 @@ public class RxServer implements AutoCloseable {
         }
 
         private <T> void onDataResponse(Invocation invocation, T response) {
-            sendResponse(Response.ofData(invocation.invocationId(), config.jsonEngine().encode(response)));
+            sendResponse(Response.ofData(invocation.invocationId(), config.objectMapper().valueToTree(response)));
         }
 
         private void onErrorResponse(Invocation invocation, Throwable error) {
@@ -103,7 +105,11 @@ public class RxServer implements AutoCloseable {
         }
 
         private void sendResponse(Response response) {
-            channelSession.get().send(config.jsonEngine().encodeString(response));
+            try {
+                channelSession.get().send(config.objectMapper().writeValueAsString(response));
+            } catch (JsonProcessingException e) {
+                onError(e);
+            }
         }
 
         @Override
@@ -113,16 +119,23 @@ public class RxServer implements AutoCloseable {
 
         @Override
         public void onMessage(String message) {
-            Invocation invocation = config.jsonEngine().decodeString(message, Invocation.class);
             try {
-                Publisher<?> response = config.dispatcherFactory().create(resolver).dispatch(invocation.method(), toArguments(invocation.arguments()));
-                Disposable subscription = Observable.fromPublisher(response).subscribe(
-                        val -> onDataResponse(invocation, val),
-                        error -> onErrorResponse(invocation, error),
-                        () -> onCompleteResponse(invocation));
-                activeInvocations.put(invocation.invocationId(), subscription);
-            } catch (Throwable e) {
-                onErrorResponse(invocation, e);
+                Invocation invocation = config.objectMapper().readValue(message, Invocation.class);
+                try {
+                    EndpointDispatcher dispatcher = config.dispatcherFactory().create(resolver);
+                    Publisher<?> response = dispatcher
+                            .dispatch(invocation.method(), toArguments(invocation.arguments()));
+
+                    Disposable subscription = Observable.fromPublisher(response).subscribe(
+                            val -> onDataResponse(invocation, val),
+                            error -> onErrorResponse(invocation, error),
+                            () -> onCompleteResponse(invocation));
+                    activeInvocations.put(invocation.invocationId(), subscription);
+                } catch (Throwable e) {
+                    onErrorResponse(invocation, e);
+                }
+            } catch (IOException e) {
+                onError(e);
             }
         }
 

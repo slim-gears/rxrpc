@@ -1,7 +1,7 @@
 package com.slimgears.rxrpc.sample;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.slimgears.rxrpc.client.RxClient;
-import com.slimgears.rxrpc.gson.GsonJsonEngine;
 import com.slimgears.rxrpc.server.EndpointDispatchers;
 import com.slimgears.rxrpc.server.EndpointResolver;
 import com.slimgears.rxrpc.server.RxServer;
@@ -15,7 +15,7 @@ import java.util.concurrent.Future;
 
 public class SampleServerTest {
     private final static int port = 8000;
-    private final static URI uri = URI.create("ws://localhost" + port + "/socket/");
+    private final static URI uri = URI.create("ws://localhost:" + port + "/socket/");
 
     @Test
     public void testClientServer() throws ExecutionException, InterruptedException {
@@ -42,15 +42,15 @@ public class SampleServerTest {
                                 .method("echoMethod", SampleEndpoint.echoMethod)
                                 .build())
                         .buildFactory())
-                .jsonEngine(new GsonJsonEngine())
+                .objectMapper(new ObjectMapper())
                 .build());
 
         rxServer.start();
-        Thread.sleep(2000);
+        Thread.sleep(500);
 
         RxClient rxClient = RxClient.forConfig(RxClient.Config
                 .builder()
-                .jsonEngine(new GsonJsonEngine())
+                .objectMapper(new ObjectMapper())
                 .endpointFactory(new RxClient.EndpointFactory() {
                     @Override
                     public <T> T create(Class<T> clientClass, Future<RxClient.Session> session) {

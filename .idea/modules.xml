@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-apt/rxrpc-apt.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-apt/rxrpc-apt.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-client/rxrpc-client.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-client/rxrpc-client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-core/rxrpc-core.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-core/rxrpc-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-jetty-websocket/rxrpc-jetty-websocket.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-jetty-websocket/rxrpc-jetty-websocket.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-ng/rxrpc-ng.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-ng/rxrpc-ng.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-server/rxrpc-server.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-server/rxrpc-server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sample/sample.iml" filepath="$PROJECT_DIR$/.idea/modules/sample/sample.iml" />
+    </modules>
+  </component>
+</project>

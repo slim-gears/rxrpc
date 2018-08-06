@@ -1,7 +1,7 @@
 package com.slimgears.rxrpc.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.value.AutoValue;
-import com.slimgears.rxrpc.core.api.JsonEngine;
 import com.slimgears.rxrpc.core.api.MessageChannel;
 import com.slimgears.rxrpc.core.data.Invocation;
 import com.slimgears.rxrpc.core.data.Response;
@@ -10,17 +10,16 @@ import com.slimgears.rxrpc.core.util.MappedFuture;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Maybe;
 import io.reactivex.Observer;
-import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.SingleSubject;
 import io.reactivex.subjects.Subject;
 import org.reactivestreams.Publisher;
 
-import javax.json.JsonObject;
+import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class RxClient {
     private final Config config;
@@ -28,7 +27,7 @@ public class RxClient {
     @AutoValue
     public static abstract class Config {
         public abstract MessageChannel.Client client();
-        public abstract JsonEngine jsonEngine();
+        public abstract ObjectMapper objectMapper();
         public abstract EndpointFactory endpointFactory();
         public static Builder builder() {
             return new AutoValue_RxClient_Config.Builder();
@@ -37,7 +36,7 @@ public class RxClient {
         @AutoValue.Builder
         public interface Builder {
             Builder client(MessageChannel.Client client);
-            Builder jsonEngine(JsonEngine engine);
+            Builder objectMapper(ObjectMapper mapper);
             Builder endpointFactory(EndpointFactory factory);
             Config build();
         }
@@ -61,7 +60,7 @@ public class RxClient {
 
         }
 
-        Publisher<Result> invoke(String method, JsonObject args);
+        Publisher<Result> invoke(String method, Map<String, Object> args);
         Subscription subscribe(Listener listener);
         Config serverConfig();
     }
@@ -93,7 +92,7 @@ public class RxClient {
     }
 
     private class InternalSession implements Session, MessageChannel.Listener {
-        private final AtomicReference<MessageChannel.Session> channelSession = new AtomicReference<>();
+        private final SingleSubject<MessageChannel.Session> channelSession = SingleSubject.create();
         private final AtomicLong invocationId = new AtomicLong();
         private final Collection<Listener> listeners = new ArrayList<>();
         private final Map<Long, Subject<Result>> resultSubjects = new HashMap<>();
@@ -103,7 +102,7 @@ public class RxClient {
         }
 
         @Override
-        public Publisher<Result> invoke(String method, JsonObject args) {
+        public Publisher<Result> invoke(String method, Map<String, Object> args) {
             long id = invocationId.incrementAndGet();
             Subject<Result> subject = BehaviorSubject.create();
             resultSubjects.put(id, subject);
@@ -113,7 +112,9 @@ public class RxClient {
                     .arguments(args)
                     .build();
 
-            this.channelSession.get().send(config.jsonEngine().encodeString(invocation));
+            //noinspection ResultOfMethodCallIgnored
+            this.channelSession.subscribe(s ->
+                    s.send(config.objectMapper().writeValueAsString(invocation)));
 
             return subject
                     .doFinally(() -> resultSubjects.remove(id))
@@ -144,15 +145,19 @@ public class RxClient {
 
         @Override
         public void onConnected(MessageChannel.Session session) {
-
+            channelSession.onSuccess(session);
         }
 
         @Override
         public void onMessage(String message) {
-            Response response = config.jsonEngine().decodeString(message, Response.class);
-            Optional
-                    .ofNullable(resultSubjects.get(response.invocationId()))
-                    .ifPresent(subj -> subj.onNext(response.result()));
+            try {
+                Response response = config.objectMapper().readValue(message, Response.class);
+                Optional
+                        .ofNullable(resultSubjects.get(response.invocationId()))
+                        .ifPresent(subj -> subj.onNext(response.result()));
+            } catch (IOException e) {
+                onError(e);
+            }
         }
 
         @Override

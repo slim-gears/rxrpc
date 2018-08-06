@@ -1,15 +1,15 @@
 package com.slimgears.rxrpc.core.data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.auto.value.AutoValue;
-
-import javax.json.JsonValue;
 
 @AutoValue
 public abstract class Response {
-    public abstract long invocationId();
-    public abstract Result result();
+    @JsonProperty public abstract long invocationId();
+    @JsonProperty public abstract Result result();
 
-    public static Response ofData(long invocationId, JsonValue data) {
+    public static Response ofData(long invocationId, JsonNode data) {
         return new AutoValue_Response(invocationId, Result.ofData(data));
     }
 

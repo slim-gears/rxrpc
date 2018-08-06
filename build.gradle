@@ -20,6 +20,7 @@ project.ext {
     jsr305Ver = "3.0.2"
     escapeVelocityVer = "0.9"
     jettyVer = "9.4.11.v20180605"
+    jacksonVer = "2.9.6"
 
     sourceCompatibility = 1.8
     javaGradle = "$projectDir/gradle/java.gradle"

@@ -1,8 +1,8 @@
 package com.slimgears.rxrpc.core.data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.auto.value.AutoOneOf;
-
-import javax.json.JsonValue;
 
 @AutoOneOf(Result.Type.class)
 public abstract class Result {
@@ -17,12 +17,12 @@ public abstract class Result {
         private Void() {}
     }
 
-    public abstract Type type();
-    public abstract JsonValue data();
-    public abstract Void complete();
-    public abstract ErrorInfo error();
+    @JsonProperty public abstract Type type();
+    @JsonProperty public abstract JsonNode data();
+    @JsonProperty public abstract Void complete();
+    @JsonProperty public abstract ErrorInfo error();
 
-    public static Result ofData(JsonValue data) {
+    public static Result ofData(JsonNode data) {
         return AutoOneOf_Result.data(data);
     }
 

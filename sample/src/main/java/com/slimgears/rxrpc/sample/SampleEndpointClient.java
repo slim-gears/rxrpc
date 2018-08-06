@@ -11,6 +11,6 @@ public class SampleEndpointClient extends AbstractClient  {
     }
 
     public Future<String> echoMethod(String msg) {
-        return invokeFuture(String.class,"echoMethod", arguments().put("msg", msg));
+        return invokeFuture(String.class,"sampleEndpoint/echoMethod", arguments().put("msg", msg));
     }
 }

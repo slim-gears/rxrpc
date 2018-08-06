@@ -11,8 +11,6 @@
             <option value="$PROJECT_DIR$/rxrpc-apt" />
             <option value="$PROJECT_DIR$/rxrpc-client" />
             <option value="$PROJECT_DIR$/rxrpc-core" />
-            <option value="$PROJECT_DIR$/rxrpc-gson" />
-            <option value="$PROJECT_DIR$/rxrpc-jackson" />
             <option value="$PROJECT_DIR$/rxrpc-jetty-websocket" />
             <option value="$PROJECT_DIR$/rxrpc-ng" />
             <option value="$PROJECT_DIR$/rxrpc-server" />

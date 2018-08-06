@@ -4,12 +4,14 @@ dependencies {
     implementation project(':rxrpc-core')
     implementation project(':rxrpc-client')
     implementation project(':rxrpc-server')
-    implementation project(':rxrpc-gson')
     implementation project(':rxrpc-jetty-websocket')
     implementation "io.reactivex.rxjava2:rxjava:$rxJavaVer"
     implementation "org.eclipse.jetty:jetty-server:$jettyVer"
     implementation "org.eclipse.jetty:jetty-servlet:$jettyVer"
     implementation "org.eclipse.jetty.websocket:websocket-server:$jettyVer"
     apt "com.google.auto.service:auto-service:$autoServiceVer"
+    implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVer"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVer"
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVer"
     testCompile "junit:junit:$junitVer"
 }
