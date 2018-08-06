@@ -1,4 +1,7 @@
 apply from: "$rootProject.javaGradle"
 
 dependencies {
+    implementation project(':rxrpc-core')
+    implementation "org.eclipse.jetty.websocket:websocket-server:$jettyVer"
+    implementation "org.eclipse.jetty.websocket:websocket-client:$jettyVer"
 }

@@ -1,19 +1,15 @@
-apply plugin: 'java'
-apply plugin: 'net.ltgt.apt-idea'
-
-group 'com.slimgears.rxrpc'
-version '1.0-SNAPSHOT'
-
-sourceCompatibility = rootProject.sourceCompatibility
-
-repositories {
-    mavenCentral()
-}
+apply from: "$rootProject.javaGradle"
 
 dependencies {
     implementation project(':rxrpc-core')
     implementation project(':rxrpc-client')
     implementation project(':rxrpc-server')
+    implementation project(':rxrpc-gson')
+    implementation project(':rxrpc-jetty-websocket')
+    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVer"
+    implementation "org.eclipse.jetty:jetty-server:$jettyVer"
+    implementation "org.eclipse.jetty:jetty-servlet:$jettyVer"
+    implementation "org.eclipse.jetty.websocket:websocket-server:$jettyVer"
     apt "com.google.auto.service:auto-service:$autoServiceVer"
     testCompile "junit:junit:$junitVer"
 }

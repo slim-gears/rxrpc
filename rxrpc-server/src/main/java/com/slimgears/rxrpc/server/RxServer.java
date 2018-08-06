@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class RxServer implements AutoCloseable {
     private final AtomicReference<MessageChannel.Subscription> subscription = new AtomicReference<>(MessageChannel.Subscription.EMPTY);
     private final Set<Session> sessions = new HashSet<>();
-    private Config config;
+    private final Config config;
 
     @AutoValue
     public static abstract class Config {
@@ -43,15 +43,21 @@ public class RxServer implements AutoCloseable {
         }
     }
 
+    public static RxServer forConfig(Config config) {
+        return new RxServer(config);
+    }
+
     private RxServer(Config config) {
         this.config = config;
     }
 
     public void start() {
         subscription.set(config.server().subscribe(this::onNewChannel));
+        config.server().start();
     }
 
     public void stop() {
+        config.server().stop();
         subscription.getAndSet(MessageChannel.Subscription.EMPTY).unsubscribe();
         Collection<Session> currentSessions = new ArrayList<>(sessions);
         currentSessions.forEach(Session::close);
@@ -78,11 +84,10 @@ public class RxServer implements AutoCloseable {
     class Session implements MessageChannel.Listener, AutoCloseable {
         private final ConcurrentMap<Long, Disposable> activeInvocations = new ConcurrentHashMap<>();
         private final EndpointResolver resolver = ScopedResolver.of(config.resolver());
-        private final MessageChannel channel;
+        private final AtomicReference<MessageChannel.Session> channelSession = new AtomicReference<>();
 
         Session(MessageChannel channel) {
-            this.channel = channel;
-            this.channel.subscribe(this);
+            channel.subscribe(this);
         }
 
         private <T> void onDataResponse(Invocation invocation, T response) {
@@ -98,7 +103,12 @@ public class RxServer implements AutoCloseable {
         }
 
         private void sendResponse(Response response) {
-            channel.send(config.jsonEngine().encodeString(response));
+            channelSession.get().send(config.jsonEngine().encodeString(response));
+        }
+
+        @Override
+        public void onConnected(MessageChannel.Session session) {
+            channelSession.set(session);
         }
 
         @Override
@@ -135,7 +145,7 @@ public class RxServer implements AutoCloseable {
         @Override
         public void close() {
             try {
-                channel.close();
+                channelSession.get().close();
             } catch (Exception e) {
                 e.printStackTrace();
             }

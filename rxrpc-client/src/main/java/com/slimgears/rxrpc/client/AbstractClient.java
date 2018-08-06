@@ -16,7 +16,7 @@ public abstract class AbstractClient {
     private final Single<RxClient.Session> session;
     private final Lazy<JsonEngine> jsonEngine;
 
-    interface InvocationArguments {
+    protected interface InvocationArguments {
         InvocationArguments put(String name, Object arg);
         Map<String, Object> toMap();
     }

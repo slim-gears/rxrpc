@@ -6,6 +6,7 @@ import com.slimgears.rxrpc.core.api.MessageChannel;
 import com.slimgears.rxrpc.core.data.Invocation;
 import com.slimgears.rxrpc.core.data.Response;
 import com.slimgears.rxrpc.core.data.Result;
+import com.slimgears.rxrpc.core.util.MappedFuture;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Maybe;
 import io.reactivex.Observer;
@@ -19,6 +20,7 @@ import java.net.URI;
 import java.util.*;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class RxClient {
     private final Config config;
@@ -27,16 +29,29 @@ public class RxClient {
     public static abstract class Config {
         public abstract MessageChannel.Client client();
         public abstract JsonEngine jsonEngine();
+        public abstract EndpointFactory endpointFactory();
+        public static Builder builder() {
+            return new AutoValue_RxClient_Config.Builder();
+        }
 
         @AutoValue.Builder
         public interface Builder {
             Builder client(MessageChannel.Client client);
             Builder jsonEngine(JsonEngine engine);
+            Builder endpointFactory(EndpointFactory factory);
             Config build();
         }
     }
 
-    interface Session {
+    public interface EndpointResolver {
+        <T> T resolve(Class<T> endpointClientClass);
+    }
+
+    public interface EndpointFactory {
+        <T> T create(Class<T> clientClass, Future<Session> session);
+    }
+
+    public interface Session {
         interface Listener {
             void onClosed();
             void onDisconnected();
@@ -51,25 +66,40 @@ public class RxClient {
         Config serverConfig();
     }
 
-    public RxClient(Config config) {
+    public static RxClient forConfig(Config config) {
+        return new RxClient(config);
+    }
+
+    private RxClient(Config config) {
         this.config = config;
     }
 
-    public Future<Session> create(URI uri) {
-        return Single
-                .fromFuture(this.config.client().create(uri))
-                .<Session>map(InternalSession::new)
-                .toFuture();
+    public EndpointResolver connect(URI uri) {
+        Future<Session> sessionFuture = MappedFuture.of(this.config.client().connect(uri), InternalSession::new);
+        return new InternalEndpointResolver(sessionFuture);
+    }
+
+    private class InternalEndpointResolver implements EndpointResolver {
+        private final Future<Session> session;
+
+        private InternalEndpointResolver(Future<Session> session) {
+            this.session = session;
+        }
+
+        @Override
+        public <T> T resolve(Class<T> endpointClientClass) {
+            return config.endpointFactory().create(endpointClientClass, session);
+        }
     }
 
     private class InternalSession implements Session, MessageChannel.Listener {
-        private final MessageChannel messageChannel;
+        private final AtomicReference<MessageChannel.Session> channelSession = new AtomicReference<>();
         private final AtomicLong invocationId = new AtomicLong();
         private final Collection<Listener> listeners = new ArrayList<>();
         private final Map<Long, Subject<Result>> resultSubjects = new HashMap<>();
 
         private InternalSession(MessageChannel messageChannel) {
-            this.messageChannel = messageChannel;
+            messageChannel.subscribe(this);
         }
 
         @Override
@@ -83,7 +113,7 @@ public class RxClient {
                     .arguments(args)
                     .build();
 
-            this.messageChannel.send(config.jsonEngine().encodeString(invocation));
+            this.channelSession.get().send(config.jsonEngine().encodeString(invocation));
 
             return subject
                     .doFinally(() -> resultSubjects.remove(id))
@@ -110,6 +140,11 @@ public class RxClient {
         @Override
         public Config serverConfig() {
             return config;
+        }
+
+        @Override
+        public void onConnected(MessageChannel.Session session) {
+
         }
 
         @Override
