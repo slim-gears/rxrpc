@@ -1,14 +1,4 @@
-apply plugin: 'java'
-apply plugin: 'net.ltgt.apt-idea'
-
-group 'com.slimgears.rxrpc'
-version '1.0-SNAPSHOT'
-
-sourceCompatibility = 1.8
-
-repositories {
-    mavenCentral()
-}
+apply from: "$rootProject.javaGradle"
 
 dependencies {
     implementation "io.reactivex.rxjava2:rxjava:$rxJavaVer"
@@ -16,5 +6,4 @@ dependencies {
     apt "com.google.auto.value:auto-value:$autoValueVer"
     implementation "javax.json:javax.json-api:$jsonApiVer"
     implementation "com.google.code.findbugs:jsr305:$jsr305Ver"
-    testCompile "junit:junit:$junitVer"
 }

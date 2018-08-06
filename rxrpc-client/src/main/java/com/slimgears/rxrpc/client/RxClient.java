@@ -108,6 +108,11 @@ public class RxClient {
         }
 
         @Override
+        public Config serverConfig() {
+            return config;
+        }
+
+        @Override
         public void onMessage(String message) {
             Response response = config.jsonEngine().decodeString(message, Response.class);
             Optional

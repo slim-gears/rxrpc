@@ -1,0 +1,19 @@
+apply plugin: 'java'
+apply plugin: 'net.ltgt.apt-idea'
+
+group 'com.slimgears.rxrpc'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = rootProject.sourceCompatibility
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':rxrpc-core')
+    implementation project(':rxrpc-client')
+    implementation project(':rxrpc-server')
+    apt "com.google.auto.service:auto-service:$autoServiceVer"
+    testCompile "junit:junit:$junitVer"
+}

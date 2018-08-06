@@ -1,0 +1,8 @@
+apply plugin: 'java'
+apply plugin: 'net.ltgt.apt-idea'
+
+sourceCompatibility = rootProject.sourceCompatibility
+
+dependencies {
+    testCompile "junit:junit:$junitVer"
+}

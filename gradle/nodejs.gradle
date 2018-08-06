@@ -1,0 +1,32 @@
+apply plugin: 'java'
+apply plugin: 'com.moowork.node'
+
+node {
+    version = "10.8.0"
+    download = true
+    nodeModulesDir = file(project.projectDir)
+}
+
+//task buildClientDev(type: NpmTask, dependsOn:npmInstall) {
+//    group = 'build'
+//    description = 'Compile client side folder for development'
+//    args = ['run','buildDev']
+//}
+
+//task buildClientWatch(type: NpmTask, dependsOn:npmInstall) {
+//    group = 'application'
+//    description = "Build and watches the client side assets for rebuilding"
+//    args = ['run','buildWatch']
+//}
+//
+//task buildClient(type:NpmTask, dependsOn:npmInstall) {
+//    group = 'build'
+//    description = "Compile client side folder for production"
+//    args = ['run','build']
+//}
+
+jar.dependsOn(npmInstall)
+
+clean.doLast {
+    file("$projectDir/node_modules").deleteDir()
+}

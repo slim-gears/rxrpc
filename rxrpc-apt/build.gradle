@@ -1,20 +1,10 @@
-apply plugin: 'java'
-apply plugin: 'net.ltgt.apt-idea'
-
-group 'com.slimgears.rxrpc'
-version '1.0-SNAPSHOT'
-
-sourceCompatibility = 1.8
-
-repositories {
-    mavenCentral()
-}
+apply from: "$rootProject.javaGradle"
 
 dependencies {
     implementation project(':rxrpc-core')
     implementation "com.google.auto.service:auto-service:$autoServiceVer"
+    apt "com.google.auto.service:auto-service:$autoServiceVer"
     implementation"com.google.auto.value:auto-value-annotations:$autoValueVer"
     apt "com.google.auto.value:auto-value:$autoValueVer"
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile 'com.google.escapevelocity:escapevelocity:0.9'
+    implementation "com.google.escapevelocity:escapevelocity:$escapeVelocityVer"
 }
