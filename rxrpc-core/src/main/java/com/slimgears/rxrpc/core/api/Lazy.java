@@ -1,6 +1,7 @@
 package com.slimgears.rxrpc.core.api;
 
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -16,6 +17,16 @@ public class Lazy<T> implements Supplier<T>, AutoCloseable {
 
     public static <T> Lazy<T> of(Supplier<T> supplier) {
         return new Lazy<>(supplier);
+    }
+
+    public static <T> Lazy<T> fromCallable(Callable<T> supplier) {
+        return of(() -> {
+            try {
+                return supplier.call();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @Override

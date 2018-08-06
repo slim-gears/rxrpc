@@ -1,6 +1,7 @@
 package com.slimgears.rxrpc.client;
 
 import com.slimgears.rxrpc.core.api.JsonEngine;
+import com.slimgears.rxrpc.core.api.Lazy;
 import com.slimgears.rxrpc.core.data.Result;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
@@ -13,7 +14,7 @@ import java.util.concurrent.Future;
 
 public abstract class AbstractClient {
     private final Single<RxClient.Session> session;
-    private final JsonEngine jsonEngine;
+    private final Lazy<JsonEngine> jsonEngine;
 
     interface InvocationArguments {
         InvocationArguments put(String name, Object arg);
@@ -37,21 +38,22 @@ public abstract class AbstractClient {
         };
     }
 
-    protected AbstractClient(Future<RxClient.Session> session, JsonEngine jsonEngine) {
+    protected AbstractClient(Future<RxClient.Session> session) {
         this.session = Single.fromFuture(session);
-        this.jsonEngine = jsonEngine;
+        this.jsonEngine = Lazy.fromCallable(() -> session.get().serverConfig().jsonEngine());
     }
 
     protected <T> Observable<T> invokeObservable(Class<T> responseType, String method, InvocationArguments args) {
         return session.toObservable()
-                .flatMap(s -> Observable.fromPublisher(s.invoke(method, jsonEngine.encode(args.toMap()).asJsonObject())))
+                .flatMap(s -> Observable.fromPublisher(
+                        s.invoke(method, jsonEngine.get().encode(args.toMap()).asJsonObject())))
                 .flatMapMaybe(result -> {
                     if (result.type() == Result.Type.Error) {
                         return Maybe.error(new RuntimeException(result.error().message()));
                     } else if (result.type() == Result.Type.Complete) {
                         return Maybe.empty();
                     } else {
-                        return Maybe.just(jsonEngine.decode(result.data(), responseType));
+                        return Maybe.just(jsonEngine.get().decode(result.data(), responseType));
                     }
                 });
     }

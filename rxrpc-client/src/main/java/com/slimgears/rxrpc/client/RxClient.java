@@ -48,6 +48,7 @@ public class RxClient {
 
         Publisher<Result> invoke(String method, JsonObject args);
         Subscription subscribe(Listener listener);
+        Config serverConfig();
     }
 
     public RxClient(Config config) {

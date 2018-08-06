@@ -1,0 +1,23 @@
+package $cls.packageName();
+
+import com.slimgears.rxrpc.client.AbstractClient;
+import java.util.concurrent.Future;
+import io.reactivex.*;
+
+public class $cls.name()Client extends AbstractClient {
+    public $cls.name()Client(Future<RxClient.Session> session) {
+        super(session);
+    }
+
+#foreach ($m in $cls.methods())
+    @Override
+    public $m.returnType().fullName() $m.name()(#foreach ($p in $m.params())$p.type().fullName() $p.name()#end) {
+        return #if ($m.returnType().is("Observable"))invokeObservable(${m.returnType().elementType().fullName()}.class,#end
+#if ($m.returnType().is("Single"))invokeSingle(${m.returnType().elementType().fullName()}.class,#end
+#if ($m.returnType().is("Maybe"))invokeMaybe(${m.returnType().elementType().fullName()}.class,#end
+#if ($m.returnType().is("Completable"))invokeCompletable(#end
+#if ($m.returnType().is("Future"))invokeFuture(${m.returnType().elementType().fullName()}.class,#end
+        "$m.name()", arguments()#foreach ($p in $m.params()).put("$p.name()", $p.name())#end);
+    }
+#end
+}
