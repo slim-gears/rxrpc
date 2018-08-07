@@ -1,5 +1,6 @@
 package com.slimgears.rxrpc.apt;
 
+import com.google.auto.value.processor.Utils;
 import com.google.escapevelocity.Template;
 
 import java.io.BufferedReader;
@@ -39,7 +40,7 @@ public class TemplateEvaluator {
     public String evaluate() {
         try {
             Template template = Template.parseFrom(reader.get());
-            return template.evaluate(templateVariables);
+            return Utils.reformat(template.evaluate(templateVariables));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

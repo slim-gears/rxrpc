@@ -1,5 +1,6 @@
 package com.slimgears.rxrpc.client;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.value.AutoValue;
 import com.slimgears.rxrpc.core.api.MessageChannel;
@@ -22,6 +23,7 @@ import java.net.URI;
 import java.util.*;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 public class RxClient {
     private final static Logger log = LoggerFactory.getLogger(RxClient.class);
@@ -109,10 +111,13 @@ public class RxClient {
             long id = invocationId.incrementAndGet();
             Subject<Result> subject = BehaviorSubject.create();
             resultSubjects.put(id, subject);
+            Map<String, JsonNode> jsonArgs = args.entrySet().stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, e -> config.objectMapper().valueToTree(e.getValue())));
+
             Invocation invocation = Invocation.builder()
                     .invocationId(id)
                     .method(method)
-                    .arguments(args)
+                    .arguments(jsonArgs)
                     .build();
 
             Publisher<Result> resultPublisher = subject

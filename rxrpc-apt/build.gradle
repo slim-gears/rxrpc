@@ -5,6 +5,7 @@ dependencies {
     implementation "com.google.auto.service:auto-service:$autoServiceVer"
     apt "com.google.auto.service:auto-service:$autoServiceVer"
     implementation"com.google.auto.value:auto-value-annotations:$autoValueVer"
+    implementation "com.google.auto.value:auto-value:$autoValueVer"
     apt "com.google.auto.value:auto-value:$autoValueVer"
     implementation "com.google.escapevelocity:escapevelocity:$escapeVelocityVer"
 }

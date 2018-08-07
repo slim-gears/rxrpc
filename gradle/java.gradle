@@ -5,7 +5,5 @@ sourceCompatibility = rootProject.sourceCompatibility
 
 dependencies {
     implementation "org.slf4j:slf4j-api:$slf4jVer"
-    implementation "ch.qos.logback:logback-classic:$logbackVer"
-    implementation "ch.qos.logback:logback-core:$logbackVer"
     testCompile "junit:junit:$junitVer"
 }

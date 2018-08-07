@@ -15,11 +15,13 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.google.auto.value.AutoOneOf;
+import com.google.auto.value.AutoValue;
 
+import javax.annotation.Nullable;
+import javax.json.JsonValue;
 import java.io.IOException;
 
-@AutoOneOf(Result.Type.class)
-@JsonSerialize(using = Result.Serializer.class)
+@AutoValue()
 public abstract class Result {
     public enum Type {
         Data,
@@ -27,20 +29,9 @@ public abstract class Result {
         Error
     }
 
-    public static class Void {
-        static final Void Value = new Void();
-        private Void() {}
-
-        @JsonCreator
-        public Void value() {
-            return Value;
-        }
-    }
-
     @JsonProperty public abstract Type type();
-    @JsonProperty public abstract JsonNode data();
-    @JsonProperty public abstract Void complete();
-    @JsonProperty public abstract ErrorInfo error();
+    @Nullable @JsonProperty public abstract JsonNode data();
+    @Nullable @JsonProperty public abstract ErrorInfo error();
 
     @JsonCreator
     static Result create(
@@ -56,11 +47,11 @@ public abstract class Result {
     }
 
     public static Result ofData(JsonNode data) {
-        return AutoOneOf_Result.data(data);
+        return new AutoValue_Result(Type.Data, data, null);
     }
 
     public static Result ofComplete() {
-        return AutoOneOf_Result.complete(Void.Value);
+        return new AutoValue_Result(Type.Complete, null, null);
     }
 
     public static Result ofError(Throwable error) {
@@ -68,27 +59,6 @@ public abstract class Result {
     }
 
     public static Result ofError(ErrorInfo error) {
-        return AutoOneOf_Result.error(error);
-    }
-
-    public static class Serializer extends JsonSerializer<Result> {
-        @Override
-        public void serialize(Result value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-            gen.writeStartObject();
-            gen.writeFieldName("type"); gen.writeObject(value.type());
-            switch (value.type()) {
-                case Data:
-                    gen.writeFieldName("data");
-                    value.data().serialize(gen, serializers);
-                    break;
-                case Error:
-                    gen.writeFieldName("error");
-                    gen.writeObject(value.error());
-                    break;
-                case Complete:
-                    break;
-            }
-            gen.writeEndObject();
-        }
+        return new AutoValue_Result(Type.Error, null, error);
     }
 }

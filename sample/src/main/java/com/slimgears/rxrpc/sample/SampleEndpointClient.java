@@ -10,7 +10,14 @@ public class SampleEndpointClient extends AbstractClient  {
         super(session);
     }
 
-    public Future<String> echoMethod(String msg) {
-        return invokeFuture(String.class,"sampleEndpoint/echoMethod", arguments().put("msg", msg));
+    public Future<String> futureStringMethod(String msg, SampleRequest request) {
+        return invokeFuture(String.class,"sampleEndpoint/futureStringMethod", arguments()
+                .put("msg", msg)
+                .put("request", request));
+    }
+
+    public int intMethod(SampleRequest request) {
+        return invokeBlocking(Integer.class,"sampleEndpoint/intMethod", arguments()
+                .put("request", request));
     }
 }

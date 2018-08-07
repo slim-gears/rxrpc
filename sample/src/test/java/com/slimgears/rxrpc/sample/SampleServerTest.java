@@ -47,7 +47,8 @@ public class SampleServerTest {
                         .compositeBuilder()
                         .add("sampleEndpoint", resolver -> EndpointDispatchers
                                 .builder(SampleEndpoint::new)
-                                .method("echoMethod", SampleEndpoint.echoMethod)
+                                .method("futureStringMethod", SampleEndpoint.futureStringMethod)
+                                .method("intMethod", SampleEndpoint.intMethod)
                                 .build())
                         .buildFactory())
                 .objectMapper(new ObjectMapper())
@@ -72,9 +73,11 @@ public class SampleServerTest {
                 .build());
 
         SampleEndpointClient sampleEndpointClient = rxClient.connect(uri).resolve(SampleEndpointClient.class);
-        String msgFromServer = sampleEndpointClient.echoMethod("Test").get();
+        String msgFromServer = sampleEndpointClient.futureStringMethod("Test", new SampleRequest(3, "sampleName")).get();
+        Assert.assertEquals("Server received from client: Test (id: 3, name: sampleName)", msgFromServer);
 
-        Assert.assertEquals("Server received from client: Test", msgFromServer);
+        int intFromServer = sampleEndpointClient.intMethod(new SampleRequest(4, "sampleName"));
+        Assert.assertEquals(5, intFromServer);
 
         rxServer.stop();
     }

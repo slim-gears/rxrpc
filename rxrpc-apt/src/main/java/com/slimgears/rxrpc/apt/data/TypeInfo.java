@@ -1,9 +1,11 @@
 package com.slimgears.rxrpc.apt.data;
 
+import afu.org.checkerframework.checker.oigj.qual.O;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 
 import java.util.Arrays;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @AutoValue
@@ -22,6 +24,17 @@ public abstract class TypeInfo implements HasName {
 
     public TypeInfo elementType() {
         return typeParams().get(0);
+    }
+
+    public String simpleName() {
+        return name().substring(name().lastIndexOf('.') + 1);
+    }
+
+    public String packageName() {
+        int lastDotIndex = name().lastIndexOf('.');
+        return lastDotIndex >= 0
+                ? name().substring(0, lastDotIndex)
+                : "";
     }
 
     public boolean is(String name) {
@@ -51,5 +64,10 @@ public abstract class TypeInfo implements HasName {
             Arrays.asList(params).forEach(this::typeParam);
             return this;
         }
+    }
+
+    @Override
+    public String toString() {
+        return fullName();
     }
 }

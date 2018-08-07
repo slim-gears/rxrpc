@@ -1,7 +1,14 @@
 package com.slimgears.rxrpc.server;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.auto.value.AutoValue;
 import com.slimgears.rxrpc.core.api.MessageChannel;
 import com.slimgears.rxrpc.core.data.Invocation;
@@ -9,6 +16,8 @@ import com.slimgears.rxrpc.core.data.Response;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import org.reactivestreams.Publisher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -17,6 +26,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class RxServer implements AutoCloseable {
+    private final static Logger log = LoggerFactory.getLogger(RxServer.class);
     private final AtomicReference<MessageChannel.Subscription> subscription = new AtomicReference<>(MessageChannel.Subscription.EMPTY);
     private final Set<Session> sessions = new HashSet<>();
     private final Config config;
@@ -67,14 +77,20 @@ public class RxServer implements AutoCloseable {
         stop();
     }
 
-    private InvocationArguments toArguments(Map<String, Object> args) {
+    private InvocationArguments toArguments(Map<String, JsonNode> args) {
         return new InvocationArguments() {
             @Override
             public <T> T get(String key, Class<T> cls) {
                 return Optional
                         .ofNullable(args.get(key))
-                        .map(cls::cast)
-                        .orElse(null);
+                        .map(json -> {
+                            try {
+                                return config.objectMapper().treeToValue(json, cls);
+                            } catch (JsonProcessingException e) {
+                                throw new RuntimeException(e);
+                            }
+                        })
+                        .orElseThrow(() -> new IllegalArgumentException("Argument " + key + " not found"));
             }
         };
     }
@@ -105,6 +121,7 @@ public class RxServer implements AutoCloseable {
                 String msg = config.objectMapper().writeValueAsString(response);
                 channelSession.get().send(msg);
             } catch (JsonProcessingException e) {
+                log.error("Error occurred: ", e);
                 onError(e);
             }
         }

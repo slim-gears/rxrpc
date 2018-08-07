@@ -13,5 +13,7 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVer"
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVer"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVer"
+    implementation "ch.qos.logback:logback-classic:$logbackVer"
+    implementation "ch.qos.logback:logback-core:$logbackVer"
     testCompile "junit:junit:$junitVer"
 }

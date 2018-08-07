@@ -9,6 +9,7 @@ import io.reactivex.Single;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 public abstract class AbstractClient {
@@ -65,5 +66,13 @@ public abstract class AbstractClient {
 
     protected <T> Future<T> invokeFuture(Class<T> responseType, String method, InvocationArguments args) {
         return invokeObservable(responseType, method, args).toFuture();
+    }
+
+    protected <T> T invokeBlocking(Class<T> responseType, String method, InvocationArguments args) {
+        try {
+            return invokeFuture(responseType, method, args).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

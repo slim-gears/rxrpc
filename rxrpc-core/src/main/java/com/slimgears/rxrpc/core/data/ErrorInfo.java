@@ -1,5 +1,6 @@
 package com.slimgears.rxrpc.core.data;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 
@@ -20,7 +21,12 @@ public abstract class ErrorInfo {
         return new AutoValue_ErrorInfo(type, message, Arrays.asList(stackTrace), null);
     }
 
-    public static ErrorInfo create(String type, String message, String[] stackTrace, ErrorInfo cause) {
+    @JsonCreator
+    public static ErrorInfo create(
+            @JsonProperty("type") String type,
+            @JsonProperty("message") String message,
+            @JsonProperty("stackTrace") String[] stackTrace,
+            @JsonProperty("cause") ErrorInfo cause) {
         return new AutoValue_ErrorInfo(type, message, Arrays.asList(stackTrace), cause);
     }
 

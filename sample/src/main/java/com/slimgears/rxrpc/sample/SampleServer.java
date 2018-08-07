@@ -6,7 +6,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import javax.servlet.http.HttpServlet;
 import java.util.function.Consumer;
 
 public class SampleServer implements MessageChannel.Server {
