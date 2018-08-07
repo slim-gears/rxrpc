@@ -37,7 +37,7 @@ public class VelocityTest {
                                 .name("echoMethod")
                                 .addParam("msg", TypeInfo.of("String"))
                                 .returnType(TypeInfo.of("Single", TypeInfo.of("String")))
-                                .builder())
+                                .build())
                         .build())
                 .evaluate();
         System.out.println(java);
@@ -55,7 +55,7 @@ public class VelocityTest {
                                 .name("echoMethod")
                                 .addParam("msg", TypeInfo.of("string"))
                                 .returnType(TypeInfo.of("Observable<string>"))
-                                .builder())
+                                .build())
                         .build())
                 .evaluate();
         System.out.println(typeScript);

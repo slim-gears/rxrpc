@@ -5,28 +5,39 @@ package com.slimgears.rxrpc.apt;
 
 import com.slimgears.rxrpc.apt.data.TypeInfo;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeSet;
 
 public class ImportTracker {
     private final Collection<String> imports = new TreeSet<>();
+    private final String selfPackageName;
+
+    public static ImportTracker create(String selfPackageName) {
+        return new ImportTracker(selfPackageName);
+    }
+
+    private ImportTracker(String selfPackageName) {
+        this.selfPackageName = selfPackageName;
+    }
 
     public String[] imports() {
         return this.imports.toArray(new String[imports.size()]);
     }
 
-    public String useClass(TypeInfo typeInfo) {
+    public String use(TypeInfo typeInfo) {
         return simplify(typeInfo).fullName();
     }
 
-    public String useClass(String cls) {
+    public String use(String cls) {
         TypeInfo typeInfo = TypeInfoParser.parse(cls);
-        return useClass(typeInfo);
+        return use(typeInfo);
     }
 
     private TypeInfo simplify(TypeInfo typeInfo) {
-        imports.add(typeInfo.packageName() + "." + typeInfo.simpleName());
+        String packageName = typeInfo.packageName();
+        if (!packageName.isEmpty() && !packageName.equals(selfPackageName)) {
+            imports.add(packageName + "." + typeInfo.simpleName());
+        }
         TypeInfo.Builder builder = TypeInfo.builder().name(typeInfo.simpleName());
         typeInfo.typeParams().stream().map(this::simplify).forEach(builder::typeParam);
         return builder.build();

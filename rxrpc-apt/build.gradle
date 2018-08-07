@@ -1,11 +1,22 @@
+import org.gradle.internal.jvm.Jvm
+
 apply from: "$rootProject.javaGradle"
 
 dependencies {
     implementation project(':rxrpc-core')
+    implementation project(':rxrpc-server')
+    implementation project(':rxrpc-client')
     implementation "com.google.auto.service:auto-service:$autoServiceVer"
     apt "com.google.auto.service:auto-service:$autoServiceVer"
     implementation"com.google.auto.value:auto-value-annotations:$autoValueVer"
     implementation "com.google.auto.value:auto-value:$autoValueVer"
     apt "com.google.auto.value:auto-value:$autoValueVer"
     implementation "com.google.escapevelocity:escapevelocity:$escapeVelocityVer"
+
+    testImplementation "com.google.testing.compile:compile-testing:$googleCompileTestingVer"
+    testImplementation "com.google.truth:truth:$googleTruthVer"
+    implementation "com.google.googlejavaformat:google-java-format:1.6"
+    implementation "com.google.guava:guava:26.0-jre"
+
+    testImplementation files(Jvm.current().getToolsJar())
 }

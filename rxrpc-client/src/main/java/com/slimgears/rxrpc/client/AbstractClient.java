@@ -60,7 +60,7 @@ public abstract class AbstractClient {
         return invokeObservable(responseType, method, args).singleElement();
     }
 
-    protected Completable invokeCompletable(String method, InvocationArguments args) {
+    protected Completable invokeCompletable(Class responseType, String method, InvocationArguments args) {
         return invokeObservable(Void.class, method, args).ignoreElements();
     }
 

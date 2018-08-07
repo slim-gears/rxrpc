@@ -16,7 +16,6 @@ public class TypeInfoParser {
     private static final char beginParamsChar = '<';
     private static final char endParamsChar = '>';
     private static final char nextParamChar = ',';
-    private static final String whiteSpaceChars = " \t\n\r";
 
     interface TypeVisitor {
         void visitIdentifier(String name);
@@ -102,6 +101,9 @@ public class TypeInfoParser {
                 visitor.visitNextParam();
             }
         }
+        if (nameBuilder.length() > 0) {
+            visitor.visitIdentifier(nameBuilder.toString());
+        }
     }
 
     private static boolean isNameChar(char c) {
@@ -118,9 +120,5 @@ public class TypeInfoParser {
 
     private static boolean isNextParam(char c) {
         return c == nextParamChar;
-    }
-
-    private static boolean isWhiteSpace(char c) {
-        return whiteSpaceChars.indexOf(c) >= 0;
     }
 }

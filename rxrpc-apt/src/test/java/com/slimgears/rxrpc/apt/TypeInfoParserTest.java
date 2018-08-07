@@ -17,8 +17,8 @@ public class TypeInfoParserTest {
 
     @Test
     public void testImportTracker() {
-        ImportTracker importTracker = new ImportTracker();
-        String simplified = importTracker.useClass("java.util.List<java.util.Map<java.lang.String, java.util.List<java.lang.String>>>");
+        ImportTracker importTracker = ImportTracker.create("");
+        String simplified = importTracker.use("java.util.List<java.util.Map<java.lang.String, java.util.List<java.lang.String>>>");
         Assert.assertEquals("List<Map<String, List<String>>>", simplified);
         Assert.assertEquals(3, importTracker.imports().length);
     }

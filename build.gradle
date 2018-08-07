@@ -23,6 +23,8 @@ project.ext {
     jacksonVer = "2.9.6"
     slf4jVer = "1.7.25"
     logbackVer = "1.2.3"
+    googleCompileTestingVer = "0.15"
+    googleTruthVer = "0.42"
 
     sourceCompatibility = 1.8
     javaGradle = "$projectDir/gradle/java.gradle"
