@@ -28,16 +28,16 @@ public class ImmediateFuture<T> implements Future<T> {
 
     @Override
     public boolean isDone() {
-        return false;
+        return true;
     }
 
     @Override
     public T get() throws InterruptedException, ExecutionException {
-        return null;
+        return result;
     }
 
     @Override
     public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-        return null;
+        return result;
     }
 }

@@ -1,11 +1,13 @@
 package com.slimgears.rxrpc.sample;
 
+import ch.qos.logback.classic.Level;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.slimgears.rxrpc.client.RxClient;
 import com.slimgears.rxrpc.server.EndpointDispatchers;
 import com.slimgears.rxrpc.server.EndpointResolver;
 import com.slimgears.rxrpc.server.RxServer;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
@@ -16,6 +18,12 @@ import java.util.concurrent.Future;
 public class SampleServerTest {
     private final static int port = 8000;
     private final static URI uri = URI.create("ws://localhost:" + port + "/socket/");
+
+    @BeforeClass
+    public static void init() {
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+        root.setLevel(Level.INFO);
+    }
 
     @Test
     public void testClientServer() throws ExecutionException, InterruptedException {
@@ -46,7 +54,6 @@ public class SampleServerTest {
                 .build());
 
         rxServer.start();
-        Thread.sleep(500);
 
         RxClient rxClient = RxClient.forConfig(RxClient.Config
                 .builder()

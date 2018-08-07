@@ -42,18 +42,13 @@ public abstract class AbstractClient {
     }
 
     protected <T> Observable<T> invokeObservable(Class<T> responseType, String method, InvocationArguments args) {
-        return session.toObservable()
-                .flatMap(s -> Observable.fromPublisher(
-                        s.invoke(method, args.toMap())))
-                .flatMapMaybe(result -> {
-                    if (result.type() == Result.Type.Error) {
-                        return Maybe.error(new RuntimeException(result.error().message()));
-                    } else if (result.type() == Result.Type.Complete) {
-                        return Maybe.empty();
-                    } else {
-                        return Maybe.just(objectMapper.treeToValue(result.data(), responseType));
-                    }
-                });
+        return session
+                .toObservable()
+                .flatMap(s -> Observable.fromPublisher(s.invoke(method, args.toMap())))
+                .takeWhile(result -> result.type() != Result.Type.Complete)
+                .flatMapSingle(result -> (result.type() == Result.Type.Data)
+                        ? Single.just(objectMapper.treeToValue(result.data(), responseType))
+                        : Single.error(new RuntimeException(result.error().message())));
     }
 
     protected <T> Single<T> invokeSingle(Class<T> responseType, String method, InvocationArguments args) {

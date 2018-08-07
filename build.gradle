@@ -21,6 +21,8 @@ project.ext {
     escapeVelocityVer = "0.9"
     jettyVer = "9.4.11.v20180605"
     jacksonVer = "2.9.6"
+    slf4jVer = "1.7.25"
+    logbackVer = "1.2.3"
 
     sourceCompatibility = 1.8
     javaGradle = "$projectDir/gradle/java.gradle"

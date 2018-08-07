@@ -1,5 +1,6 @@
 package com.slimgears.rxrpc.core.data;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.auto.value.AutoValue;
@@ -9,16 +10,23 @@ public abstract class Response {
     @JsonProperty public abstract long invocationId();
     @JsonProperty public abstract Result result();
 
+    @JsonCreator
+    public static Response create(
+            @JsonProperty("invocationId") long invocationId,
+            @JsonProperty("result") Result result) {
+        return new AutoValue_Response(invocationId, result);
+    }
+
     public static Response ofData(long invocationId, JsonNode data) {
-        return new AutoValue_Response(invocationId, Result.ofData(data));
+        return create(invocationId, Result.ofData(data));
     }
 
     public static Response ofComplete(long invocationId) {
-        return new AutoValue_Response(invocationId, Result.ofComplete());
+        return create(invocationId, Result.ofComplete());
     }
 
     public static Response ofError(long invocationId, Throwable error) {
-        return new AutoValue_Response(invocationId, Result.ofError(error));
+        return create(invocationId, Result.ofError(error));
     }
 
 }

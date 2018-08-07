@@ -7,6 +7,8 @@
     <content url="file://$MODULE_DIR$/../../../rxrpc-client">
       <sourceFolder url="file://$MODULE_DIR$/../../../rxrpc-client/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../../rxrpc-client/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../rxrpc-client/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../rxrpc-client/src/test/resources" type="java-test-resource" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-client/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-client/build" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-client/build/classes" />
@@ -25,6 +27,9 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="rxrpc-core" />
+    <orderEntry type="library" name="Gradle: ch.qos.logback:logback-classic:1.2.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.7.25" level="project" />
+    <orderEntry type="library" name="Gradle: ch.qos.logback:logback-core:1.2.3" level="project" />
     <orderEntry type="library" name="Gradle: io.reactivex.rxjava2:rxjava:2.2.0" level="project" />
     <orderEntry type="library" name="Gradle: com.google.auto.value:auto-value-annotations:1.6.2" level="project" />
     <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:3.0.2" level="project" />

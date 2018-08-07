@@ -7,6 +7,8 @@
     <content url="file://$MODULE_DIR$/../../../sample">
       <sourceFolder url="file://$MODULE_DIR$/../../../sample/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../../sample/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../sample/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../sample/src/test/resources" type="java-test-resource" />
       <excludeFolder url="file://$MODULE_DIR$/../../../sample/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/../../../sample/build/classes" />
       <excludeFolder url="file://$MODULE_DIR$/../../../sample/build/libs" />
@@ -27,6 +29,9 @@
     <orderEntry type="module" module-name="rxrpc-client" />
     <orderEntry type="module" module-name="rxrpc-server" />
     <orderEntry type="module" module-name="rxrpc-jetty-websocket" />
+    <orderEntry type="library" name="Gradle: ch.qos.logback:logback-classic:1.2.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.7.25" level="project" />
+    <orderEntry type="library" name="Gradle: ch.qos.logback:logback-core:1.2.3" level="project" />
     <orderEntry type="library" name="Gradle: io.reactivex.rxjava2:rxjava:2.2.0" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty.websocket:websocket-server:9.4.11.v20180605" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-servlet:9.4.11.v20180605" level="project" />

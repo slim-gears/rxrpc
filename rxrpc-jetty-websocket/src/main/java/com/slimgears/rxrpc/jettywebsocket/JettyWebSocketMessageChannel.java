@@ -3,12 +3,15 @@ package com.slimgears.rxrpc.jettywebsocket;
 import com.slimgears.rxrpc.core.api.MessageChannel;
 import com.slimgears.rxrpc.core.util.Notifier;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 class JettyWebSocketMessageChannel implements MessageChannel, WebSocketListener {
+    private final static Logger log = LoggerFactory.getLogger(JettyWebSocketMessageChannel.class);
     private final AtomicReference<org.eclipse.jetty.websocket.api.Session> webSocketSession = new AtomicReference<>();
     private final AtomicReference<Session> channelSession = new AtomicReference<>();
     private final Notifier<Listener> notifier = new Notifier<>();
@@ -50,6 +53,7 @@ class JettyWebSocketMessageChannel implements MessageChannel, WebSocketListener 
 
     @Override
     public void onWebSocketText(String message) {
+        log.info("Message: {}", message);
         notifier.publish(l -> l.onMessage(message));
     }
 

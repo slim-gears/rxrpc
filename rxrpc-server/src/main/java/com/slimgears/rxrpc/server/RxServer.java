@@ -80,17 +80,13 @@ public class RxServer implements AutoCloseable {
     }
 
     private void onNewChannel(MessageChannel channel) {
-        channel.subscribe(new Session(channel));
+        channel.subscribe(new Session());
     }
 
     class Session implements MessageChannel.Listener, AutoCloseable {
         private final ConcurrentMap<Long, Disposable> activeInvocations = new ConcurrentHashMap<>();
         private final EndpointResolver resolver = ScopedResolver.of(config.resolver());
         private final AtomicReference<MessageChannel.Session> channelSession = new AtomicReference<>();
-
-        Session(MessageChannel channel) {
-            channel.subscribe(this);
-        }
 
         private <T> void onDataResponse(Invocation invocation, T response) {
             sendResponse(Response.ofData(invocation.invocationId(), config.objectMapper().valueToTree(response)));
@@ -106,7 +102,8 @@ public class RxServer implements AutoCloseable {
 
         private void sendResponse(Response response) {
             try {
-                channelSession.get().send(config.objectMapper().writeValueAsString(response));
+                String msg = config.objectMapper().writeValueAsString(response);
+                channelSession.get().send(msg);
             } catch (JsonProcessingException e) {
                 onError(e);
             }
@@ -126,11 +123,15 @@ public class RxServer implements AutoCloseable {
                     Publisher<?> response = dispatcher
                             .dispatch(invocation.method(), toArguments(invocation.arguments()));
 
-                    Disposable subscription = Observable.fromPublisher(response).subscribe(
-                            val -> onDataResponse(invocation, val),
-                            error -> onErrorResponse(invocation, error),
-                            () -> onCompleteResponse(invocation));
-                    activeInvocations.put(invocation.invocationId(), subscription);
+                    //noinspection ResultOfMethodCallIgnored
+                    Observable
+                            .fromPublisher(response)
+                            .doOnSubscribe(disposable -> activeInvocations.put(invocation.invocationId(), disposable))
+                            .doFinally(() -> activeInvocations.remove(invocation.invocationId()))
+                            .subscribe(
+                                    val -> onDataResponse(invocation, val),
+                                    error -> onErrorResponse(invocation, error),
+                                    () -> onCompleteResponse(invocation));
                 } catch (Throwable e) {
                     onErrorResponse(invocation, e);
                 }

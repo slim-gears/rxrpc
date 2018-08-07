@@ -14,6 +14,8 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.SingleSubject;
 import io.reactivex.subjects.Subject;
 import org.reactivestreams.Publisher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -22,6 +24,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class RxClient {
+    private final static Logger log = LoggerFactory.getLogger(RxClient.class);
     private final Config config;
 
     @AutoValue
@@ -112,24 +115,15 @@ public class RxClient {
                     .arguments(args)
                     .build();
 
+            Publisher<Result> resultPublisher = subject
+                    .doFinally(() -> resultSubjects.remove(id))
+                    .toFlowable(BackpressureStrategy.BUFFER);
+
             //noinspection ResultOfMethodCallIgnored
             this.channelSession.subscribe(s ->
                     s.send(config.objectMapper().writeValueAsString(invocation)));
 
-            return subject
-                    .doFinally(() -> resultSubjects.remove(id))
-                    .flatMapMaybe(this::toMaybe)
-                    .toFlowable(BackpressureStrategy.BUFFER);
-        }
-
-        private Maybe<Result> toMaybe(Result result) {
-            if (result.type() == Result.Type.Complete) {
-                return Maybe.empty();
-            } else if (result.type() == Result.Type.Error) {
-                return Maybe.error(new RuntimeException(result.error().message()));
-            } else {
-                return Maybe.just(result);
-            }
+            return resultPublisher;
         }
 
         @Override
@@ -152,9 +146,13 @@ public class RxClient {
         public void onMessage(String message) {
             try {
                 Response response = config.objectMapper().readValue(message, Response.class);
-                Optional
-                        .ofNullable(resultSubjects.get(response.invocationId()))
-                        .ifPresent(subj -> subj.onNext(response.result()));
+                log.info("Response received: {}", response);
+                Subject<Result> resultSubject = resultSubjects.get(response.invocationId());
+                if (resultSubject != null) {
+                    resultSubject.onNext(response.result());
+                } else {
+                    onError(new RuntimeException("Invocation with id " + invocationId + " not found"));
+                }
             } catch (IOException e) {
                 onError(e);
             }
