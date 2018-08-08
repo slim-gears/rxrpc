@@ -12,11 +12,11 @@ dependencies {
     implementation "com.google.auto.value:auto-value:$autoValueVer"
     apt "com.google.auto.value:auto-value:$autoValueVer"
     implementation "com.google.escapevelocity:escapevelocity:$escapeVelocityVer"
-
+    implementation "org.apache.commons:commons-text:$commonsTextVer"
     testImplementation "com.google.testing.compile:compile-testing:$googleCompileTestingVer"
     testImplementation "com.google.truth:truth:$googleTruthVer"
-    implementation "com.google.googlejavaformat:google-java-format:1.6"
-    implementation "com.google.guava:guava:26.0-jre"
+    implementation "com.google.googlejavaformat:google-java-format:$javaFormatVer"
+    implementation "com.google.guava:guava:$guavaVer"
 
     testImplementation files(Jvm.current().getToolsJar())
 }

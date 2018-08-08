@@ -8,9 +8,6 @@ import com.slimgears.rxrpc.apt.data.ClassInfo;
 import com.slimgears.rxrpc.apt.data.EndpointContext;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 @AutoService(EndpointGenerator.class)
 public class JavaClientServerGenerator implements EndpointGenerator {
     @Override
@@ -20,7 +17,6 @@ public class JavaClientServerGenerator implements EndpointGenerator {
     }
 
     private void generateClass(EndpointContext context, String classNameSuffix, String templatePath) {
-
         String className = context.sourceTypeElement().getQualifiedName() + classNameSuffix;
         System.out.println("Generating class: " + className);
 
@@ -31,14 +27,8 @@ public class JavaClientServerGenerator implements EndpointGenerator {
                 .forResource(templatePath)
                 .variables(context)
                 .variable("targetClass", targetClass)
-                .variable("imports", importTracker)
+                .apply(importTracker.forJava())
                 .evaluate();
-
-        String importsStr = Stream.of(importTracker.imports())
-                .map(name -> "import " + name + ";")
-                .collect(Collectors.joining("\n"));
-
-        code = code.replace("`imports`", importsStr);
 
         context.writeSourceFile(targetClass, code);
     }

@@ -5,29 +5,29 @@ package $sourceClass.packageName();
 #set ($simpleClassName = $imports.use($targetClass.name()))
 #set ($sourceClassName = $sourceClass.name())
 
-@${imports.use("com.google.auto.service.AutoService")}(${imports.use("com.slimgears.rxrpc.server.EndpointDispatcher.Module")}.class)
-public class $simpleClassName implements $imports.use("com.slimgears.rxrpc.server.EndpointDispatcher.Module") {
+@$[com.google.auto.service.AutoService]($[com.slimgears.rxrpc.server.EndpointDispatcher.Module].class)
+public class $simpleClassName implements $[com.slimgears.rxrpc.server.EndpointDispatcher.Module] {
     #foreach ($m in $methods)
         #set ($methodName = $m.name())
         #set ($returnType = $m.returnType())
         #set ($elementType = $returnType.elementType())
-    private final static $imports.use("com.slimgears.rxrpc.server.internal.MethodDispatcher")<$imports.use($sourceClassName), $imports.use($elementType.asBoxed())> $methodName = (target, args) ->
-            ${imports.use("com.slimgears.rxrpc.server.internal.Publishers")}.toPublisher(target.$methodName(
+    private final static $[com.slimgears.rxrpc.server.internal.MethodDispatcher]<$[$sourceClassName], $[$elementType.asBoxed()]> $methodName = (target, args) ->
+            $[com.slimgears.rxrpc.server.internal.Publishers].toPublisher(target.$methodName(
             #foreach ($p in $m.params())
-            args.get("$p.name()", ${imports.use($p.type())}.class)#if ($foreach.hasNext),#end
+            args.get("$p.name()", $[$p.type()].class)#if ($foreach.hasNext),#end
             #end));
 
     #end
 
-    private final static $imports.use("com.slimgears.rxrpc.server.EndpointDispatcher.Factory") dispatcherFactory = $imports.use("com.slimgears.rxrpc.server.EndpointDispatchers")
-            .builder(${imports.use($sourceClassName)}.class)
+    private final static $[com.slimgears.rxrpc.server.EndpointDispatcher.Factory] dispatcherFactory = $[com.slimgears.rxrpc.server.EndpointDispatchers]
+            .builder($[$sourceClassName].class)
         #foreach($m in $methods)
             .method("$m.name()", $m.name())
         #end
             .buildFactory();
 
     @Override
-    public void configure($imports.use("com.slimgears.rxrpc.server.EndpointDispatcher.Configuration") configuration) {
+    public void configure($[com.slimgears.rxrpc.server.EndpointDispatcher.Configuration] configuration) {
         configuration.addFactory("$meta.value()", dispatcherFactory);
     }
 }

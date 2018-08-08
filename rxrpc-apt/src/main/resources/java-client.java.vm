@@ -1,6 +1,6 @@
 package $sourceClass.packageName();
 
-`imports`
+$imports
 
 #set ($simpleClassName = $imports.use($targetClass.name()))
 #macro (invoke $method)
@@ -15,18 +15,18 @@ package $sourceClass.packageName();
 #end
 
 #macro (params $method)
-    #foreach ($p in $m.params())$imports.use($p.type()) $p.name()#if ($foreach.hasNext),#{end}#end
+    #foreach ($p in $m.params())$[$p.type()] $p.name()#if ($foreach.hasNext),#{end}#end
 #end
 
-public class $simpleClassName extends $imports.use("com.slimgears.rxrpc.client.AbstractClient") {
-    public $simpleClassName($imports.use("java.util.concurrent.Future<com.slimgears.rxrpc.client.RxClient.Session>") session) {
+public class $simpleClassName extends $[com.slimgears.rxrpc.client.AbstractClient] {
+    public $simpleClassName($[java.util.concurrent.Future]<$[com.slimgears.rxrpc.client.RxClient.Session]> session) {
         super(session);
     }
 
 #foreach ($m in $methods)
     #set ($returnType = $m.returnType())
     #set ($elementType = $imports.use($returnType.elementType()))
-    public $imports.use($m.returnType()) $m.name()(#params($m)) {
+    public $[$m.returnType()] $m.name()(#params($m)) {
         return #invoke($m);
     }
 

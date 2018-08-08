@@ -3,11 +3,8 @@
  */
 package com.slimgears.rxrpc.apt;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
-
-import java.util.Optional;
 
 public class TemplateUtils {
     private final static ImmutableSet<String> knownAsyncTypes = ImmutableSet.<String>builder()

@@ -22,7 +22,6 @@ public class RxRpcAnnotationProcessor extends AbstractAnnotationProcessor {
 
     public RxRpcAnnotationProcessor() {
         ServiceLoader.load(EndpointGenerator.class, getClass().getClassLoader()).forEach(endpointGenerators::add);
-        System.out.println("Beginning endpoint processing (with " + endpointGenerators.size() + " generators)");
     }
 
     @Override
