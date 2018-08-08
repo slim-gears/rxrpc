@@ -1,7 +1,7 @@
 package com.slimgears.rxrpc.sample;
 
-import com.slimgears.rxrpc.core.annotations.RxRpcEndpoint;
-import com.slimgears.rxrpc.core.annotations.RxRpcMethod;
+import com.slimgears.rxrpc.core.RxRpcEndpoint;
+import com.slimgears.rxrpc.core.RxRpcMethod;
 import com.slimgears.rxrpc.core.util.ImmediateFuture;
 
 import java.util.concurrent.Future;

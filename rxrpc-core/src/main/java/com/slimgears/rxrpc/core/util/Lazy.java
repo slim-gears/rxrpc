@@ -1,4 +1,4 @@
-package com.slimgears.rxrpc.core.api;
+package com.slimgears.rxrpc.core.util;
 
 import java.util.Optional;
 import java.util.concurrent.Callable;

@@ -11,8 +11,8 @@ public class $simpleClassName implements $imports.use("com.slimgears.rxrpc.serve
         #set ($methodName = $m.name())
         #set ($returnType = $m.returnType())
         #set ($elementType = $returnType.elementType())
-    private final static $imports.use("com.slimgears.rxrpc.server.MethodDispatcher")<$imports.use($sourceClassName), $imports.use($elementType.asBoxed())> $methodName = (target, args) ->
-            ${imports.use("com.slimgears.rxrpc.server.Publishers")}.toPublisher(target.$methodName(
+    private final static $imports.use("com.slimgears.rxrpc.server.internal.MethodDispatcher")<$imports.use($sourceClassName), $imports.use($elementType.asBoxed())> $methodName = (target, args) ->
+            ${imports.use("com.slimgears.rxrpc.server.internal.Publishers")}.toPublisher(target.$methodName(
             #foreach ($p in $m.params())
             args.get("$p.name()", ${imports.use($p.type())}.class)#if ($foreach.hasNext),#end
             #end));

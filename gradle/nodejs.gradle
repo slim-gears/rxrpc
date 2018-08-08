@@ -5,6 +5,7 @@ node {
     version = "10.8.0"
     download = true
     nodeModulesDir = file(project.projectDir)
+    workDir = file("$project.buildDir/nodejs")
 }
 
 task buildClientDev(type: NpmTask, dependsOn:npmInstall) {

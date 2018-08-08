@@ -3,13 +3,12 @@ package com.slimgears.rxrpc.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.value.AutoValue;
-import com.slimgears.rxrpc.core.api.MessageChannel;
+import com.slimgears.rxrpc.core.Transport;
 import com.slimgears.rxrpc.core.data.Invocation;
 import com.slimgears.rxrpc.core.data.Response;
 import com.slimgears.rxrpc.core.data.Result;
 import com.slimgears.rxrpc.core.util.MappedFuture;
 import io.reactivex.BackpressureStrategy;
-import io.reactivex.Maybe;
 import io.reactivex.Observer;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.SingleSubject;
@@ -31,7 +30,7 @@ public class RxClient {
 
     @AutoValue
     public static abstract class Config {
-        public abstract MessageChannel.Client client();
+        public abstract Transport.Client client();
         public abstract ObjectMapper objectMapper();
         public abstract EndpointFactory endpointFactory();
         public static Builder builder() {
@@ -40,7 +39,7 @@ public class RxClient {
 
         @AutoValue.Builder
         public interface Builder {
-            Builder client(MessageChannel.Client client);
+            Builder client(Transport.Client client);
             Builder objectMapper(ObjectMapper mapper);
             Builder endpointFactory(EndpointFactory factory);
             Config build();
@@ -61,13 +60,7 @@ public class RxClient {
             void onDisconnected();
         }
 
-        interface Subscription extends MessageChannel.Subscription {
-
-        }
-
         Publisher<Result> invoke(String method, Map<String, Object> args);
-        Subscription subscribe(Listener listener);
-        Config serverConfig();
     }
 
     public static RxClient forConfig(Config config) {
@@ -96,14 +89,14 @@ public class RxClient {
         }
     }
 
-    private class InternalSession implements Session, MessageChannel.Listener {
-        private final SingleSubject<MessageChannel.Session> channelSession = SingleSubject.create();
+    private class InternalSession implements Session, Transport.Listener {
+        private final SingleSubject<Transport.Session> channelSession = SingleSubject.create();
         private final AtomicLong invocationId = new AtomicLong();
         private final Collection<Listener> listeners = new ArrayList<>();
         private final Map<Long, Subject<Result>> resultSubjects = new HashMap<>();
 
-        private InternalSession(MessageChannel messageChannel) {
-            messageChannel.subscribe(this);
+        private InternalSession(Transport transport) {
+            transport.subscribe(this);
         }
 
         @Override
@@ -132,18 +125,7 @@ public class RxClient {
         }
 
         @Override
-        public Subscription subscribe(Listener listener) {
-            listeners.add(listener);
-            return () -> listeners.remove(listener);
-        }
-
-        @Override
-        public Config serverConfig() {
-            return config;
-        }
-
-        @Override
-        public void onConnected(MessageChannel.Session session) {
+        public void onConnected(Transport.Session session) {
             channelSession.onSuccess(session);
         }
 
@@ -151,7 +133,7 @@ public class RxClient {
         public void onMessage(String message) {
             try {
                 Response response = config.objectMapper().readValue(message, Response.class);
-                log.info("Response received: {}", response);
+                log.debug("Response received: {}", response);
                 Subject<Result> resultSubject = resultSubjects.get(response.invocationId());
                 if (resultSubject != null) {
                     resultSubject.onNext(response.result());

@@ -1,16 +1,16 @@
 package com.slimgears.rxrpc.sample;
 
-import com.slimgears.rxrpc.core.api.MessageChannel;
-import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketMessageChannelServer;
+import com.slimgears.rxrpc.core.Transport;
+import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketTransport;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 import java.util.function.Consumer;
 
-public class SampleServer implements MessageChannel.Server {
+public class SampleServer implements Transport.Server {
     private final Server jetty;
-    private final JettyWebSocketMessageChannelServer msgChannelServer = new JettyWebSocketMessageChannelServer();
+    private final JettyWebSocketTransport.Server msgChannelServer = new JettyWebSocketTransport.Server();
 
     public SampleServer(int port) {
         this.jetty = new Server(port);
@@ -50,7 +50,7 @@ public class SampleServer implements MessageChannel.Server {
     }
 
     @Override
-    public MessageChannel.Subscription subscribe(Consumer<MessageChannel> listener) {
+    public Transport.Subscription subscribe(Consumer<Transport> listener) {
         return msgChannelServer.subscribe(listener);
     }
 }

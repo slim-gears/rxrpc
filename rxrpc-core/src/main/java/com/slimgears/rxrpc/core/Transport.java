@@ -1,10 +1,10 @@
-package com.slimgears.rxrpc.core.api;
+package com.slimgears.rxrpc.core;
 
 import java.net.URI;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
-public interface MessageChannel {
+public interface Transport {
     interface Session extends AutoCloseable {
         void send(String message);
         void close();
@@ -23,11 +23,11 @@ public interface MessageChannel {
     }
 
     interface Client {
-        Future<MessageChannel> connect(URI uri);
+        Future<Transport> connect(URI uri);
     }
 
     interface Server {
-        Subscription subscribe(Consumer<MessageChannel> listener);
+        Subscription subscribe(Consumer<Transport> listener);
         void start();
         void stop();
     }

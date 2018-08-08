@@ -9,7 +9,7 @@ import com.google.googlejavaformat.java.Formatter;
 import com.google.googlejavaformat.java.FormatterException;
 import com.google.googlejavaformat.java.JavaFormatterOptions;
 import com.slimgears.rxrpc.apt.TemplateUtils;
-import com.slimgears.rxrpc.core.annotations.RxRpcEndpoint;
+import com.slimgears.rxrpc.core.RxRpcEndpoint;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
