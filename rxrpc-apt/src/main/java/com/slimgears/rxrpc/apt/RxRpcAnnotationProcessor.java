@@ -3,8 +3,8 @@ package com.slimgears.rxrpc.apt;
 import com.google.auto.service.AutoService;
 import com.slimgears.rxrpc.apt.data.EndpointContext;
 import com.slimgears.rxrpc.apt.data.MethodInfo;
-import com.slimgears.rxrpc.core.annotations.RxRpcEndpoint;
-import com.slimgears.rxrpc.core.annotations.RxRpcMethod;
+import com.slimgears.rxrpc.core.RxRpcEndpoint;
+import com.slimgears.rxrpc.core.RxRpcMethod;
 
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -16,7 +16,7 @@ import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 @AutoService(Processor.class)
-@SupportedAnnotationTypes("com.slimgears.rxrpc.core.annotations.RxRpcEndpoint")
+@SupportedAnnotationTypes("com.slimgears.rxrpc.core.RxRpcEndpoint")
 public class RxRpcAnnotationProcessor extends AbstractAnnotationProcessor {
     private final Collection<EndpointGenerator> endpointGenerators = new ArrayList<>();
 

@@ -4,8 +4,8 @@ import com.slimgears.rxrpc.server.EndpointDispatcher.Configuration;
 import com.slimgears.rxrpc.server.EndpointDispatcher.Factory;
 import com.slimgears.rxrpc.server.EndpointDispatcher.Module;
 import com.slimgears.rxrpc.server.EndpointDispatchers;
-import com.slimgears.rxrpc.server.MethodDispatcher;
-import com.slimgears.rxrpc.server.Publishers;
+import com.slimgears.rxrpc.server.internal.MethodDispatcher;
+import com.slimgears.rxrpc.server.internal.Publishers;
 import java.lang.String;
 
 public class SampleEndpoint_RxModule implements Module {

@@ -4,9 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.value.AutoValue;
-import com.slimgears.rxrpc.core.api.MessageChannel;
+import com.slimgears.rxrpc.core.Transport;
 import com.slimgears.rxrpc.core.data.Invocation;
 import com.slimgears.rxrpc.core.data.Response;
+import com.slimgears.rxrpc.server.internal.InvocationArguments;
+import com.slimgears.rxrpc.server.internal.ScopedResolver;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import org.reactivestreams.Publisher;
@@ -21,13 +23,13 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class RxServer implements AutoCloseable {
     private final static Logger log = LoggerFactory.getLogger(RxServer.class);
-    private final AtomicReference<MessageChannel.Subscription> subscription = new AtomicReference<>(MessageChannel.Subscription.EMPTY);
+    private final AtomicReference<Transport.Subscription> subscription = new AtomicReference<>(Transport.Subscription.EMPTY);
     private final Set<Session> sessions = new HashSet<>();
     private final Config config;
 
     @AutoValue
     public static abstract class Config {
-        public abstract MessageChannel.Server server();
+        public abstract Transport.Server server();
         public abstract ObjectMapper objectMapper();
         public abstract EndpointResolver resolver();
         public abstract EndpointDispatcher.Factory dispatcherFactory();
@@ -38,7 +40,7 @@ public class RxServer implements AutoCloseable {
 
         @AutoValue.Builder
         public interface Builder {
-            Builder server(MessageChannel.Server server);
+            Builder server(Transport.Server server);
             Builder objectMapper(ObjectMapper mapper);
             Builder resolver(EndpointResolver resolver);
             Builder dispatcherFactory(EndpointDispatcher.Factory factory);
@@ -65,7 +67,7 @@ public class RxServer implements AutoCloseable {
 
     public void stop() {
         config.server().stop();
-        subscription.getAndSet(MessageChannel.Subscription.EMPTY).unsubscribe();
+        subscription.getAndSet(Transport.Subscription.EMPTY).unsubscribe();
         Collection<Session> currentSessions = new ArrayList<>(sessions);
         currentSessions.forEach(Session::close);
     }
@@ -93,14 +95,14 @@ public class RxServer implements AutoCloseable {
         };
     }
 
-    private void onNewChannel(MessageChannel channel) {
+    private void onNewChannel(Transport channel) {
         channel.subscribe(new Session());
     }
 
-    class Session implements MessageChannel.Listener, AutoCloseable {
+    class Session implements Transport.Listener, AutoCloseable {
         private final ConcurrentMap<Long, Disposable> activeInvocations = new ConcurrentHashMap<>();
         private final EndpointResolver resolver = ScopedResolver.of(config.resolver());
-        private final AtomicReference<MessageChannel.Session> channelSession = new AtomicReference<>();
+        private final AtomicReference<Transport.Session> channelSession = new AtomicReference<>();
 
         private <T> void onDataResponse(Invocation invocation, T response) {
             sendResponse(Response.ofData(invocation.invocationId(), config.objectMapper().valueToTree(response)));
@@ -125,7 +127,7 @@ public class RxServer implements AutoCloseable {
         }
 
         @Override
-        public void onConnected(MessageChannel.Session session) {
+        public void onConnected(Transport.Session session) {
             channelSession.set(session);
         }
 

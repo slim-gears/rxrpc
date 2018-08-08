@@ -1,4 +1,4 @@
-package com.slimgears.rxrpc.server;
+package com.slimgears.rxrpc.server.internal;
 
 import org.reactivestreams.Publisher;
 

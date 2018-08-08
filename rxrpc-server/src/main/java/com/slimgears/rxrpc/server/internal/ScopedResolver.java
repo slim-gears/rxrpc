@@ -1,4 +1,6 @@
-package com.slimgears.rxrpc.server;
+package com.slimgears.rxrpc.server.internal;
+
+import com.slimgears.rxrpc.server.EndpointResolver;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;

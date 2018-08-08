@@ -1,9 +1,12 @@
 /**
  *
  */
-package com.slimgears.rxrpc.server;
+package com.slimgears.rxrpc.server.internal;
 
 import com.slimgears.rxrpc.core.data.Path;
+import com.slimgears.rxrpc.server.EndpointDispatcher;
+import com.slimgears.rxrpc.server.EndpointResolver;
+import com.slimgears.rxrpc.server.internal.InvocationArguments;
 import org.reactivestreams.Publisher;
 
 import java.util.Map;
@@ -11,7 +14,7 @@ import java.util.Optional;
 
 import static com.slimgears.rxrpc.server.EndpointDispatchers.EMPTY;
 
-class CompositeEndpointDispatcher implements EndpointDispatcher {
+public class CompositeEndpointDispatcher implements EndpointDispatcher {
     private final EndpointResolver resolver;
     private final Map<String, Factory> dispatcherMap;
 
