@@ -28,6 +28,7 @@ public class JavaClientServerGenerator implements EndpointGenerator {
                 .variables(context)
                 .variable("targetClass", targetClass)
                 .apply(importTracker.forJava())
+                .postProcess(PostProcessors.formatter())
                 .evaluate();
 
         context.writeSourceFile(targetClass, code);

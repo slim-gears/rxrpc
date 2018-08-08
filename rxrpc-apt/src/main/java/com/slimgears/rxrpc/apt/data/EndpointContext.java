@@ -55,16 +55,11 @@ public abstract class EndpointContext {
 
     public void writeSourceFile(TypeInfo targetClass, String code) {
         try {
-            code = new Formatter(JavaFormatterOptions
-                    .builder()
-                    .style(JavaFormatterOptions.Style.AOSP)
-                    .build())
-                    .formatSource(code);
             JavaFileObject sourceFile = environment().getFiler().createSourceFile(targetClass.name(), sourceTypeElement());
             try (Writer writer = sourceFile.openWriter()) {
                 writer.write(code);
             }
-        } catch (IOException | FormatterException e) {
+        } catch (IOException e) {
             System.err.println(code);
             throw new RuntimeException(e);
         }

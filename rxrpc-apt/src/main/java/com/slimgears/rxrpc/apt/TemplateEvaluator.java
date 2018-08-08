@@ -83,12 +83,11 @@ public class TemplateEvaluator {
         try {
             Template template = Template.parseFrom(reader.get());
             String source = template.evaluate(templateVariables);
-            source = postProcessors
+            return postProcessors
                     .stream()
                     .reduce((a, b) -> str -> b.apply(a.apply(str)))
                     .orElse(str -> str)
                     .apply(source);
-            return Utils.reformat(source);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
