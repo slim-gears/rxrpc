@@ -1,6 +1,6 @@
 package $sourceClass.packageName();
 
-`imports`
+$imports
 
 #set ($simpleClassName = $imports.use($targetClass.name()))
 #set ($sourceClassName = $sourceClass.name())

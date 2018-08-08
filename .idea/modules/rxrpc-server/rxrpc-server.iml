@@ -6,9 +6,6 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../rxrpc-server">
       <sourceFolder url="file://$MODULE_DIR$/../../../rxrpc-server/src/main/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/../../../rxrpc-server/src/test/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/../../../rxrpc-server/src/main/resources" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/../../../rxrpc-server/src/test/resources" type="java-test-resource" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-server/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-server/build" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-server/build/classes" />

@@ -6,9 +6,6 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket">
       <sourceFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/src/main/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/src/test/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/src/main/resources" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/src/test/resources" type="java-test-resource" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/build/classes" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/build/libs" />
