@@ -1,6 +1,7 @@
 apply from: "$rootProject.javaGradle"
 
 dependencies {
+    apt project(':rxrpc-apt')
     implementation project(':rxrpc-core')
     implementation project(':rxrpc-client')
     implementation project(':rxrpc-server')
@@ -9,6 +10,7 @@ dependencies {
     implementation "org.eclipse.jetty:jetty-server:$jettyVer"
     implementation "org.eclipse.jetty:jetty-servlet:$jettyVer"
     implementation "org.eclipse.jetty.websocket:websocket-server:$jettyVer"
+    implementation "com.google.auto.service:auto-service:$autoServiceVer"
     apt "com.google.auto.service:auto-service:$autoServiceVer"
     implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVer"
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVer"

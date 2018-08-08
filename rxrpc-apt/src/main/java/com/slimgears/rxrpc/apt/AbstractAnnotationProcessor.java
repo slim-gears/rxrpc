@@ -1,18 +1,12 @@
 package com.slimgears.rxrpc.apt;
 
-import com.google.googlejavaformat.java.Formatter;
-import com.google.googlejavaformat.java.FormatterException;
-import com.google.googlejavaformat.java.JavaFormatterOptions;
-
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
+import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.tools.JavaFileObject;
-import java.io.IOException;
-import java.io.Writer;
 import java.util.Set;
 
 public class AbstractAnnotationProcessor extends AbstractProcessor {
@@ -22,6 +16,11 @@ public class AbstractAnnotationProcessor extends AbstractProcessor {
             if (!processAnnotation(annotationType, roundEnv)) return false;
         }
         return true;
+    }
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        return processingEnv.getSourceVersion();
     }
 
     protected boolean processAnnotation(TypeElement annotationType, RoundEnvironment roundEnv) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017 Dell Inc. or its subsidiaries.  All Rights Reserved
+ *
  */
 package com.slimgears.rxrpc.apt.data;
 
@@ -24,7 +24,6 @@ public abstract class EndpointContext {
     public abstract TypeElement sourceTypeElement();
     public abstract TemplateUtils utils();
     public abstract ProcessingEnvironment environment();
-
     public ClassInfo sourceClass() {
         return ClassInfo.of(sourceTypeElement());
     }
@@ -66,6 +65,7 @@ public abstract class EndpointContext {
                 writer.write(code);
             }
         } catch (IOException | FormatterException e) {
+            System.err.println(code);
             throw new RuntimeException(e);
         }
     }

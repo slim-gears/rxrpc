@@ -1,14 +1,8 @@
 package com.slimgears.rxrpc.server;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.auto.value.AutoValue;
 import com.slimgears.rxrpc.core.api.MessageChannel;
 import com.slimgears.rxrpc.core.data.Invocation;
@@ -35,8 +29,8 @@ public class RxServer implements AutoCloseable {
     public static abstract class Config {
         public abstract MessageChannel.Server server();
         public abstract ObjectMapper objectMapper();
-        public abstract EndpointDispatcherFactory dispatcherFactory();
         public abstract EndpointResolver resolver();
+        public abstract EndpointDispatcher.Factory dispatcherFactory();
 
         public static Builder builder() {
             return new AutoValue_RxServer_Config.Builder();
@@ -46,9 +40,13 @@ public class RxServer implements AutoCloseable {
         public interface Builder {
             Builder server(MessageChannel.Server server);
             Builder objectMapper(ObjectMapper mapper);
-            Builder dispatcherFactory(EndpointDispatcherFactory dispatcherFactory);
             Builder resolver(EndpointResolver resolver);
+            Builder dispatcherFactory(EndpointDispatcher.Factory factory);
             Config build();
+
+            default Builder modules(EndpointDispatcher.Module... modules) {
+                return dispatcherFactory(EndpointDispatchers.factoryFromModules(modules));
+            }
         }
     }
 

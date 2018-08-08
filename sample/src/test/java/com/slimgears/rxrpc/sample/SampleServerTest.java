@@ -2,18 +2,17 @@ package com.slimgears.rxrpc.sample;
 
 import ch.qos.logback.classic.Level;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.slimgears.rxrpc.client.EndpointFactories;
 import com.slimgears.rxrpc.client.RxClient;
 import com.slimgears.rxrpc.server.EndpointDispatchers;
-import com.slimgears.rxrpc.server.EndpointResolver;
+import com.slimgears.rxrpc.server.EndpointResolvers;
 import com.slimgears.rxrpc.server.RxServer;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 public class SampleServerTest {
     private final static int port = 8000;
@@ -33,24 +32,8 @@ public class SampleServerTest {
         RxServer rxServer = RxServer.forConfig(RxServer.Config
                 .builder()
                 .server(server)
-                .resolver(new EndpointResolver() {
-                    @Override
-                    public <T> T resolve(Class<T> cls) {
-                        try {
-                            return cls.newInstance();
-                        } catch (InstantiationException | IllegalAccessException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                })
-                .dispatcherFactory(EndpointDispatchers
-                        .compositeBuilder()
-                        .add("sampleEndpoint", resolver -> EndpointDispatchers
-                                .builder(SampleEndpoint::new)
-                                .method("futureStringMethod", SampleEndpoint.futureStringMethod)
-                                .method("intMethod", SampleEndpoint.intMethod)
-                                .build())
-                        .buildFactory())
+                .resolver(EndpointResolvers.defaultConstructorResolver())
+                .modules(EndpointDispatchers.discover())
                 .objectMapper(new ObjectMapper())
                 .build());
 
@@ -59,20 +42,11 @@ public class SampleServerTest {
         RxClient rxClient = RxClient.forConfig(RxClient.Config
                 .builder()
                 .objectMapper(new ObjectMapper())
-                .endpointFactory(new RxClient.EndpointFactory() {
-                    @Override
-                    public <T> T create(Class<T> clientClass, Future<RxClient.Session> session) {
-                        try {
-                            return clientClass.getConstructor(Future.class).newInstance(session);
-                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                })
+                .endpointFactory(EndpointFactories.defaultConstructorFactory())
                 .client(client)
                 .build());
 
-        SampleEndpointClient sampleEndpointClient = rxClient.connect(uri).resolve(SampleEndpointClient.class);
+        SampleEndpoint_RxClient sampleEndpointClient = rxClient.connect(uri).resolve(SampleEndpoint_RxClient.class);
         String msgFromServer = sampleEndpointClient.futureStringMethod("Test", new SampleRequest(3, "sampleName")).get();
         Assert.assertEquals("Server received from client: Test (id: 3, name: sampleName)", msgFromServer);
 

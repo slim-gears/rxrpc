@@ -26,38 +26,6 @@ public class VelocityTest {
     }
 
     @Test
-    public void testJavaTemplate() {
-        String java = TemplateEvaluator
-                .forResource("/JavaClient.java.vm")
-                .variable("cls", ClassInfo
-                        .builder()
-                        .packageName("com.slimgears.rxrpc.client")
-                        .type(TypeInfo.of("DummyEndpoint"))
-                        .method(MethodInfo.builder()
-                                .name("echoMethod")
-                                .addParam("msg", TypeInfo.of("String"))
-                                .returnType(TypeInfo.of("Single", TypeInfo.of("String")))
-                                .build())
-                        .build())
-                .evaluate();
-        System.out.println(java);
-    }
-
-    @Test
     public void testTypeScriptTemplate() {
-        String typeScript = TemplateEvaluator
-                .forResource("/TypeScriptClient.ts.vm")
-                .variable("cls", ClassInfo
-                        .builder()
-                        .packageName("com.slimgears.rxrpc.client")
-                        .type(TypeInfo.of("DummyEndpoint"))
-                        .method(MethodInfo.builder()
-                                .name("echoMethod")
-                                .addParam("msg", TypeInfo.of("string"))
-                                .returnType(TypeInfo.of("Observable<string>"))
-                                .build())
-                        .build())
-                .evaluate();
-        System.out.println(typeScript);
     }
 }

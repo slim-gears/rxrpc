@@ -58,7 +58,7 @@ public class TemplateEvaluator {
                 .forEach(m -> {
                     try {
                         m.setAccessible(true);
-                        variable(m.getName(), m.invoke(variables, null));
+                        variable(m.getName(), m.invoke(variables));
                     } catch (IllegalAccessException | InvocationTargetException e) {
                     }
                 });

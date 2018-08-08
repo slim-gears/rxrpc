@@ -15,17 +15,19 @@ import java.util.Collection;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
-@SupportedAnnotationTypes("com.slimgears.rxrpc.core.annotations.RxRpcEndpoint")
 @AutoService(Processor.class)
+@SupportedAnnotationTypes("com.slimgears.rxrpc.core.annotations.RxRpcEndpoint")
 public class RxRpcAnnotationProcessor extends AbstractAnnotationProcessor {
-    private final Collection<ClientGenerator> clientGenerators = new ArrayList<>();
+    private final Collection<EndpointGenerator> endpointGenerators = new ArrayList<>();
 
     public RxRpcAnnotationProcessor() {
-        ServiceLoader.load(ClientGenerator.class).forEach(clientGenerators::add);
+        ServiceLoader.load(EndpointGenerator.class, getClass().getClassLoader()).forEach(endpointGenerators::add);
+        System.out.println("Beginning endpoint processing (with " + endpointGenerators.size() + " generators)");
     }
 
     @Override
     protected boolean processType(TypeElement annotationType, TypeElement typeElement) {
+        System.out.println("Processing type: " + typeElement.getQualifiedName().toString());
         Collection<MethodInfo> methods = typeElement
                 .getEnclosedElements()
                 .stream()
@@ -44,7 +46,7 @@ public class RxRpcAnnotationProcessor extends AbstractAnnotationProcessor {
                 .utils(new TemplateUtils())
                 .build();
 
-        clientGenerators.forEach(cg -> cg.generateClient(context));
+        endpointGenerators.forEach(cg -> cg.generate(context));
 
         return true;
     }
