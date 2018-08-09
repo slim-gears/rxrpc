@@ -1,14 +1,15 @@
-package com.slimgears.rxrpc.apt;
+package com.slimgears.rxrpc.apt.util;
 
-import com.google.auto.value.processor.Utils;
 import com.google.escapevelocity.Template;
-import com.google.googlejavaformat.java.Formatter;
-import com.google.googlejavaformat.java.FormatterException;
+import com.slimgears.rxrpc.apt.data.TypeInfo;
 
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -17,6 +18,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -91,5 +93,9 @@ public class TemplateEvaluator {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void write(Consumer<String> writer) {
+        writer.accept(evaluate());
     }
 }

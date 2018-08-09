@@ -2,9 +2,6 @@ package com.slimgears.rxrpc.apt;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.escapevelocity.Template;
-import com.slimgears.rxrpc.apt.data.ClassInfo;
-import com.slimgears.rxrpc.apt.data.MethodInfo;
-import com.slimgears.rxrpc.apt.data.TypeInfo;
 import org.junit.Assert;
 import org.junit.Test;
 

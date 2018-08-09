@@ -1,7 +1,7 @@
 /**
  *
  */
-package com.slimgears.rxrpc.apt;
+package com.slimgears.rxrpc.apt.util;
 
 import com.slimgears.rxrpc.apt.data.TypeInfo;
 
@@ -60,7 +60,7 @@ public class TypeInfoParser {
         public void visitEndParams() {
             int paramCount = paramsCounters.pop();
             Stream.of(popTypes(paramCount))
-                    .forEach(builders.peek()::typeParam);
+                    .forEach(t -> builders.peek().typeParams(t));
         }
 
         private TypeInfo[] popTypes(int count) {

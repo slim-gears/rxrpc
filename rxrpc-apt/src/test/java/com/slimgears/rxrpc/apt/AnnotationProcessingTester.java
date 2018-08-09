@@ -21,9 +21,15 @@ public class AnnotationProcessingTester {
     private final Collection<JavaFileObject> inputFiles = new ArrayList<>();
     private final Collection<JavaFileObject> expectedFiles = new ArrayList<>();
     private final Collection<AbstractProcessor> processors = new ArrayList<>();
+    private final Collection<String> options = new ArrayList<>();
 
     public static AnnotationProcessingTester create() {
         return new AnnotationProcessingTester();
+    }
+
+    public AnnotationProcessingTester options(String... options) {
+        this.options.addAll(Arrays.asList(options));
+        return this;
     }
 
     public AnnotationProcessingTester inputFiles(String... files) {
@@ -45,6 +51,7 @@ public class AnnotationProcessingTester {
         assert_()
                 .about(javaSources())
                 .that(inputFiles)
+                .withCompilerOptions(options)
                 .processedWith(processors)
                 .compilesWithoutError()
                 .and().generatesSources(Iterables.getFirst(expectedFiles, null), Stream.of(expectedFiles).skip(1).toArray(JavaFileObject[]::new));

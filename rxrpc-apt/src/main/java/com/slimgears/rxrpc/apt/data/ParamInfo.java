@@ -5,10 +5,7 @@ import com.google.auto.value.AutoValue;
 import javax.lang.model.element.VariableElement;
 
 @AutoValue
-public abstract class ParamInfo implements HasName {
-    public abstract String name();
-    public abstract TypeInfo type();
-
+public abstract class ParamInfo implements HasName, HasType {
     public static ParamInfo of(VariableElement element) {
         return create(element.getSimpleName().toString(), TypeInfo.parse(element.asType().toString()));
     }

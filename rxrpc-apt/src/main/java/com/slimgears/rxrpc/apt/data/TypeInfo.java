@@ -3,43 +3,44 @@ package com.slimgears.rxrpc.apt.data;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.slimgears.rxrpc.apt.TypeInfoParser;
+import com.slimgears.rxrpc.apt.util.TypeInfoParser;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @AutoValue
-public abstract class TypeInfo implements HasName {
+public abstract class TypeInfo implements HasName, HasMethods, HasAnnotations, HasTypeParameters {
     private final static ImmutableMap<TypeInfo, TypeInfo> boxableTypes = ImmutableMap.<TypeInfo, TypeInfo>builder()
-            .put(TypeInfo.of("boolean"), TypeInfo.of("Boolean"))
-            .put(TypeInfo.of("short"), TypeInfo.of("Short"))
-            .put(TypeInfo.of("int"), TypeInfo.of("Integer"))
-            .put(TypeInfo.of("long"), TypeInfo.of("Long"))
-            .put(TypeInfo.of("float"), TypeInfo.of("Float"))
-            .put(TypeInfo.of("double"), TypeInfo.of("Double"))
-            .put(TypeInfo.of("char"), TypeInfo.of("Char"))
+            .put(TypeInfo.of(boolean.class), TypeInfo.of(Boolean.class))
+            .put(TypeInfo.of(short.class), TypeInfo.of(Short.class))
+            .put(TypeInfo.of(int.class), TypeInfo.of(Integer.class))
+            .put(TypeInfo.of(long.class), TypeInfo.of(Long.class))
+            .put(TypeInfo.of(float.class), TypeInfo.of(Float.class))
+            .put(TypeInfo.of(double.class), TypeInfo.of(Double.class))
+            .put(TypeInfo.of(char.class), TypeInfo.of(Character.class))
             .build();
-
-    public abstract String name();
-    public abstract ImmutableList<TypeInfo> typeParams();
 
     public String fullName() {
         return (typeParams().isEmpty())
                 ? name()
                 : name() + typeParams()
                 .stream()
-                .map(TypeInfo::fullName)
+                .map(param -> param.type().fullName())
                 .collect(Collectors.joining(", ", "<", ">"));
     }
 
     public TypeInfo elementType() {
         return typeParams().isEmpty()
                 ? this
-                : typeParams().get(0);
+                : typeParams().get(0).type();
     }
 
     public String simpleName() {
@@ -47,14 +48,19 @@ public abstract class TypeInfo implements HasName {
     }
 
     public String packageName() {
-        int lastDotIndex = name().lastIndexOf('.');
-        return lastDotIndex >= 0
-                ? name().substring(0, lastDotIndex)
-                : "";
+        return packageName(name());
     }
 
     public boolean is(String name) {
         return name().equals(name);
+    }
+
+    public boolean is(Class cls) {
+        return name().equals(cls.getName());
+    }
+
+    public boolean isOneOf(Class... cls) {
+        return Stream.of(cls).anyMatch(this::is);
     }
 
     public static Builder builder() {
@@ -73,31 +79,32 @@ public abstract class TypeInfo implements HasName {
         return parse(typeMirror.toString());
     }
 
+    public static TypeInfo of(Type type) {
+        return of(type.getTypeName());
+    }
+
     public static TypeInfo of(TypeElement typeElement) {
-        Builder builder = builder().name(typeElement.getQualifiedName().toString());
-        typeElement.getTypeParameters()
+        Builder builder = builder()
+                .name(typeElement.getQualifiedName().toString())
+                .annotationsFromElement(typeElement)
+                .typeParams(typeElement.getTypeParameters());
+
+        typeElement.getEnclosedElements()
                 .stream()
-                .map(Element::asType)
-                .map(TypeInfo::of)
-                .forEach(builder::typeParam);
+                .filter(ExecutableElement.class::isInstance)
+                .map(ExecutableElement.class::cast)
+                .forEach(builder::method);
+
         return builder.build();
     }
 
     @AutoValue.Builder
-    public interface Builder {
-        Builder name(String name);
-        ImmutableList.Builder<TypeInfo> typeParamsBuilder();
-        TypeInfo build();
-
-        default Builder typeParam(TypeInfo param) {
-            typeParamsBuilder().add(param);
-            return this;
-        }
-
-        default Builder typeParams(TypeInfo... params) {
-            Arrays.asList(params).forEach(this::typeParam);
-            return this;
-        }
+    public interface Builder extends
+            InfoBuilder<TypeInfo>,
+            HasName.Builder<Builder>,
+            HasMethods.Builder<Builder>,
+            HasTypeParameters.Builder<Builder>,
+            HasAnnotations.Builder<Builder> {
     }
 
     public TypeInfo asBoxed() {
@@ -107,5 +114,14 @@ public abstract class TypeInfo implements HasName {
     @Override
     public String toString() {
         return fullName();
+    }
+
+    public static String packageName(String qualifiedName) {
+        int pos = qualifiedName.lastIndexOf('.');
+        return (pos >= 0) ? qualifiedName.substring(0, pos) : "";
+    }
+
+    public static String packageName(Name name) {
+        return packageName(name.toString());
     }
 }

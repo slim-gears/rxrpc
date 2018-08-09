@@ -1,8 +1,9 @@
 package com.slimgears.rxrpc.apt;
 
 import com.google.auto.service.AutoService;
-import com.slimgears.rxrpc.apt.data.EndpointContext;
 import com.slimgears.rxrpc.apt.data.MethodInfo;
+import com.slimgears.rxrpc.apt.internal.AbstractAnnotationProcessor;
+import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import com.slimgears.rxrpc.core.RxRpcEndpoint;
 import com.slimgears.rxrpc.core.RxRpcMethod;
 
@@ -10,23 +11,18 @@ import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 @AutoService(Processor.class)
 @SupportedAnnotationTypes("com.slimgears.rxrpc.core.RxRpcEndpoint")
-public class RxRpcAnnotationProcessor extends AbstractAnnotationProcessor {
-    private final Collection<EndpointGenerator> endpointGenerators = new ArrayList<>();
-
-    public RxRpcAnnotationProcessor() {
-        ServiceLoader.load(EndpointGenerator.class, getClass().getClassLoader()).forEach(endpointGenerators::add);
+public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcessor<EndpointGenerator, EndpointGenerator.Context> {
+    public RxRpcEndpointAnnotationProcessor() {
+        super(EndpointGenerator.class);
     }
 
     @Override
-    protected boolean processType(TypeElement annotationType, TypeElement typeElement) {
-        System.out.println("Processing type: " + typeElement.getQualifiedName().toString());
+    protected EndpointGenerator.Context createContext(TypeElement annotationType, TypeElement typeElement) {
         Collection<MethodInfo> methods = typeElement
                 .getEnclosedElements()
                 .stream()
@@ -36,17 +32,11 @@ public class RxRpcAnnotationProcessor extends AbstractAnnotationProcessor {
                 .map(MethodInfo::of)
                 .collect(Collectors.toList());
 
-        RxRpcEndpoint endpointAnnotation = typeElement.getAnnotation(RxRpcEndpoint.class);
-        EndpointContext context = EndpointContext.builder()
+        return EndpointGenerator.Context.builder()
+                .sourceTypeElement(typeElement)
                 .environment(processingEnv)
                 .addMethods(methods)
-                .sourceTypeElement(typeElement)
-                .meta(endpointAnnotation)
-                .utils(new TemplateUtils())
+                .meta(typeElement.getAnnotation(RxRpcEndpoint.class))
                 .build();
-
-        endpointGenerators.forEach(cg -> cg.generate(context));
-
-        return true;
     }
 }

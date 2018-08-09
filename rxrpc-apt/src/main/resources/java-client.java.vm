@@ -6,7 +6,7 @@ $imports
 #macro (invoke $method)
     #set ($type = $method.returnType())
     #if ($utils.isKnownAsyncType($type))invoke${type.simpleName()}(#{else}invokeBlocking(#end
-        ${type.elementType().asBoxed()}.class,
+        $[$type.elementType().asBoxed()].class,
         "$meta.value()/$method.name()",
         arguments()
         #foreach($p in $method.params())

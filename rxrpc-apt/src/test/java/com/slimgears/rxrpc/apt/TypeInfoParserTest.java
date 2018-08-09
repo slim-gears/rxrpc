@@ -1,6 +1,8 @@
 package com.slimgears.rxrpc.apt;
 
 import com.slimgears.rxrpc.apt.data.TypeInfo;
+import com.slimgears.rxrpc.apt.util.ImportTracker;
+import com.slimgears.rxrpc.apt.util.TypeInfoParser;
 import org.junit.Assert;
 import org.junit.Test;
 
