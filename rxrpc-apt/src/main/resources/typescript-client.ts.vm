@@ -1,12 +1,23 @@
-import { Injectable } from '@angular/core';
+import { RxRpcClient } from 'rxrpc-client';
 import { Observable } from 'rxjs';
 
-export interface $cls.name() {
-#foreach ($m in $cls.methods())
-    $m.name()(#foreach ($p in $m.params())$p.name(): $p.type().name()#end): $m.returnType().name();
-#end
-}
+export class $targetClass.simpleName() {
+    constructor(private client: RxRpcClient) {
+    }
 
-@Injectable()
-export class $cls.name()Impl implements $cls.name() {
+#foreach ($m in $methods)
+    public $m.name()(##
+#foreach ($p in $m.params())##
+$p.name(): $tsUtils.toTypeScriptType($p.type())##
+#if ($foreach.hasNext), #end##
+#end): Observable<$tsUtils.toTypeScriptType($m.returnType().elementType())> {
+        return this.client.invoke('$m.name()', {
+#foreach ($p in $m.params())##
+            $p.name(): $p.name()#if ($foreach.hasNext),#end
+
+#end
+        });
+    }
+
+#end
 }

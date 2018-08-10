@@ -26,8 +26,8 @@ task buildClient(type:NpmTask, dependsOn:npmInstall) {
     args = ['run','build']
 }
 
-jar.dependsOn(npmInstall)
-//jar.dependsOn(buildClient)
+//jar.dependsOn(npmInstall)
+jar.dependsOn(buildClient)
 
 clean.doLast {
     file("$projectDir/node_modules").deleteDir()

@@ -69,6 +69,10 @@ public class TypeScriptUtils extends TemplateUtils {
         this.importTracker = importTracker;
     }
 
+    public ImportTracker imports() {
+        return importTracker;
+    }
+
     public boolean isSupportedType(Class cls) {
         return isSupportedType(TypeInfo.of(cls));
     }
