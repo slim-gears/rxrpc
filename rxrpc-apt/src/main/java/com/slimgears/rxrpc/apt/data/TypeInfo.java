@@ -25,6 +25,8 @@ public abstract class TypeInfo implements HasName, HasMethods, HasAnnotations, H
             .put(TypeInfo.of(char.class), TypeInfo.of(Character.class))
             .build();
 
+    public abstract Builder toBuilder();
+
     public String fullName() {
         return (typeParams().isEmpty())
                 ? name()
@@ -36,7 +38,7 @@ public abstract class TypeInfo implements HasName, HasMethods, HasAnnotations, H
 
     public TypeInfo elementType() {
         return typeParams().isEmpty()
-                ? this
+                ? isArray() ? TypeInfo.of(name().substring(0, name().indexOf("[]"))) : this
                 : typeParams().get(0).type();
     }
 
@@ -46,6 +48,10 @@ public abstract class TypeInfo implements HasName, HasMethods, HasAnnotations, H
 
     public String packageName() {
         return packageName(name());
+    }
+
+    public boolean isArray() {
+        return name().endsWith("[]");
     }
 
     public boolean is(String name) {
@@ -62,6 +68,10 @@ public abstract class TypeInfo implements HasName, HasMethods, HasAnnotations, H
 
     public static Builder builder() {
         return new AutoValue_TypeInfo.Builder();
+    }
+
+    public static TypeInfo arrayOf(TypeInfo typeInfo) {
+        return builder().name(typeInfo.elementType().name() + "[]").build();
     }
 
     public static TypeInfo of(String name, TypeInfo... params) {

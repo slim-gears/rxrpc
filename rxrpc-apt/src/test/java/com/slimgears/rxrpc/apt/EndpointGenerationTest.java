@@ -19,7 +19,6 @@ public class EndpointGenerationTest {
     public void testDataClassGeneration() {
         AnnotationProcessingTester.create()
                 .inputFiles("SampleRequest.java", "SampleData.java", "SampleEnum.java")
-                .options("-AtsOutDir=")
                 .expectedFiles("sample-enum.ts", "sample-request.ts", "sample-data.ts")
                 .processedWith(new RxRpcDataAnnotationProcessor())
                 .test();
@@ -29,8 +28,16 @@ public class EndpointGenerationTest {
     public void testEnumGeneration() {
         AnnotationProcessingTester.create()
                 .inputFiles("SampleEnum.java")
-                .options("-AtsOutDir=")
                 .expectedFiles("sample-enum.ts")
+                .processedWith(new RxRpcDataAnnotationProcessor())
+                .test();
+    }
+
+    @Test
+    public void testArrayGeneration() {
+        AnnotationProcessingTester.create()
+                .inputFiles("SampleArray.java")
+                .expectedFiles("sample-array.ts")
                 .processedWith(new RxRpcDataAnnotationProcessor())
                 .test();
     }

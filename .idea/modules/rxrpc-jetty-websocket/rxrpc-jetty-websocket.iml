@@ -13,6 +13,12 @@
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/build/tmp" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/out" />
     </content>
+    <content url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/build/generated/source/apt/main">
+      <sourceFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/build/generated/source/apt/main" isTestSource="false" generated="true" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/build/generated/source/apt/test">
+      <sourceFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/build/generated/source/apt/test" isTestSource="true" generated="true" />
+    </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="rxrpc-core" />

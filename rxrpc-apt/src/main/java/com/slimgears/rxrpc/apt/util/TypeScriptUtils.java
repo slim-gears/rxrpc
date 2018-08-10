@@ -4,8 +4,11 @@
 package com.slimgears.rxrpc.apt.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.slimgears.rxrpc.apt.data.TypeConverter;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
+import com.slimgears.rxrpc.apt.data.TypeParameterInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +22,7 @@ import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -52,6 +56,13 @@ public class TypeScriptUtils extends TemplateUtils {
                 .collect(Collectors.toMap(t -> t, t -> TypeInfo.of(toType)));
     }
 
+    private final static TypeConverter typeConverter = TypeConverter.ofMultiple(
+            TypeConverter.create(typeMapping::containsKey, typeMapping::get),
+            TypeConverter.create(type -> type.is(Map.class), type -> convertTypeParams(type, "Map")),
+            TypeConverter.create(type -> type.is(List.class), type -> TypeInfo.arrayOf(convertType(type.elementType()))),
+            TypeConverter.create(TypeInfo::isArray, TypeScriptUtils::convertArray),
+            TypeConverter.create(type -> true, type -> TypeInfo.of(type.simpleName())));
+
     private final ImportTracker importTracker;
 
     public TypeScriptUtils(ImportTracker importTracker) {
@@ -67,9 +78,7 @@ public class TypeScriptUtils extends TemplateUtils {
     }
 
     public TypeInfo toTypeScriptType(TypeInfo type) {
-        return (isSupportedType(type))
-                ? typeMapping.get(type)
-                : TypeInfo.of(importTracker.use(type));
+        return typeConverter.convert(type);
     }
 
     public static Consumer<String> fileWriter(ProcessingEnvironment environment, String filename) {
@@ -94,8 +103,8 @@ public class TypeScriptUtils extends TemplateUtils {
         FileObject fileObject = Optional
                 .ofNullable(environment.getOptions().get("tsOutDir"))
                 .map(dir -> Paths.get(dir, filename))
-                .map(Safe.of(path -> filer.createResource(StandardLocation.SOURCE_OUTPUT, "", path.toString())))
-                .orElseGet(Safe.of(() -> filer.createResource(StandardLocation.SOURCE_OUTPUT, "", filename)));
+                .map(Safe.of(path -> filer.createResource(StandardLocation.SOURCE_OUTPUT, path.toString(), filename)))
+                .orElseGet(Safe.of(() -> filer.createResource(StandardLocation.SOURCE_OUTPUT, "typescript", filename)));
         try (Writer writer = fileObject.openWriter();
              BufferedWriter bufWriter = new BufferedWriter(writer)) {
             for (String line: content.split("\n")) {
@@ -105,5 +114,25 @@ public class TypeScriptUtils extends TemplateUtils {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static TypeInfo convertType(TypeInfo type) {
+        return typeConverter.convert(type);
+    }
+
+    private static TypeInfo convertArray(TypeInfo arrayType) {
+        Preconditions.checkArgument(arrayType.isArray());
+        return TypeInfo.of(convertType(arrayType.elementType()).name() + "[]");
+    }
+
+    private static TypeInfo convertTypeParams(TypeInfo typeInfo, String newName) {
+        return TypeInfo.builder()
+                .name(newName)
+                .typeParams(typeInfo.typeParams()
+                        .stream()
+                        .map(TypeParameterInfo::type)
+                        .map(TypeScriptUtils::convertType)
+                        .toArray(TypeInfo[]::new))
+                .build();
     }
 }
