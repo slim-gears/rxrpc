@@ -19,7 +19,7 @@ public class JavaEndpointGenerator implements EndpointGenerator {
 
     private void generateClass(Context context, String classNameSuffix, String templatePath) {
         String className = context.sourceTypeElement().getQualifiedName() + classNameSuffix;
-        System.out.println("Generating class: " + className);
+        context.log().info("Generating class: {}", className);
 
         TypeInfo targetClass = TypeInfo.of(className);
         ImportTracker importTracker = ImportTracker.create(TypeInfo.packageName(className));
@@ -30,7 +30,7 @@ public class JavaEndpointGenerator implements EndpointGenerator {
                 .variable("javaUtils", new JavaUtils())
                 .variable("targetClass", targetClass)
                 .apply(JavaUtils.imports(importTracker))
-                .postProcess(JavaUtils.formatter())
+                //.postProcess(JavaUtils.formatter())
                 .write(JavaUtils.fileWriter(context.environment(), targetClass));
     }
 }

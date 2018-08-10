@@ -3,25 +3,34 @@
  */
 package com.slimgears.rxrpc.apt;
 
-import com.google.common.collect.Iterables;
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
+import com.google.testing.compile.CompileTester;
 import com.google.testing.compile.JavaFileObjects;
+import org.apache.commons.io.IOUtils;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.tools.JavaFileObject;
+import javax.tools.SimpleJavaFileObject;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.google.common.truth.Truth.assert_;
 import static com.google.testing.compile.JavaSourcesSubjectFactory.javaSources;
 
 public class AnnotationProcessingTester {
     private final Collection<JavaFileObject> inputFiles = new ArrayList<>();
-    private final Collection<JavaFileObject> expectedFiles = new ArrayList<>();
     private final Collection<AbstractProcessor> processors = new ArrayList<>();
     private final Collection<String> options = new ArrayList<>();
+    private final Collection<Function<CompileTester.SuccessfulCompilationClause, CompileTester.SuccessfulCompilationClause>> assertions = new ArrayList<>();
 
     public static AnnotationProcessingTester create() {
         return new AnnotationProcessingTester();
@@ -33,12 +42,19 @@ public class AnnotationProcessingTester {
     }
 
     public AnnotationProcessingTester inputFiles(String... files) {
-        fromResources("input", files).forEach(inputFiles::add);
+        inputFiles.addAll(fromResources("input", files));
+        return this;
+    }
+
+    public AnnotationProcessingTester expectedSources(String... files) {
+        List<JavaFileObject> sources = fromResources("output", files);
+        assertions.add(s -> s.and().generatesSources(sources.get(0), sources.stream().skip(1).toArray(JavaFileObject[]::new)));
         return this;
     }
 
     public AnnotationProcessingTester expectedFiles(String... files) {
-        fromResources("output", files).forEach(expectedFiles::add);
+        List<JavaFileObject> sources = fromResources("output", files);
+        assertions.add(s -> s.and().generatesFiles(sources.get(0), sources.stream().skip(1).toArray(JavaFileObject[]::new)));
         return this;
     }
 
@@ -48,18 +64,44 @@ public class AnnotationProcessingTester {
     }
 
     public void test() {
-        assert_()
+        CompileTester.SuccessfulCompilationClause compilationClause = assert_()
                 .about(javaSources())
                 .that(inputFiles)
                 .withCompilerOptions(options)
                 .processedWith(processors)
-                .compilesWithoutError()
-                .and().generatesSources(Iterables.getFirst(expectedFiles, null), Stream.of(expectedFiles).skip(1).toArray(JavaFileObject[]::new));
+                .compilesWithoutError();
+
+        assertions.stream()
+                .reduce(Function::andThen)
+                .orElse(c -> c)
+                .apply(compilationClause);
     }
 
-    private static Iterable<JavaFileObject> fromResources(final String path, String[] files) {
+    private static List<JavaFileObject> fromResources(final String path, String[] files) {
         return Arrays.stream(files)
                 .map(input -> JavaFileObjects.forResource(path + '/' + input))
                 .collect(Collectors.toList());
+    }
+
+    private static JavaFileObject forResource(String filename, JavaFileObject.Kind kind) {
+        return new ResourceJavaFileObject(filename, kind);
+    }
+
+    private static class ResourceJavaFileObject extends SimpleJavaFileObject {
+        private final String content;
+
+        ResourceJavaFileObject(String resourceName, Kind kind) {
+            super(URI.create(Resources.getResource(resourceName).toString()), kind);
+            try {
+                content = Resources.toString(toUri().toURL(), Charsets.UTF_8);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public InputStream openInputStream() {
+            return IOUtils.toInputStream(content, StandardCharsets.UTF_8);
+        }
     }
 }

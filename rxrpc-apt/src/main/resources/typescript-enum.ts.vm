@@ -1,0 +1,8 @@
+export enum $sourceClass.simpleName() {
+#foreach($e in $enum.constants())
+    $e.name()##
+#if ($foreach.hasNext),##
+#end##
+
+#end
+}

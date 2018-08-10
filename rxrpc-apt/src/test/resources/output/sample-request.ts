@@ -1,4 +1,5 @@
 export interface SampleRequest {
-    id: number,
-    name: string
+    id: number;
+    name: string;
+    data: SampleData;
 }

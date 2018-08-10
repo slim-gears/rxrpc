@@ -6,7 +6,7 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        classpath "net.ltgt.gradle:gradle-apt-plugin:0.13"
+        //classpath "net.ltgt.gradle:gradle-apt-plugin:0.18"
         classpath "com.moowork.gradle:gradle-node-plugin:1.2.0"
     }
 }
@@ -28,6 +28,7 @@ project.ext {
     guavaVer = "26.0-jre"
     javaFormatVer = "1.6"
     commonsTextVer = "1.4"
+    commonsIoVer = "2.6"
 
     sourceCompatibility = 1.8
     javaGradle = "$projectDir/gradle/java.gradle"

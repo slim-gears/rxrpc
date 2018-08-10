@@ -1,5 +1,9 @@
 package com.slimgears.rxrpc.apt.internal;
 
+import com.slimgears.rxrpc.apt.util.MessagerAppender;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
@@ -13,6 +17,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 
 public abstract class AbstractAnnotationProcessor<G extends CodeGenerator<C>, C extends CodeGenerator.Context> extends AbstractProcessor {
+    protected final Logger log = LoggerFactory.getLogger(getClass());
     private final Collection<G> codeGenerators = new ArrayList<>();
 
     protected AbstractAnnotationProcessor(Class<G> codeGeneratorClass) {
@@ -21,10 +26,12 @@ public abstract class AbstractAnnotationProcessor<G extends CodeGenerator<C>, C 
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        for (TypeElement annotationType : annotations) {
-            if (!processAnnotation(annotationType, roundEnv)) return false;
+        try (MessagerAppender.SelfClosable ignored = MessagerAppender.install(processingEnv.getMessager())) {
+            for (TypeElement annotationType : annotations) {
+                if (!processAnnotation(annotationType, roundEnv)) return false;
+            }
+            return true;
         }
-        return true;
     }
 
         @Override
@@ -56,7 +63,7 @@ public abstract class AbstractAnnotationProcessor<G extends CodeGenerator<C>, C 
     }
 
     protected boolean processType(TypeElement annotationType, TypeElement typeElement) {
-        System.out.println("Processing type: " + typeElement.getQualifiedName().toString());
+        log.info("Processing type: {}", typeElement.getQualifiedName());
         C context = createContext(annotationType, typeElement);
         codeGenerators.forEach(cg -> cg.generate(context));
         return true;

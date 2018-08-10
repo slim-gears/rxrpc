@@ -1,4 +1,4 @@
-export interface SampleRequest {
-    id: number,
-    name: string
+export interface SampleData {
+    finished: boolean;
+    enumVal: SampleEnum;
 }

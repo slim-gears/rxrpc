@@ -8,6 +8,8 @@ import com.google.googlejavaformat.java.FormatterException;
 import com.google.googlejavaformat.java.JavaFormatterOptions;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
 import org.apache.commons.text.StringSubstitutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class JavaUtils extends TemplateUtils {
+    private final static Logger log = LoggerFactory.getLogger(JavaUtils.class);
     public static Function<TemplateEvaluator, TemplateEvaluator> imports(ImportTracker importTracker) {
         return evaluator -> evaluator
                 .variable("imports", importTracker)
@@ -66,7 +69,7 @@ public class JavaUtils extends TemplateUtils {
                 writer.write(code);
             }
         } catch (IOException e) {
-            System.err.println(code);
+            log.error(code, e);
             throw new RuntimeException(e);
         }
     }
