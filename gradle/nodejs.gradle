@@ -8,26 +8,32 @@ node {
     workDir = file("$project.buildDir/nodejs")
 }
 
-task buildClientDev(type: NpmTask, dependsOn:npmInstall) {
+task npmBuildDev(type: NpmTask, dependsOn:npmInstall) {
     group = 'build'
     description = 'Compile client side folder for development'
     args = ['run','buildDev']
 }
 
-task buildClientWatch(type: NpmTask, dependsOn:npmInstall) {
+task npmBuildWatch(type: NpmTask, dependsOn:npmInstall) {
     group = 'application'
     description = "Build and watches the client side assets for rebuilding"
     args = ['run','buildWatch']
 }
 
-task buildClient(type:NpmTask, dependsOn:npmInstall) {
+task npmBuild(type:NpmTask, dependsOn:npmInstall) {
     group = 'build'
     description = "Compile client side folder for production"
     args = ['run','build']
 }
 
+task npmTest(type: NpmTask, dependsOn: npmBuild) {
+    group = 'test'
+    description = "Run NPM tests"
+    args = ['run','test']
+}
+
 //jar.dependsOn(npmInstall)
-jar.dependsOn(buildClient)
+jar.dependsOn(npmTest)
 
 clean.doLast {
     file("$projectDir/node_modules").deleteDir()
