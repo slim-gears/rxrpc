@@ -2,7 +2,6 @@ package com.slimgears.rxrpc.core;
 
 import java.net.URI;
 import java.util.concurrent.Future;
-import java.util.function.Consumer;
 
 public interface Transport {
     interface Session extends AutoCloseable {
@@ -27,9 +26,12 @@ public interface Transport {
     }
 
     interface Server {
-        Subscription subscribe(Consumer<Transport> listener);
-        void start();
-        void stop();
+        interface Listener {
+            void onAcceptTransport(Transport transport);
+            void onTerminate();
+        }
+
+        Subscription subscribe(Listener listener);
     }
 
     Subscription subscribe(Listener listener);

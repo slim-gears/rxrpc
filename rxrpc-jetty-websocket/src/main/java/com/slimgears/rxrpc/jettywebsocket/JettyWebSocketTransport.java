@@ -16,7 +16,6 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 public class JettyWebSocketTransport implements Transport, WebSocketListener {
     private final static Logger log = LoggerFactory.getLogger(JettyWebSocketTransport.class);
@@ -84,30 +83,26 @@ public class JettyWebSocketTransport implements Transport, WebSocketListener {
     }
 
     public static class Server extends WebSocketServlet implements Transport.Server {
-        private final Notifier<Consumer<Transport>> notifier = new Notifier<>();
+        private final Notifier<Listener> notifier = new Notifier<>();
 
         @Override
-        public Subscription subscribe(Consumer<Transport> listener) {
+        public Subscription subscribe(Listener listener) {
             return notifier.subscribe(listener)::unsubscribe;
-        }
-
-        @Override
-        public void start() {
-
-        }
-
-        @Override
-        public void stop() {
-
         }
 
         @Override
         public void configure(WebSocketServletFactory factory) {
             factory.setCreator((servletUpgradeRequest, servletUpgradeResponse) -> {
                 JettyWebSocketTransport channel = new JettyWebSocketTransport();
-                notifier.publish(c -> c.accept(channel));
+                notifier.publish(c -> c.onAcceptTransport(channel));
                 return channel;
             });
+        }
+
+        @Override
+        public void destroy() {
+            notifier.publish(Listener::onTerminate);
+            super.destroy();
         }
     }
 

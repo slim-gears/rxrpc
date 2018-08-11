@@ -3,8 +3,10 @@ package com.slimgears.rxrpc.sample;
 import com.slimgears.rxrpc.core.RxRpcEndpoint;
 import com.slimgears.rxrpc.core.RxRpcMethod;
 import com.slimgears.rxrpc.core.util.ImmediateFuture;
+import io.reactivex.Observable;
 
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 
 @RxRpcEndpoint("sampleEndpoint")
@@ -16,7 +18,15 @@ public class SampleEndpoint {
     }
 
     @RxRpcMethod
-    public int intMethod(SampleRequest request) {
+    public int blockingMethod(SampleRequest request) {
         return request.id + 1;
+    }
+
+    @RxRpcMethod
+    public Observable<SampleNotification> observableMethod(SampleRequest request) {
+        return Observable
+                .interval(0, 100, TimeUnit.MILLISECONDS)
+                .take(request.id)
+                .map(i -> new SampleNotification(request.name + " " + i, i));
     }
 }

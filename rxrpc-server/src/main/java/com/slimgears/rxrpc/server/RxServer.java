@@ -61,12 +61,20 @@ public class RxServer implements AutoCloseable {
     }
 
     public void start() {
-        subscription.set(config.server().subscribe(this::onNewChannel));
-        config.server().start();
+        subscription.set(config.server().subscribe(new Transport.Server.Listener() {
+            @Override
+            public void onAcceptTransport(Transport transport) {
+                RxServer.this.onAcceptTransport(transport);
+            }
+
+            @Override
+            public void onTerminate() {
+                RxServer.this.stop();
+            }
+        }));
     }
 
     public void stop() {
-        config.server().stop();
         subscription.getAndSet(Transport.Subscription.EMPTY).unsubscribe();
         Collection<Session> currentSessions = new ArrayList<>(sessions);
         currentSessions.forEach(Session::close);
@@ -74,7 +82,6 @@ public class RxServer implements AutoCloseable {
 
     @Override
     public void close() {
-        stop();
     }
 
     private InvocationArguments toArguments(Map<String, JsonNode> args) {
@@ -95,7 +102,7 @@ public class RxServer implements AutoCloseable {
         };
     }
 
-    private void onNewChannel(Transport channel) {
+    private void onAcceptTransport(Transport channel) {
         channel.subscribe(new Session());
     }
 

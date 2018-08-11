@@ -6,7 +6,7 @@ import org.reactivestreams.Publisher;
 import java.util.concurrent.Future;
 
 public class Publishers {
-    static <T> Publisher<T> toPublisher(Observable<T> observable) {
+    public static <T> Publisher<T> toPublisher(Observable<T> observable) {
         return observable.toFlowable(BackpressureStrategy.BUFFER);
     }
 
