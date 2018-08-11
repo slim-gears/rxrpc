@@ -30,7 +30,7 @@ public class SampleServerTest {
         RxClient rxClient = RxClient.forConfig(RxClient.Config
                 .builder()
                 .objectMapper(new ObjectMapper())
-                .endpointFactory(EndpointFactories.defaultConstructorFactory())
+                .endpointFactory(EndpointFactories.constructorFactory())
                 .client(client)
                 .build());
 

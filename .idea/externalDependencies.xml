@@ -3,6 +3,7 @@
   <component name="ExternalDependencies">
     <plugin id="JUnit" />
     <plugin id="PlantUML integration" />
+    <plugin id="org.intellij.plugins.markdown" />
     <plugin id="org.jetbrains.plugins.gradle" />
   </component>
 </project>

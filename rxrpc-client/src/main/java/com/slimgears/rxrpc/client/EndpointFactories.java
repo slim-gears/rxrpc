@@ -7,7 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Future;
 
 public class EndpointFactories {
-    public static RxClient.EndpointFactory defaultConstructorFactory() {
+    public static RxClient.EndpointFactory constructorFactory() {
         return new RxClient.EndpointFactory() {
             @Override
             public <T> T create(Class<T> clientClass, Future<RxClient.Session> session) {

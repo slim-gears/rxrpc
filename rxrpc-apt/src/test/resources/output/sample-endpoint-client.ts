@@ -6,14 +6,14 @@ export class SampleEndpointClient {
     }
 
     public futureStringMethod(msg: string, request: SampleRequest): Observable<string> {
-        return this.client.invoke('futureStringMethod', {
+        return this.client.invoke('sampleEndpoint/futureStringMethod', {
             msg: msg,
             request: request
         });
     }
 
     public intMethod(request: SampleRequest): Observable<number> {
-        return this.client.invoke('intMethod', {
+        return this.client.invoke('sampleEndpoint/intMethod', {
             request: request
         });
     }
