@@ -1,6 +1,4 @@
-## RxRpc: Fully asynchrounous RPC framework for Java and TypeScript
-
----
+## RxRpc: End-to-end asynchronus ReactiveX-based RPC framework for Java and TypeScript
 
 [![Build Status](https://travis-ci.org/slim-gears/rxrpc.svg?branch=master)](https://travis-ci.org/slim-gears/rxrpc)
 
