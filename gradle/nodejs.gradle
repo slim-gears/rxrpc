@@ -32,7 +32,7 @@ task npmTest(type: NpmTask, dependsOn: npmBuild) {
     args = ['run','test']
 }
 
-if (System.getenv('JITPACK')) {
+if (!System.getenv('JITPACK')) {
     jar.dependsOn(npmTest)
 }
 
