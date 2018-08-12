@@ -1,5 +1,5 @@
 group 'com.slimgears.rxrpc'
-version '1.0-SNAPSHOT'
+version '0.1-SNAPSHOT'
 
 buildscript {
     repositories {
@@ -33,6 +33,7 @@ project.ext {
     sourceCompatibility = 1.8
     javaGradle = "$projectDir/gradle/java.gradle"
     nodejsGradle = "$projectDir/gradle/nodejs.gradle"
+    mavenPublishGradle = "$projectDir/gradle/maven-publish.gradle"
 }
 
 subprojects {

@@ -1,6 +1,7 @@
-import org.gradle.internal.jvm.Jvm
-
 apply from: "$rootProject.javaGradle"
+apply from: "$rootProject.mavenPublishGradle"
+
+import org.gradle.internal.jvm.Jvm
 
 dependencies {
     implementation project(':rxrpc-core')

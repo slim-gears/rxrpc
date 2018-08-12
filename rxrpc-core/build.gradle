@@ -1,4 +1,5 @@
 apply from: "$rootProject.javaGradle"
+apply from: "$rootProject.mavenPublishGradle"
 
 dependencies {
     implementation "io.reactivex.rxjava2:rxjava:$rxJavaVer"

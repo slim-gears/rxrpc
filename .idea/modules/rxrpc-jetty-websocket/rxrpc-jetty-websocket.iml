@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id=":rxrpc-jetty-websocket" external.linked.project.path="$MODULE_DIR$/../../../rxrpc-jetty-websocket" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.slimgears.rxrpc" external.system.module.version="1.0-SNAPSHOT" type="JAVA_MODULE" version="4">
+<module external.linked.project.id=":rxrpc-jetty-websocket" external.linked.project.path="$MODULE_DIR$/../../../rxrpc-jetty-websocket" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.slimgears.rxrpc" external.system.module.version="0.1-SNAPSHOT" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager">
     <output url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/out/production/classes" />
     <output-test url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/out/test/classes" />
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket">
       <sourceFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/src/test/resources" type="java-test-resource" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/build" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/build/classes" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/build/docs" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/build/libs" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/build/publications" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/build/tmp" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/out" />
     </content>
