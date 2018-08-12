@@ -32,8 +32,7 @@ task npmTest(type: NpmTask, dependsOn: npmBuild) {
     args = ['run','test']
 }
 
-//jar.dependsOn(npmInstall)
-jar.dependsOn(npmTest)
+jar.dependsOn(System.getenv('JITPACK') ? npmBuild : npmTest)
 
 clean.doLast {
     file("$projectDir/node_modules").deleteDir()
