@@ -18,7 +18,7 @@ dependencies {
 
     testImplementation "com.google.testing.compile:compile-testing:$googleCompileTestingVer"
     testImplementation "com.google.truth:truth:$googleTruthVer"
-    implementation "com.google.googlejavaformat:google-java-format:$javaFormatVer"
+    //implementation "com.google.googlejavaformat:google-java-format:$javaFormatVer"
     implementation "com.google.guava:guava:$guavaVer"
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVer"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVer"
