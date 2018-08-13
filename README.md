@@ -59,7 +59,7 @@ public class SampleEndpoint {
 }
 ```
 
-*DTO* classes can be used either as arguments or return values  
+*POJO* classes can be used either as arguments or return values  
 
 ```java
 @RxRpcData
