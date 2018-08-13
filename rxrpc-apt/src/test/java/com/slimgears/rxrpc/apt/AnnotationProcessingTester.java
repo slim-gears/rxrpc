@@ -33,7 +33,7 @@ public class AnnotationProcessingTester {
     private final Collection<Function<CompileTester.SuccessfulCompilationClause, CompileTester.SuccessfulCompilationClause>> assertions = new ArrayList<>();
 
     public static AnnotationProcessingTester create() {
-        return new AnnotationProcessingTester();
+        return new AnnotationProcessingTester().options("-Averbosity=DEBUG");
     }
 
     public AnnotationProcessingTester options(String... options) {
@@ -53,9 +53,11 @@ public class AnnotationProcessingTester {
     }
 
     public AnnotationProcessingTester expectedFiles(String... files) {
-        List<JavaFileObject> sources = fromResources("output", files);
-        assertions.add(s -> s.and().generatesFiles(sources.get(0), sources.stream().skip(1).toArray(JavaFileObject[]::new)));
-        return this;
+        return expectedFiles(fromResources("output", files));
+    }
+
+    public AnnotationProcessingTester expectedFile(String name, String... lines) {
+        return expectedFiles(JavaFileObjects.forSourceLines(name, lines));
     }
 
     public AnnotationProcessingTester processedWith(AbstractProcessor... processors) {
@@ -75,6 +77,15 @@ public class AnnotationProcessingTester {
                 .reduce(Function::andThen)
                 .orElse(c -> c)
                 .apply(compilationClause);
+    }
+
+    private AnnotationProcessingTester expectedFiles(JavaFileObject... files) {
+        return expectedFiles(Arrays.asList(files));
+    }
+
+    private AnnotationProcessingTester expectedFiles(List<JavaFileObject> files) {
+        assertions.add(s -> s.and().generatesFiles(files.get(0), files.stream().skip(1).toArray(JavaFileObject[]::new)));
+        return this;
     }
 
     private static List<JavaFileObject> fromResources(final String path, String[] files) {

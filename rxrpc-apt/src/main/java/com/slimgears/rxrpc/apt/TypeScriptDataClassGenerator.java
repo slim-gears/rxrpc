@@ -6,7 +6,11 @@ package com.slimgears.rxrpc.apt;
 import com.google.auto.service.AutoService;
 import com.slimgears.rxrpc.apt.data.EnumInfo;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
-import com.slimgears.rxrpc.apt.util.*;
+import com.slimgears.rxrpc.apt.util.ElementUtils;
+import com.slimgears.rxrpc.apt.util.ImportTracker;
+import com.slimgears.rxrpc.apt.util.TemplateEvaluator;
+import com.slimgears.rxrpc.apt.util.TemplateUtils;
+import com.slimgears.rxrpc.apt.util.TypeScriptUtils;
 
 @AutoService(DataClassGenerator.class)
 public class TypeScriptDataClassGenerator implements DataClassGenerator {
@@ -15,7 +19,11 @@ public class TypeScriptDataClassGenerator implements DataClassGenerator {
         String className = context.sourceTypeElement().getQualifiedName().toString();
         ImportTracker importTracker = ImportTracker.create(TypeInfo.packageName(className));
 
-        String filename = TemplateUtils.instance.camelCaseToDash(context.sourceClass().simpleName()) + ".ts";
+        String filename = TemplateUtils.camelCaseToDash(context.sourceClass().simpleName()) + ".ts";
+
+        TypeScriptUtils.addGeneratedClass(
+                TypeInfo.of(context.sourceTypeElement()),
+                TypeInfo.of(context.sourceClass().simpleName()));
 
         evaluator(context)
                 .variable("tsUtils", new TypeScriptUtils(importTracker))

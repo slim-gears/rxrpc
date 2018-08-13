@@ -9,12 +9,18 @@ import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import java.lang.reflect.Type;
+import java.util.Comparator;
 import java.util.Optional;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @AutoValue
 public abstract class TypeInfo implements HasName, HasMethods, HasAnnotations, HasTypeParameters {
+    public final static Comparator<TypeInfo> comparator = Comparator
+            .<TypeInfo, String>comparing(TypeInfo::packageName)
+            .thenComparing(TypeInfo::simpleName);
+
     private final static ImmutableMap<TypeInfo, TypeInfo> boxableTypes = ImmutableMap.<TypeInfo, TypeInfo>builder()
             .put(TypeInfo.of(boolean.class), TypeInfo.of(Boolean.class))
             .put(TypeInfo.of(short.class), TypeInfo.of(Short.class))

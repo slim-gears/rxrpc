@@ -3,6 +3,7 @@ package com.slimgears.rxrpc.sample;
 import com.slimgears.rxrpc.core.RxRpcEndpoint;
 import com.slimgears.rxrpc.core.RxRpcMethod;
 import com.slimgears.rxrpc.core.util.ImmediateFuture;
+import io.reactivex.Observable;
 
 import java.util.concurrent.Future;
 
@@ -17,5 +18,10 @@ public class SampleEndpoint {
     @RxRpcMethod
     public int intMethod(SampleRequest request) {
         return request.id + 1;
+    }
+
+    @RxRpcMethod
+    public Observable<SampleData> observableDataMethod(SampleRequest request) {
+        return Observable.empty();
     }
 }

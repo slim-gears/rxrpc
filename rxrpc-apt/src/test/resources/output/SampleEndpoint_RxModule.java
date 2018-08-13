@@ -9,7 +9,9 @@ import com.slimgears.rxrpc.server.internal.MethodDispatcher;
 import com.slimgears.rxrpc.server.internal.Publishers;
 import java.lang.Integer;
 import java.lang.String;
+import javax.annotation.Generated;
 
+@Generated("com.slimgears.rxrpc.apt.RxRpcEndpointAnnotationProcessor")
 @AutoService(Module.class)
 public class SampleEndpoint_RxModule implements Module {
     private final static MethodDispatcher<SampleEndpoint, String> futureStringMethod = (target, args) ->
@@ -21,11 +23,16 @@ public class SampleEndpoint_RxModule implements Module {
             Publishers.toPublisher(target.intMethod(
                     args.get("request", SampleRequest.class)));
 
+    private final static MethodDispatcher<SampleEndpoint, SampleData> observableDataMethod = (target, args) ->
+            Publishers.toPublisher(target.observableDataMethod(
+                    args.get("request", SampleRequest.class)));
+
 
     private final static Factory dispatcherFactory = EndpointDispatchers
             .builder(SampleEndpoint.class)
             .method("futureStringMethod", futureStringMethod)
             .method("intMethod", intMethod)
+            .method("observableDataMethod", observableDataMethod)
             .buildFactory();
 
     @Override

@@ -17,6 +17,15 @@ public class EndpointGenerationTest {
     }
 
     @Test
+    public void testTypeScriptEndpointClientServerGeneration() {
+        AnnotationProcessingTester.create()
+                .inputFiles("SampleEndpoint.java", "SampleRequest.java", "SampleData.java", "SampleEnum.java")
+                .expectedFiles("sample-endpoint-client.ts")
+                .processedWith(new RxRpcEndpointAnnotationProcessor(new TypeScriptEndpointGenerator()))
+                .test();
+    }
+
+    @Test
     public void testDataClassGeneration() {
         AnnotationProcessingTester.create()
                 .inputFiles("SampleRequest.java", "SampleData.java", "SampleEnum.java")

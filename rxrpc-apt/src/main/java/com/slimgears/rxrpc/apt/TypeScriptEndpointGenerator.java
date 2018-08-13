@@ -17,7 +17,11 @@ public class TypeScriptEndpointGenerator implements EndpointGenerator {
         String className = context.sourceTypeElement().getQualifiedName().toString() + "Client";
         ImportTracker importTracker = ImportTracker.create(TypeInfo.packageName(className));
 
-        String filename = TemplateUtils.instance.camelCaseToDash(context.sourceClass().simpleName()) + ".ts";
+        String filename = TemplateUtils.camelCaseToDash(context.sourceClass().simpleName()) + ".ts";
+
+        TypeScriptUtils.addGeneratedClass(
+                TypeInfo.of(context.sourceTypeElement()),
+                TypeInfo.of(context.sourceClass().simpleName()));
 
         TemplateEvaluator.forResource("/typescript-client.ts.vm")
                 .variable("targetClass", TypeInfo.of(className))

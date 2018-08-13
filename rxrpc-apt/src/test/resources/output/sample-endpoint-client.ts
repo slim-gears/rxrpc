@@ -1,4 +1,5 @@
-import { RxRpcClient } from 'rxrpc-client';
+import { SampleData, SampleRequest } from './';
+import { RxRpcClient } from 'ng-rxrpc';
 import { Observable } from 'rxjs';
 
 export class SampleEndpointClient {
@@ -14,6 +15,12 @@ export class SampleEndpointClient {
 
     public intMethod(request: SampleRequest): Observable<number> {
         return this.client.invoke('sampleEndpoint/intMethod', {
+            request: request
+        });
+    }
+
+    public observableDataMethod(request: SampleRequest): Observable<SampleData> {
+        return this.client.invoke('sampleEndpoint/observableDataMethod', {
             request: request
         });
     }

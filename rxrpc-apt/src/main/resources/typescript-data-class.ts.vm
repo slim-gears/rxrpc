@@ -1,5 +1,7 @@
+$imports
+
 export interface $sourceClass.simpleName() {
 #foreach($p in $properties)
-    $p.name(): $tsUtils.toTypeScriptType($p.type());
+    $p.name(): $[$tsUtils.toTypeScriptType($p.type())];
 #end
 }

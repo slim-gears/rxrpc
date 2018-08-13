@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.Processor;
 import javax.lang.model.element.TypeElement;
 
 public interface CodeGenerator<C extends CodeGenerator.Context> {
@@ -19,6 +20,7 @@ public interface CodeGenerator<C extends CodeGenerator.Context> {
 
         public abstract ProcessingEnvironment environment();
         public abstract TypeElement sourceTypeElement();
+        public abstract TypeInfo processorClass();
         public TemplateUtils utils() { return TemplateUtils.instance; }
         public TypeInfo sourceClass() {
             return TypeInfo.of(sourceTypeElement());
@@ -28,6 +30,12 @@ public interface CodeGenerator<C extends CodeGenerator.Context> {
         public interface Builder<C extends Context, B extends Builder<C, B>> {
             B sourceTypeElement(TypeElement value);
             B environment(ProcessingEnvironment env);
+            B processorClass(TypeInfo processorType);
+
+            default B processorClass(Class<? extends Processor> cls) {
+                return processorClass(TypeInfo.of(cls));
+            }
+
             C build();
         }
     }

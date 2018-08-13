@@ -1,10 +1,11 @@
 package com.slimgears.rxrpc.apt.internal;
 
-import com.slimgears.rxrpc.apt.util.MessagerAppender;
+import com.slimgears.rxrpc.apt.util.LogUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
@@ -12,6 +13,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.ServiceLoader;
 import java.util.Set;
@@ -24,9 +26,14 @@ public abstract class AbstractAnnotationProcessor<G extends CodeGenerator<C>, C 
         ServiceLoader.load(codeGeneratorClass, getClass().getClassLoader()).forEach(codeGenerators::add);
     }
 
+    @SafeVarargs
+    protected AbstractAnnotationProcessor(G... generators) {
+        codeGenerators.addAll(Arrays.asList(generators));
+    }
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        try (MessagerAppender.SelfClosable ignored = MessagerAppender.install(processingEnv.getMessager())) {
+        try (LogUtils.SelfClosable ignored = LogUtils.applyLogging(processingEnv)) {
             for (TypeElement annotationType : annotations) {
                 if (!processAnnotation(annotationType, roundEnv)) return false;
             }
@@ -34,7 +41,7 @@ public abstract class AbstractAnnotationProcessor<G extends CodeGenerator<C>, C 
         }
     }
 
-        @Override
+    @Override
     public SourceVersion getSupportedSourceVersion() {
         return processingEnv.getSourceVersion();
     }

@@ -1,16 +1,15 @@
-import { RxRpcClient } from 'rxrpc-client';
-import { Observable } from 'rxjs';
+$imports
 
 export class $targetClass.simpleName() {
-    constructor(private client: RxRpcClient) {
+    constructor(private client: $[ngRxrpc.RxRpcClient]) {
     }
 
 #foreach ($m in $methods)
     public $m.name()(##
 #foreach ($p in $m.params())##
-$p.name(): $tsUtils.toTypeScriptType($p.type())##
+$p.name(): $[$tsUtils.toTypeScriptType($p.type())]##
 #if ($foreach.hasNext), #end##
-#end): Observable<$tsUtils.toTypeScriptType($m.returnType().elementType())> {
+#end): $[rxjs.Observable<$tsUtils.toTypeScriptType($m.returnType().elementType())>] {
         return this.client.invoke('$meta.value()/$m.name()', {
 #foreach ($p in $m.params())##
             $p.name(): $p.name()#if ($foreach.hasNext),#end

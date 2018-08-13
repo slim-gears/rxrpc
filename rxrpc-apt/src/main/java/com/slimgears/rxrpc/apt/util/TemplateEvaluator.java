@@ -2,6 +2,9 @@ package com.slimgears.rxrpc.apt.util;
 
 import com.google.escapevelocity.Template;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.JavaFileObject;
@@ -9,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -25,7 +29,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TemplateEvaluator {
+    private final static Logger log = LoggerFactory.getLogger(TemplateEvaluator.class);
     private final Map<String, Object> templateVariables = new HashMap<>();
+    private final Collection<Function<String, String>> preProcessors = new ArrayList<>();
     private final Collection<Function<String, String>> postProcessors = new ArrayList<>();
     private final Supplier<Reader> reader;
 
@@ -43,6 +49,11 @@ public class TemplateEvaluator {
 
     public static TemplateEvaluator forResource(String path) {
         return forStream(() -> TemplateEvaluator.class.getResourceAsStream(path));
+    }
+
+    public TemplateEvaluator preProcess(Function<String, String> postProcessor) {
+        preProcessors.add(postProcessor);
+        return this;
     }
 
     public TemplateEvaluator postProcess(Function<String, String> postProcessor) {
@@ -83,7 +94,18 @@ public class TemplateEvaluator {
 
     public String evaluate() {
         try {
-            Template template = Template.parseFrom(reader.get());
+            String templateCode = IOUtils.toString(reader.get());
+            templateCode = preProcessors
+                    .stream()
+                    .reduce((a, b) -> str -> b.apply(a.apply(str)))
+                    .orElse(str -> str)
+                    .apply(templateCode);
+
+            log.debug("Preprocessed template:");
+            LogUtils.dumpContent(templateCode);
+
+            StringReader strReader = new StringReader(templateCode);
+            Template template = Template.parseFrom(strReader);
             String source = template.evaluate(templateVariables);
             return postProcessors
                     .stream()

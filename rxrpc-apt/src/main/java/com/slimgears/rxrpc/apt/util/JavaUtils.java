@@ -3,8 +3,10 @@
  */
 package com.slimgears.rxrpc.apt.util;
 
+import com.google.googlejavaformat.java.Formatter;
+import com.google.googlejavaformat.java.FormatterException;
+import com.google.googlejavaformat.java.JavaFormatterOptions;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
-import org.apache.commons.text.StringSubstitutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,34 +24,26 @@ public class JavaUtils extends TemplateUtils {
     public static Function<TemplateEvaluator, TemplateEvaluator> imports(ImportTracker importTracker) {
         return evaluator -> evaluator
                 .variable("imports", importTracker)
-                .postProcess(applyJavaImports(importTracker));
+                .postProcess(TemplateUtils.postProcessImports(importTracker))
+                .postProcess(code -> addImports(importTracker, code, imp -> "import " + imp + ";"));
     }
 
     public static Consumer<String> fileWriter(ProcessingEnvironment environment, TypeInfo targetClass) {
         return code -> writeJavaFile(environment, targetClass, code);
     }
 
-//    public static Function<String, String> formatter() {
-//        return code -> {
-//            try {
-//                return new Formatter(JavaFormatterOptions
-//                        .builder()
-//                        .style(JavaFormatterOptions.Style.AOSP)
-//                        .build())
-//                        .formatSource(code);
-//            } catch (FormatterException e) {
-//                throw new RuntimeException(e);
-//            }
-//        };
-//    }
-
-    private static Function<String, String> applyJavaImports(ImportTracker importTracker) {
-        return applyImports(importTracker, imp -> "import " + imp + ";");
-    }
-
-    private static Function<String, String> applyImports(ImportTracker importTracker, Function<String, String> importFormatter) {
-        StringSubstitutor classSubstitutor = new StringSubstitutor(importTracker::use, "$[", "]", '\\');
-        return code -> addImports(importTracker, classSubstitutor.replace(code), importFormatter);
+    public static Function<String, String> formatter() {
+        return code -> {
+            try {
+                return new Formatter(JavaFormatterOptions
+                        .builder()
+                        .style(JavaFormatterOptions.Style.AOSP)
+                        .build())
+                        .formatSource(code);
+            } catch (FormatterException e) {
+                throw new RuntimeException(e);
+            }
+        };
     }
 
     private static String addImports(ImportTracker importTracker, String code, Function<String, String> importSubstitutor) {

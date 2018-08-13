@@ -6,6 +6,7 @@ $imports
 #set ($sourceClassName = $sourceClass.name())
 
 
+@$[javax.annotation.Generated]("$processorClass.name()")
 @$[com.google.auto.service.AutoService]($[com.slimgears.rxrpc.server.EndpointDispatcher.Module].class)
 public class $simpleClassName implements $[com.slimgears.rxrpc.server.EndpointDispatcher.Module] {
 #foreach ($m in $methods)

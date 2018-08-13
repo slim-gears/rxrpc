@@ -1,3 +1,5 @@
+import { SampleData } from './';
+
 export interface SampleRequest {
     id: number;
     name: string;

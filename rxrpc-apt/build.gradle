@@ -18,13 +18,14 @@ dependencies {
 
     testImplementation "com.google.testing.compile:compile-testing:$googleCompileTestingVer"
     testImplementation "com.google.truth:truth:$googleTruthVer"
-    //implementation "com.google.googlejavaformat:google-java-format:$javaFormatVer"
+    implementation "com.google.googlejavaformat:google-java-format:$javaFormatVer"
     implementation "com.google.guava:guava:$guavaVer"
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVer"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVer"
     implementation "org.slf4j:slf4j-api:$slf4jVer"
     implementation "ch.qos.logback:logback-classic:$logbackVer"
     implementation "ch.qos.logback:logback-core:$logbackVer"
+    implementation "javax.annotation:javax.annotation-api:$annotationApiVer"
 
     testImplementation files(Jvm.current().getToolsJar())
 }

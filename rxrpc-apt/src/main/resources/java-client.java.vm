@@ -22,8 +22,9 @@ $imports
 #foreach ($p in $m.params())$[$p.type()] $p.name()#if ($foreach.hasNext), #{end}#end
 #end
 
+@$[javax.annotation.Generated]("$processorClass.name()")
 public class $simpleClassName extends $[com.slimgears.rxrpc.client.AbstractClient] {
-    public $simpleClassName($[java.util.concurrent.Future]<$[com.slimgears.rxrpc.client.RxClient.Session]> session) {
+    public $simpleClassName($[java.util.concurrent.Future<com.slimgears.rxrpc.client.RxClient.Session>] session) {
         super(session);
     }
 

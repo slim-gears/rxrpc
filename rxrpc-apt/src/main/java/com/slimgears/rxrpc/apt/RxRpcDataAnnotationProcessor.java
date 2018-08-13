@@ -30,6 +30,7 @@ public class RxRpcDataAnnotationProcessor extends AbstractAnnotationProcessor<Da
     @Override
     protected DataClassGenerator.Context createContext(TypeElement annotationType, TypeElement typeElement) {
         DataClassGenerator.Context.Builder builder = DataClassGenerator.Context.builder()
+                .processorClass(getClass())
                 .sourceTypeElement(typeElement)
                 .environment(processingEnv);
 
