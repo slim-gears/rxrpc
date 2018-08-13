@@ -32,8 +32,10 @@ task npmTest(type: NpmTask, dependsOn: npmBuild) {
     args = ['run','test']
 }
 
+jar.dependsOn(npmBuild)
+
 if (!System.getenv('JITPACK')) {
-    jar.dependsOn(npmTest)
+    test.dependsOn(npmTest)
 }
 
 clean.doLast {
