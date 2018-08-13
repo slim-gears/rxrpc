@@ -19,6 +19,8 @@
       <excludeFolder url="file://$MODULE_DIR$/../../../sample/build/test-results" />
       <excludeFolder url="file://$MODULE_DIR$/../../../sample/build/tmp" />
       <excludeFolder url="file://$MODULE_DIR$/../../../sample/out" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../sample/web/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../sample/web/tmp" />
     </content>
     <content url="file://$MODULE_DIR$/../../../sample/build/generated/source/apt/main">
       <sourceFolder url="file://$MODULE_DIR$/../../../sample/build/generated/source/apt/main" isTestSource="false" generated="true" />
