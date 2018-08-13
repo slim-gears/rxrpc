@@ -1,0 +1,3 @@
+[submodule "rxrpc-ng"]
+	path = rxrpc-ng
+	url = https://github.com/slim-gears/ng-rxrpc
