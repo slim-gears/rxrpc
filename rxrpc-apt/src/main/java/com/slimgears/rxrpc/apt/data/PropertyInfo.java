@@ -34,6 +34,10 @@ public abstract class PropertyInfo implements HasName, HasType {
         return builder().name(name).type(type).build();
     }
 
+    public static boolean isProperty(Element element) {
+        return of(element).isPresent();
+    }
+
     public static Optional<PropertyInfo> of(Element element) {
         return Optionals.or(
                 () -> fromPropertyGetter(element),

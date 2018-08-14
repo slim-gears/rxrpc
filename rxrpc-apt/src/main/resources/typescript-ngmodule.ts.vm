@@ -1,0 +1,18 @@
+import { NgModule } from '@angular/core'
+import {
+#foreach($c in $classes)
+    $c.name()#if($foreach.hasNext),#end
+
+#end
+} from './';
+
+@NgModule({
+    providers: [
+#foreach($c in $classes)
+        $c.name()#if($foreach.hasNext),#end
+
+#end
+    ]
+})
+export class GeneratedRxClientModule {
+}

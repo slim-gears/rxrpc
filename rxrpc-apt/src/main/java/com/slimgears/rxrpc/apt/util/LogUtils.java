@@ -36,10 +36,7 @@ public class LogUtils {
             return;
         }
 
-       String[] lines = content.split("\n");
-        for (int i = 0; i < lines.length; ++i) {
-            log.trace("{}: {}", StringUtils.leftPad(String.valueOf(i + 1), 4), lines[i]);
-        }
+        log.trace("\n" + content);
     }
 
     private static void setVerbosity(String verbosity) {

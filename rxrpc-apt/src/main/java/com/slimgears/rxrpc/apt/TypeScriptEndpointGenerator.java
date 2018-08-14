@@ -21,7 +21,9 @@ public class TypeScriptEndpointGenerator implements EndpointGenerator {
 
         TypeScriptUtils.addGeneratedClass(
                 TypeInfo.of(context.sourceTypeElement()),
-                TypeInfo.of(context.sourceClass().simpleName()));
+                TypeInfo.of(className));
+
+        TypeScriptUtils.addGeneratedEndpoint(TypeInfo.of(TypeInfo.of(className).simpleName()));
 
         TemplateEvaluator.forResource("/typescript-client.ts.vm")
                 .variable("targetClass", TypeInfo.of(className))

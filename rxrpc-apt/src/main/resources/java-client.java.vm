@@ -23,7 +23,7 @@ $imports
 #end
 
 @$[javax.annotation.Generated]("$processorClass.name()")
-public class $simpleClassName extends $[com.slimgears.rxrpc.client.AbstractClient] {
+public class $simpleClassName extends $[com.slimgears.rxrpc.client.AbstractClient] #if($isInterface)implements $[$sourceClass]#end {
     public $simpleClassName($[java.util.concurrent.Future<com.slimgears.rxrpc.client.RxClient.Session>] session) {
         super(session);
     }
@@ -31,6 +31,9 @@ public class $simpleClassName extends $[com.slimgears.rxrpc.client.AbstractClien
 #foreach ($m in $methods)
 #set ($returnType = $m.returnType())
 #set ($elementType = $imports.use($returnType.elementType()))
+#if($isInterface)##
+    @Override
+#end
     public $[$m.returnType()] $m.name()(#params($m)) {
         return #invoke($m);
     }

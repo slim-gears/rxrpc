@@ -1,4 +1,4 @@
-import { SampleData, SampleRequest } from './';
+import { SampleArray, SampleData, SampleRequest } from './';
 import { RxRpcClient } from 'ng-rxrpc';
 import { Observable } from 'rxjs';
 
@@ -13,15 +13,21 @@ export class SampleEndpointClient {
         });
     }
 
+    public observableDataMethod(request: SampleRequest): Observable<SampleData> {
+        return this.client.invoke('sampleEndpoint/observableDataMethod', {
+            request: request
+        });
+    }
+
     public intMethod(request: SampleRequest): Observable<number> {
         return this.client.invoke('sampleEndpoint/intMethod', {
             request: request
         });
     }
 
-    public observableDataMethod(request: SampleRequest): Observable<SampleData> {
-        return this.client.invoke('sampleEndpoint/observableDataMethod', {
-            request: request
+    public arrayObservableMethod(sampleData: SampleData): Observable<SampleArray[]> {
+        return this.client.invoke('sampleEndpoint/arrayObservableMethod', {
+            sampleData: sampleData
         });
     }
 }

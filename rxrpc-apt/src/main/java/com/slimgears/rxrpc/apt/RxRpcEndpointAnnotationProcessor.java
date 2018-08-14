@@ -5,7 +5,7 @@ import com.slimgears.rxrpc.apt.data.MethodInfo;
 import com.slimgears.rxrpc.apt.data.PropertyInfo;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
 import com.slimgears.rxrpc.apt.internal.AbstractAnnotationProcessor;
-import com.slimgears.rxrpc.apt.util.ElementVisitors;
+import com.slimgears.rxrpc.apt.util.ElementUtils;
 import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import com.slimgears.rxrpc.core.RxRpcEndpoint;
 import com.slimgears.rxrpc.core.RxRpcMethod;
@@ -14,12 +14,14 @@ import javax.annotation.Generated;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.util.AbstractElementVisitor8;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,21 +42,17 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
         super(generators);
     }
 
-    @Override
-    protected boolean processType(TypeElement annotationType, TypeElement typeElement) {
-        ElementVisitors.visitorBuilder()
-                .onType(this::generateDataType)
-                .traverse(typeElement);
-        return super.processType(annotationType, typeElement);
-    }
-
     private void generateDataType(TypeElement typeElement) {
-        log.info("Generating from: {}", typeElement.getQualifiedName());
-
         if (processedClasses.contains(typeElement.getQualifiedName()) || TemplateUtils.isKnownAsyncType(TypeInfo.of(typeElement))) {
             return;
         }
         processedClasses.add(typeElement.getQualifiedName());
+
+        log.info("Generating from: {}", typeElement.getQualifiedName());
+
+        ElementUtils
+                .getReferencedTypes(typeElement)
+                .forEach(this::generateDataType);
 
         DataClassGenerator.Context.Builder builder = DataClassGenerator.Context.builder()
                 .processorClass(getClass())
@@ -101,12 +99,12 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
 
     @Override
     protected EndpointGenerator.Context createContext(TypeElement annotationType, TypeElement typeElement) {
-        Collection<MethodInfo> methods = typeElement
-                .getEnclosedElements()
-                .stream()
+        Collection<MethodInfo> methods = ElementUtils.getHierarchy(typeElement)
+                .flatMap(t -> t.getEnclosedElements().stream())
                 .filter(el -> el.getAnnotation(RxRpcMethod.class) != null)
                 .filter(ExecutableElement.class::isInstance)
                 .map(ExecutableElement.class::cast)
+                .map(this::ensureReferencedTypesGenerated)
                 .map(MethodInfo::of)
                 .collect(Collectors.toList());
 
@@ -117,5 +115,13 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
                 .meta(typeElement.getAnnotation(RxRpcEndpoint.class))
                 .addMethods(methods)
                 .build();
+    }
+
+    private ExecutableElement ensureReferencedTypesGenerated(ExecutableElement element) {
+        ElementUtils
+                .getReferencedTypes(element)
+                .filter(ElementUtils::isUnknownType)
+                .forEach(this::generateDataType);
+        return element;
     }
 }

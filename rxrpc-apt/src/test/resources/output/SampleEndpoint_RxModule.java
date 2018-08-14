@@ -19,20 +19,24 @@ public class SampleEndpoint_RxModule implements Module {
                     args.get("msg", String.class),
                     args.get("request", SampleRequest.class)));
 
-    private final static MethodDispatcher<SampleEndpoint, Integer> intMethod = (target, args) ->
-            Publishers.toPublisher(target.intMethod(
-                    args.get("request", SampleRequest.class)));
-
     private final static MethodDispatcher<SampleEndpoint, SampleData> observableDataMethod = (target, args) ->
             Publishers.toPublisher(target.observableDataMethod(
                     args.get("request", SampleRequest.class)));
 
+    private final static MethodDispatcher<SampleEndpoint, Integer> intMethod = (target, args) ->
+            Publishers.toPublisher(target.intMethod(
+                    args.get("request", SampleRequest.class)));
+
+    private final static MethodDispatcher<SampleEndpoint, SampleArray[]> arrayObservableMethod = (target, args) ->
+            Publishers.toPublisher(target.arrayObservableMethod(
+                    args.get("sampleData", SampleData.class)));
 
     private final static Factory dispatcherFactory = EndpointDispatchers
             .builder(SampleEndpoint.class)
             .method("futureStringMethod", futureStringMethod)
-            .method("intMethod", intMethod)
             .method("observableDataMethod", observableDataMethod)
+            .method("intMethod", intMethod)
+            .method("arrayObservableMethod", arrayObservableMethod)
             .buildFactory();
 
     @Override

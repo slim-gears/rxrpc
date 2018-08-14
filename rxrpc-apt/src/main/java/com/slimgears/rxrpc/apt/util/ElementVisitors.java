@@ -1,86 +1,120 @@
 package com.slimgears.rxrpc.apt.util;
 
 import javax.lang.model.element.*;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.AbstractElementVisitor8;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.slimgears.rxrpc.apt.util.VisitorUtils.doNothing;
+import static com.slimgears.rxrpc.apt.util.VisitorUtils.takeFirstNonNull;
 
 public class ElementVisitors {
-    public static Builder visitorBuilder() {
-        return new Builder();
+    public static <P, R> Builder<R, P> builder() {
+        return builder(takeFirstNonNull());
     }
 
-    public static class Builder {
-        private Consumer<PackageElement> onPackage = doNothing();
-        private Consumer<TypeElement> onType = doNothing();
-        private Consumer<VariableElement> onVariable = doNothing();
-        private Consumer<ExecutableElement> onExecutable = doNothing();
-        private Consumer<TypeParameterElement> onTypeParameter = doNothing();
+    public static <P, R> Builder<R, P> builder(BinaryOperator<R> resultCombiner) {
+        return new Builder<>(resultCombiner);
+    }
 
-        public Builder onPackage(Consumer<PackageElement> consumer) {
-            this.onPackage = this.onPackage.andThen(consumer);
+    public static Collection<DeclaredType> allReferencedTypes(Element e) {
+        List<DeclaredType> types = new ArrayList<>();
+        e.accept(ElementVisitors.<Void, Void>builder()
+                .on(TypeElement.class, type -> { types.addAll(TypeVisitors.findAllOf(DeclaredType.class, type.asType())); })
+                .on(VariableElement.class, var -> { types.addAll(TypeVisitors.findAllOf(DeclaredType.class, var.asType())); })
+                .on(ExecutableElement.class, ex -> { types.addAll(TypeVisitors.findAllOf(DeclaredType.class, ex.getReturnType())); })
+                .build(), null);
+        return new HashSet<>(types);
+    }
+
+    public static <E extends Element> List<E> findAllOf(Class<E> cls, Element e) {
+        return VisitorUtils.findAllOf(cls, e, ElementVisitors::builder);
+    }
+
+    public static class Builder<R, P> extends VisitorUtils.AbstractBuilder<Element, ElementVisitor<R, P>, R, P, Builder<R, P>> {
+        public Builder(BinaryOperator<R> combiner) {
+            super(combiner);
+        }
+
+        @Override
+        protected Builder<R, P> self() {
             return this;
         }
 
-        public Builder onType(Consumer<TypeElement> consumer) {
-            this.onType = this.onType.andThen(consumer);
-            return this;
-        }
+        @Override
+        public ElementVisitor<R, P> build() {
+            return new AbstractElementVisitor8<R, P>() {
+                private Map<Element, R> visitedElements = new HashMap<>();
 
-        public Builder onVariable(Consumer<VariableElement> consumer) {
-            this.onVariable = this.onVariable.andThen(consumer);
-            return this;
-        }
-
-        public Builder onExecutable(Consumer<ExecutableElement> consumer) {
-            this.onExecutable = this.onExecutable.andThen(consumer);
-            return this;
-        }
-
-        public Builder onTypeParameter(Consumer<TypeParameterElement> consumer) {
-            this.onTypeParameter = this.onTypeParameter.andThen(consumer);
-            return this;
-        }
-
-        public ElementVisitor<Void, Void> build() {
-            return new AbstractElementVisitor8<Void, Void>() {
                 @Override
-                public Void visitPackage(PackageElement e, Void aVoid) {
-                    onPackage.accept(e);
-                    return null;
+                public R visitPackage(PackageElement e, P param) {
+                    return visitElement(PackageElement.class, e, param);
                 }
 
                 @Override
-                public Void visitType(TypeElement e, Void aVoid) {
-                    onType.accept(e);
-                    return null;
+                public R visitType(TypeElement e, P param) {
+                    return visitElement(TypeElement.class, e, param);
                 }
 
                 @Override
-                public Void visitVariable(VariableElement e, Void aVoid) {
-                    onVariable.accept(e);
-                    return null;
+                public R visitVariable(VariableElement e, P param) {
+                    return aggregate(
+                            visitElement(VariableElement.class, e, param));
                 }
 
                 @Override
-                public Void visitExecutable(ExecutableElement e, Void aVoid) {
-                    onExecutable.accept(e);
-                    return null;
+                public R visitExecutable(ExecutableElement e, P param) {
+                    return aggregate(
+                            visitElement(ExecutableElement.class, e, param),
+                            e.getParameters().stream().map(pe -> pe.accept(this, param)));
                 }
 
                 @Override
-                public Void visitTypeParameter(TypeParameterElement e, Void aVoid) {
-                    onTypeParameter.accept(e);
-                    return null;
+                public R visitTypeParameter(TypeParameterElement e, P param) {
+                    return aggregate(
+                            visitElement(TypeParameterElement.class, e, param),
+                            e.getGenericElement().accept(this, param));
+
+                }
+
+                private <E extends Element> R visitElement(Class<E> cls, E element, P param) {
+                    if (!filter.test(element, param)) {
+                        return null;
+                    }
+
+                    BiFunction<E, P, R> func = listenerOf(cls);
+
+                    return visitedElements.computeIfAbsent(
+                            element,
+                            _element -> aggregate(
+                            aggregate(onAny.apply(element, param), func.apply(element, param)),
+                            element.getEnclosedElements().stream().map(el -> el.accept(this, param))));
                 }
             };
         }
 
-        public void traverse(Element element) {
-            element.accept(build(), null);
+        @Override
+        protected R accept(Element element, ElementVisitor<R, P> visitor, P param) {
+            return element.accept(visitor, param);
         }
-    }
-
-    private static <T> Consumer<T> doNothing() {
-        return val -> {};
     }
 }

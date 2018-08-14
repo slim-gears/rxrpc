@@ -6,6 +6,7 @@ package com.slimgears.rxrpc.apt.util;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.slimgears.rxrpc.apt.data.TypeConverter;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
 import com.slimgears.rxrpc.apt.data.TypeParameterInfo;
@@ -26,7 +27,9 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -61,6 +64,7 @@ public class TypeScriptUtils extends TemplateUtils {
     }
 
     private final static Map<TypeInfo, TypeInfo> generatedClasses = new TreeMap<>(TypeInfo.comparator);
+    private final static Set<TypeInfo> generatedEndpoints = new TreeSet<>(TypeInfo.comparator);
 
     private final TypeConverter typeConverter = TypeConverter.ofMultiple(
             TypeConverter.create(typeMapping::containsKey, typeMapping::get),
@@ -76,8 +80,16 @@ public class TypeScriptUtils extends TemplateUtils {
         generatedClasses.put(source, generated);
     }
 
+    public static void addGeneratedEndpoint(TypeInfo generated) {
+        generatedEndpoints.add(generated);
+    }
+
     public static ImmutableMap<TypeInfo, TypeInfo> getGeneratedClasses() {
         return ImmutableMap.copyOf(generatedClasses);
+    }
+
+    public static ImmutableSet<TypeInfo> getGeneratedEndpoints() {
+        return ImmutableSet.copyOf(generatedEndpoints);
     }
 
     public TypeScriptUtils(ImportTracker importTracker) {
@@ -148,7 +160,7 @@ public class TypeScriptUtils extends TemplateUtils {
         return code.replace(importTracker.toString(), importsStr);
     }
 
-    private static void writeFile(ProcessingEnvironment environment, String filename, String content) {
+    public static void writeFile(ProcessingEnvironment environment, String filename, String content) {
         log.info("Writing file: {}", filename);
         LogUtils.dumpContent(content);
 
@@ -189,7 +201,7 @@ public class TypeScriptUtils extends TemplateUtils {
                 .build();
     }
 
-    private static String generateIndex() {
+    public static String generateIndex() {
         return getGeneratedClasses()
                 .values()
                 .stream()

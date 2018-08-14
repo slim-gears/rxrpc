@@ -4,51 +4,33 @@
 package com.slimgears.rxrpc.apt;
 
 import org.junit.Test;
+import org.slf4j.event.Level;
 
 public class EndpointGenerationTest {
     @Test
     public void testEndpointClientServerGeneration() {
         AnnotationProcessingTester.create()
-                .inputFiles("SampleEndpoint.java", "SampleRequest.java", "SampleData.java", "SampleEnum.java")
-                .expectedSources("SampleEndpoint_RxClient.java", "SampleEndpoint_RxModule.java")
-                .expectedFiles("sample-endpoint-client.ts", "sample-request.ts", "sample-data.ts")
+                .inputFiles(
+                        "SampleBaseEndpoint.java",
+                        "SampleArrayEndpoint.java",
+                        "SampleArray.java",
+                        "SampleEndpoint.java",
+                        "SampleRequest.java",
+                        "SampleData.java",
+                        "SampleEnum.java")
+                .expectedSources(
+                        "SampleEndpoint_RxClient.java",
+                        "SampleEndpoint_RxModule.java")
+                .expectedFiles(
+                        "sample-endpoint-client.ts",
+                        "sample-request.ts",
+                        "sample-data.ts",
+                        "sample-enum.ts",
+                        "sample-array.ts",
+                        "index.ts",
+                        "module.ts")
                 .processedWith(new RxRpcEndpointAnnotationProcessor())
-                .test();
-    }
-
-    @Test
-    public void testTypeScriptEndpointClientServerGeneration() {
-        AnnotationProcessingTester.create()
-                .inputFiles("SampleEndpoint.java", "SampleRequest.java", "SampleData.java", "SampleEnum.java")
-                .expectedFiles("sample-endpoint-client.ts")
-                .processedWith(new RxRpcEndpointAnnotationProcessor(new TypeScriptEndpointGenerator()))
-                .test();
-    }
-
-    @Test
-    public void testDataClassGeneration() {
-        AnnotationProcessingTester.create()
-                .inputFiles("SampleRequest.java", "SampleData.java", "SampleEnum.java")
-                .expectedFiles("sample-enum.ts", "sample-request.ts", "sample-data.ts")
-                .processedWith(new RxRpcDataAnnotationProcessor())
-                .test();
-    }
-
-    @Test
-    public void testEnumGeneration() {
-        AnnotationProcessingTester.create()
-                .inputFiles("SampleEnum.java")
-                .expectedFiles("sample-enum.ts")
-                .processedWith(new RxRpcDataAnnotationProcessor())
-                .test();
-    }
-
-    @Test
-    public void testArrayGeneration() {
-        AnnotationProcessingTester.create()
-                .inputFiles("SampleArray.java")
-                .expectedFiles("sample-array.ts")
-                .processedWith(new RxRpcDataAnnotationProcessor())
+                .verbosity(Level.TRACE)
                 .test();
     }
 }

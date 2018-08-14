@@ -9,6 +9,8 @@ import com.slimgears.rxrpc.apt.util.ImportTracker;
 import com.slimgears.rxrpc.apt.util.JavaUtils;
 import com.slimgears.rxrpc.apt.util.TemplateEvaluator;
 
+import javax.lang.model.element.ElementKind;
+
 @AutoService(EndpointGenerator.class)
 public class JavaEndpointGenerator implements EndpointGenerator {
     @Override
@@ -27,6 +29,7 @@ public class JavaEndpointGenerator implements EndpointGenerator {
         TemplateEvaluator
                 .forResource(templatePath)
                 .variables(context)
+                .variable("isInterface", context.sourceTypeElement().getKind() == ElementKind.INTERFACE)
                 .variable("javaUtils", new JavaUtils())
                 .variable("targetClass", targetClass)
                 .apply(JavaUtils.imports(importTracker))
