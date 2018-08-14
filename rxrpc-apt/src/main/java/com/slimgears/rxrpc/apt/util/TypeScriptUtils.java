@@ -150,7 +150,7 @@ public class TypeScriptUtils extends TemplateUtils {
 
     private static void writeFile(ProcessingEnvironment environment, String filename, String content) {
         log.info("Writing file: {}", filename);
-        log.debug("\n" + content);
+        LogUtils.dumpContent(content);
 
         Filer filer = environment.getFiler();
         FileObject fileObject = Optional

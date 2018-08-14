@@ -32,13 +32,13 @@ public class LogUtils {
     }
 
     public static void dumpContent(String content) {
-        if (!log.isDebugEnabled()) {
+        if (!log.isTraceEnabled()) {
             return;
         }
 
        String[] lines = content.split("\n");
         for (int i = 0; i < lines.length; ++i) {
-            log.debug("{}: {}", StringUtils.leftPad(String.valueOf(i + 1), 4), lines[i]);
+            log.trace("{}: {}", StringUtils.leftPad(String.valueOf(i + 1), 4), lines[i]);
         }
     }
 

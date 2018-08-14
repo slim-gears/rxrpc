@@ -8,6 +8,7 @@ import com.google.common.io.Resources;
 import com.google.testing.compile.CompileTester;
 import com.google.testing.compile.JavaFileObjects;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.event.Level;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.tools.JavaFileObject;
@@ -31,9 +32,15 @@ public class AnnotationProcessingTester {
     private final Collection<AbstractProcessor> processors = new ArrayList<>();
     private final Collection<String> options = new ArrayList<>();
     private final Collection<Function<CompileTester.SuccessfulCompilationClause, CompileTester.SuccessfulCompilationClause>> assertions = new ArrayList<>();
+    private Level verbosityLevel = Level.DEBUG;
 
     public static AnnotationProcessingTester create() {
-        return new AnnotationProcessingTester().options("-Averbosity=DEBUG");
+        return new AnnotationProcessingTester();
+    }
+
+    public AnnotationProcessingTester verbosity(Level level) {
+        verbosityLevel = level;
+        return this;
     }
 
     public AnnotationProcessingTester options(String... options) {
@@ -66,6 +73,8 @@ public class AnnotationProcessingTester {
     }
 
     public void test() {
+        options("-Averbosity=" + verbosityLevel);
+
         CompileTester.SuccessfulCompilationClause compilationClause = assert_()
                 .about(javaSources())
                 .that(inputFiles)

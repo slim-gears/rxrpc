@@ -11,7 +11,7 @@ public class EndpointGenerationTest {
         AnnotationProcessingTester.create()
                 .inputFiles("SampleEndpoint.java", "SampleRequest.java", "SampleData.java", "SampleEnum.java")
                 .expectedSources("SampleEndpoint_RxClient.java", "SampleEndpoint_RxModule.java")
-                .expectedFiles("sample-endpoint-client.ts")
+                .expectedFiles("sample-endpoint-client.ts", "sample-request.ts", "sample-data.ts")
                 .processedWith(new RxRpcEndpointAnnotationProcessor())
                 .test();
     }

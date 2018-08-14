@@ -101,7 +101,7 @@ public class TemplateEvaluator {
                     .orElse(str -> str)
                     .apply(templateCode);
 
-            log.debug("Preprocessed template:");
+            log.trace("Preprocessed template:");
             LogUtils.dumpContent(templateCode);
 
             StringReader strReader = new StringReader(templateCode);

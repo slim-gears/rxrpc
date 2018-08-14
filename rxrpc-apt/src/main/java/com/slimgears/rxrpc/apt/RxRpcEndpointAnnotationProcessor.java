@@ -2,7 +2,11 @@ package com.slimgears.rxrpc.apt;
 
 import com.google.auto.service.AutoService;
 import com.slimgears.rxrpc.apt.data.MethodInfo;
+import com.slimgears.rxrpc.apt.data.PropertyInfo;
+import com.slimgears.rxrpc.apt.data.TypeInfo;
 import com.slimgears.rxrpc.apt.internal.AbstractAnnotationProcessor;
+import com.slimgears.rxrpc.apt.util.ElementVisitors;
+import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import com.slimgears.rxrpc.core.RxRpcEndpoint;
 import com.slimgears.rxrpc.core.RxRpcMethod;
 
@@ -12,10 +16,10 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.ServiceLoader;
+import javax.lang.model.util.AbstractElementVisitor8;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,14 +27,49 @@ import java.util.stream.Stream;
 @SupportedAnnotationTypes({"com.slimgears.rxrpc.core.RxRpcEndpoint", "javax.annotation.Generated"})
 public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcessor<EndpointGenerator, EndpointGenerator.Context> {
     private final Collection<CodeGenerationFinalizer> finalizers = new ArrayList<>();
+    private final Collection<DataClassGenerator> dataClassGenerators = new ArrayList<>();
+    private final Collection<Name> processedClasses = new HashSet<>();
 
     public RxRpcEndpointAnnotationProcessor() {
         super(EndpointGenerator.class);
         ServiceLoader.load(CodeGenerationFinalizer.class, getClass().getClassLoader()).forEach(finalizers::add);
+        ServiceLoader.load(DataClassGenerator.class, getClass().getClassLoader()).forEach(dataClassGenerators::add);
     }
 
     public RxRpcEndpointAnnotationProcessor(EndpointGenerator... generators) {
         super(generators);
+    }
+
+    @Override
+    protected boolean processType(TypeElement annotationType, TypeElement typeElement) {
+        ElementVisitors.visitorBuilder()
+                .onType(this::generateDataType)
+                .traverse(typeElement);
+        return super.processType(annotationType, typeElement);
+    }
+
+    private void generateDataType(TypeElement typeElement) {
+        log.info("Generating from: {}", typeElement.getQualifiedName());
+
+        if (processedClasses.contains(typeElement.getQualifiedName()) || TemplateUtils.isKnownAsyncType(TypeInfo.of(typeElement))) {
+            return;
+        }
+        processedClasses.add(typeElement.getQualifiedName());
+
+        DataClassGenerator.Context.Builder builder = DataClassGenerator.Context.builder()
+                .processorClass(getClass())
+                .sourceTypeElement(typeElement)
+                .environment(processingEnv);
+
+        typeElement.getEnclosedElements()
+                .stream()
+                .map(PropertyInfo::of)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .forEach(builder::property);
+
+        DataClassGenerator.Context context = builder.build();
+        dataClassGenerators.forEach(g -> g.generate(context));
     }
 
     @Override
