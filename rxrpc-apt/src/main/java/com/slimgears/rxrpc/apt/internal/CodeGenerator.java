@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.lang.model.element.TypeElement;
+import java.util.Map;
 
 public interface CodeGenerator<C extends CodeGenerator.Context> {
     void generate(C context);
@@ -26,6 +27,9 @@ public interface CodeGenerator<C extends CodeGenerator.Context> {
             return TypeInfo.of(sourceTypeElement());
         }
         public Logger log() { return log; }
+        public Map<String, String> options() {
+            return environment().getOptions();
+        }
 
         public interface Builder<C extends Context, B extends Builder<C, B>> {
             B sourceTypeElement(TypeElement value);

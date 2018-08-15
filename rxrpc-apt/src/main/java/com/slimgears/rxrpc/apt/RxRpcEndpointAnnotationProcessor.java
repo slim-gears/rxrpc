@@ -10,9 +10,7 @@ import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import com.slimgears.rxrpc.core.RxRpcEndpoint;
 import com.slimgears.rxrpc.core.RxRpcMethod;
 
-import javax.annotation.Generated;
 import javax.annotation.processing.Processor;
-import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
@@ -23,10 +21,9 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @AutoService(Processor.class)
-@SupportedAnnotationTypes({"com.slimgears.rxrpc.core.RxRpcEndpoint", "javax.annotation.Generated"})
+@SupportedAnnotationTypes("com.slimgears.rxrpc.core.RxRpcEndpoint")
 public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcessor<EndpointGenerator, EndpointGenerator.Context> {
     private final Collection<CodeGenerationFinalizer> finalizers = new ArrayList<>();
     private final Collection<DataClassGenerator> dataClassGenerators = new ArrayList<>();
@@ -70,29 +67,13 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
         dataClassGenerators.forEach(g -> g.generate(context));
     }
 
-    @Override
-    protected boolean processAnnotation(TypeElement annotationType, RoundEnvironment roundEnv) {
-        if (!annotationType.getQualifiedName().toString().equals(Generated.class.getName())) {
-            return super.processAnnotation(annotationType, roundEnv);
-        }
-
-        if (roundEnv.getElementsAnnotatedWith(annotationType)
-                .stream()
-                .map(element -> element.getAnnotation(Generated.class))
-                .flatMap(g -> Stream.of(g.value()))
-                .anyMatch(g -> g.equals(getClass().getName()))) {
-            onFinalize(annotationType);
-        }
-
-        return false;
-    }
-
-    private void onFinalize(TypeElement annotationType) {
+    protected void onComplete() {
         CodeGenerationFinalizer.Context context = CodeGenerationFinalizer.Context.builder()
                 .processorClass(getClass())
-                .sourceTypeElement(annotationType)
+                .sourceTypeElement(processingEnv.getElementUtils().getTypeElement(Object.class.getName()))
                 .environment(processingEnv)
                 .build();
+
         finalizers.forEach(f -> f.generate(context));
         finalizers.clear();
     }

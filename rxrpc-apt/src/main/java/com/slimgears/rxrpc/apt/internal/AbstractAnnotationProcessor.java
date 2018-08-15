@@ -17,6 +17,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.stream.Stream;
+
+import static com.slimgears.rxrpc.apt.util.StreamUtils.ofType;
 
 public abstract class AbstractAnnotationProcessor<G extends CodeGenerator<C>, C extends CodeGenerator.Context> extends AbstractProcessor {
     protected final Logger log = LoggerFactory.getLogger(getClass());
@@ -34,10 +37,14 @@ public abstract class AbstractAnnotationProcessor<G extends CodeGenerator<C>, C 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         try (LogUtils.SelfClosable ignored = LogUtils.applyLogging(processingEnv)) {
-            for (TypeElement annotationType : annotations) {
-                if (!processAnnotation(annotationType, roundEnv)) return false;
-            }
-            return true;
+            onStart();
+            boolean res = annotations
+                    .stream()
+                    .map(a -> processAnnotation(a, roundEnv))
+                    .reduce(Boolean::logicalOr)
+                    .orElse(false);
+            onComplete();
+            return res;
         }
     }
 
@@ -46,19 +53,24 @@ public abstract class AbstractAnnotationProcessor<G extends CodeGenerator<C>, C 
         return processingEnv.getSourceVersion();
     }
 
+    protected void onStart() {
+    }
+
+    protected void onComplete() {
+
+    }
+
     protected boolean processAnnotation(TypeElement annotationType, RoundEnvironment roundEnv) {
-        Set<? extends Element> annotatedElements = roundEnv.getElementsAnnotatedWith(annotationType);
-        for (Element element : annotatedElements) {
-            if (element instanceof TypeElement && ! processType(annotationType, (TypeElement)element)) {
-                return false;
-            }
-            else if (element instanceof ExecutableElement && !processMethod(annotationType, (ExecutableElement)element)) {
-                return false;
-            } else if (element instanceof VariableElement && !processField(annotationType, (VariableElement)element)) {
-                return false;
-            }
-        }
-        return true;
+        return roundEnv.getElementsAnnotatedWith(annotationType)
+                .stream()
+                .flatMap(e -> Stream
+                        .of(
+                                ofType(TypeElement.class, Stream.of(e)).map(_e -> processType(annotationType, _e)),
+                                ofType(ExecutableElement.class, Stream.of(e)).map(_e -> processMethod(annotationType, _e)),
+                                ofType(VariableElement.class, Stream.of(e)).map(_e -> processField(annotationType, _e)))
+                        .flatMap(s -> s))
+                .reduce(Boolean::logicalOr)
+                .orElse(false);
     }
 
     protected abstract C createContext(TypeElement annotationType, TypeElement typeElement);

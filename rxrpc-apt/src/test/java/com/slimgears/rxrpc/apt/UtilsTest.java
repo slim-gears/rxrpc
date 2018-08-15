@@ -10,6 +10,6 @@ import org.junit.Test;
 public class UtilsTest {
     @Test
     public void testCamelCaseToDash() {
-        Assert.assertEquals("sample-request", TemplateUtils.instance.camelCaseToDash("SampleRequest"));
+        Assert.assertEquals("sample-request", TemplateUtils.camelCaseToDash("SampleRequest"));
     }
 }

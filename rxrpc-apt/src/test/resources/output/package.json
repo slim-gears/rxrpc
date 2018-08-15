@@ -1,7 +1,0 @@
-{
-  "name": "rxrpc-generated-client",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.ts",
-  "author": "Generated module"
-}

@@ -4,19 +4,17 @@
 package com.slimgears.rxrpc.apt.util;
 
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.AppenderBase;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.Diagnostic;
-import java.text.NumberFormat;
-import java.util.Arrays;
 import java.util.Optional;
 
 public class LogUtils {
@@ -61,10 +59,20 @@ public class LogUtils {
         private final Messager messager;
 
         public static SelfClosable install(Messager messager) {
-            Appender<ILoggingEvent> appender = new MessagerAppender(messager);
+            LoggerContext loggerContext = (LoggerContext)LoggerFactory.getILoggerFactory();
             ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger)LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+
+            Appender<ILoggingEvent> appender = new MessagerAppender(messager);
+            appender.setContext(loggerContext);
+            appender.setName("Messager");
+            appender.start();
+
             logger.addAppender(appender);
-            return () -> logger.detachAppender(appender);
+
+            return () -> {
+                appender.stop();
+                logger.detachAppender(appender);
+            };
         }
 
         private MessagerAppender(Messager messager) {

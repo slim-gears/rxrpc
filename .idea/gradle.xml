@@ -9,11 +9,11 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/rxrpc-apt" />
-            <option value="$PROJECT_DIR$/rxrpc-client" />
+            <option value="$PROJECT_DIR$/rxrpc-apt-java" />
+            <option value="$PROJECT_DIR$/rxrpc-apt-typescript" />
             <option value="$PROJECT_DIR$/rxrpc-core" />
             <option value="$PROJECT_DIR$/rxrpc-jetty-websocket" />
             <option value="$PROJECT_DIR$/rxrpc-ng" />
-            <option value="$PROJECT_DIR$/rxrpc-server" />
             <option value="$PROJECT_DIR$/sample" />
           </set>
         </option>

@@ -1,10 +1,16 @@
 apply from: "$rootProject.javaGradle"
 
+tasks.withType(JavaCompile) {
+    options.compilerArgs = [
+            "-Arxrpc.java.client",
+            "-Arxrpc.java.server",
+            "-Arxrpc.java.autoservice"]
+}
+
 dependencies {
     annotationProcessor project(':rxrpc-apt')
+    annotationProcessor project(':rxrpc-apt-java')
     implementation project(':rxrpc-core')
-    implementation project(':rxrpc-client')
-    implementation project(':rxrpc-server')
     implementation project(':rxrpc-jetty-websocket')
     implementation "io.reactivex.rxjava2:rxjava:$rxJavaVer"
     implementation "org.eclipse.jetty:jetty-server:$jettyVer"
@@ -17,5 +23,4 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVer"
     implementation "ch.qos.logback:logback-classic:$logbackVer"
     implementation "ch.qos.logback:logback-core:$logbackVer"
-    testCompile "junit:junit:$junitVer"
 }

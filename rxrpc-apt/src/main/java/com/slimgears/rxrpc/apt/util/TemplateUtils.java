@@ -5,7 +5,6 @@ package com.slimgears.rxrpc.apt.util;
 
 import com.google.common.collect.ImmutableSet;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
-import org.apache.commons.text.StringSubstitutor;
 
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -29,17 +28,8 @@ public class TemplateUtils {
         return camelCasePattern.matcher(camelCase).replaceAll("$1-$2").toLowerCase();
     }
 
-    public static Function<String, String> preProcessImports() {
-        StringSubstitutor classSubstitutor = new StringSubstitutor(str -> "${imports.use(" + str + ")}", "$[", "]", '\\');
-        return classSubstitutor::replace;
-    }
-
     public static Function<String, String> postProcessImports(ImportTracker importTracker) {
         return code -> substituteImports(importTracker, code);
-    }
-
-    public static Function<String, String> removeTrailingSpace() {
-        return code -> code.trim() + "\n";
     }
 
     private static String substituteImports(ImportTracker importTracker, String code) {
