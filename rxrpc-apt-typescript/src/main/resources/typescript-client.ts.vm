@@ -1,5 +1,8 @@
 $imports
 
+#if ($generateNgModule)
+@$[@angular.core.Injectable]()
+#end
 export class $targetClass.simpleName() {
     constructor(private client: $[ngRxrpc.RxRpcClient]) {
     }

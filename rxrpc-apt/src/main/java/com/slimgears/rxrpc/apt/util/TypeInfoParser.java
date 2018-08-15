@@ -12,7 +12,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class TypeInfoParser {
-    private static final String nameChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._0123456789[]";
+    private static final String nameChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._0123456789[]@";
     private static final char beginParamsChar = '<';
     private static final char endParamsChar = '>';
     private static final char nextParamChar = ',';

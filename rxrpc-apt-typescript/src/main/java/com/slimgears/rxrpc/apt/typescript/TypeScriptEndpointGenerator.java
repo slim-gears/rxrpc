@@ -36,6 +36,7 @@ public class TypeScriptEndpointGenerator implements EndpointGenerator {
 
         TemplateEvaluator.forResource("/typescript-client.ts.vm")
                 .variable("targetClass", targetClass)
+                .variable("generateNgModule", context.hasOption("rxrpc.ts.ngmodule"))
                 .variable("tsUtils", new TypeScriptUtils(importTracker))
                 .variables(context)
                 .apply(TypeScriptUtils.imports(importTracker))

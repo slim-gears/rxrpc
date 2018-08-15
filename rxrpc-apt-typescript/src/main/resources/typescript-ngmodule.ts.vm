@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core'
+import { RxRpcClientModule } from 'ng-rxrpc'
 import {
 #foreach($c in $classes)
     $c.name()#if($foreach.hasNext),#end
@@ -7,6 +8,7 @@ import {
 } from './';
 
 @NgModule({
+    imports: [ RxRpcClientModule ],
     providers: [
 #foreach($c in $classes)
         $c.name()#if($foreach.hasNext),#end

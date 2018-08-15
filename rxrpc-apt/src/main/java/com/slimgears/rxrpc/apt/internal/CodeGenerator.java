@@ -41,7 +41,7 @@ public interface CodeGenerator<C extends CodeGenerator.Context> {
         }
 
         public boolean hasOption(String option) {
-            return option(option).isPresent();
+            return options().containsKey(option);
         }
 
         public interface Builder<C extends Context, B extends Builder<C, B>> {

@@ -1,7 +1,9 @@
 import { SampleArray, SampleData, SampleRequest } from './';
+import { Injectable } from '@angular/core';
 import { RxRpcClient } from 'ng-rxrpc';
 import { Observable } from 'rxjs';
 
+@Injectable()
 export class SampleEndpointClient {
     constructor(private client: RxRpcClient) {
     }
