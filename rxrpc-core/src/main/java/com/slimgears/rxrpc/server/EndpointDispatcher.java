@@ -1,5 +1,6 @@
 package com.slimgears.rxrpc.server;
 
+import com.slimgears.rxrpc.core.EndpointResolver;
 import com.slimgears.rxrpc.server.internal.InvocationArguments;
 import org.reactivestreams.Publisher;
 

@@ -4,9 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.value.AutoValue;
+import com.slimgears.rxrpc.core.EndpointResolver;
+import com.slimgears.rxrpc.core.EndpointResolvers;
 import com.slimgears.rxrpc.core.Transport;
 import com.slimgears.rxrpc.core.data.Invocation;
 import com.slimgears.rxrpc.core.data.Response;
+import com.slimgears.rxrpc.core.util.HasObjectMapper;
 import com.slimgears.rxrpc.server.internal.InvocationArguments;
 import com.slimgears.rxrpc.server.internal.ScopedResolver;
 import io.reactivex.Observable;
@@ -20,6 +23,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 public class RxServer implements AutoCloseable {
     private final static Logger log = LoggerFactory.getLogger(RxServer.class);
@@ -28,23 +32,31 @@ public class RxServer implements AutoCloseable {
     private final Config config;
 
     @AutoValue
-    public static abstract class Config {
+    public static abstract class Config implements HasObjectMapper {
         public abstract Transport.Server server();
-        public abstract ObjectMapper objectMapper();
         public abstract EndpointResolver resolver();
         public abstract EndpointDispatcher.Factory dispatcherFactory();
 
         public static Builder builder() {
-            return new AutoValue_RxServer_Config.Builder();
+            return new AutoValue_RxServer_Config.Builder()
+                    .objectMapper(ObjectMapper::new)
+                    .resolver(EndpointResolvers.defaultConstructorResolver());
         }
 
         @AutoValue.Builder
-        public interface Builder {
+        public interface Builder extends HasObjectMapper.Builder<Builder> {
             Builder server(Transport.Server server);
-            Builder objectMapper(ObjectMapper mapper);
             Builder resolver(EndpointResolver resolver);
             Builder dispatcherFactory(EndpointDispatcher.Factory factory);
             Config build();
+
+            default RxServer createServer() {
+                return RxServer.forConfig(build());
+            }
+
+            default Builder discoverModules() {
+                return modules(EndpointDispatchers.discover());
+            }
 
             default Builder modules(EndpointDispatcher.Module... modules) {
                 return dispatcherFactory(EndpointDispatchers.factoryFromModules(modules));
@@ -54,6 +66,9 @@ public class RxServer implements AutoCloseable {
 
     public static RxServer forConfig(Config config) {
         return new RxServer(config);
+    }
+    public static RxServer.Config.Builder configBuilder() {
+        return RxServer.Config.builder();
     }
 
     private RxServer(Config config) {
@@ -185,7 +200,7 @@ public class RxServer implements AutoCloseable {
             try {
                 channelSession.get().close();
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Error occurred when closing server: ", e);
             }
             onClosed();
         }

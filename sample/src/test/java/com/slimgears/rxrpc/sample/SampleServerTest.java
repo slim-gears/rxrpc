@@ -27,12 +27,9 @@ public class SampleServerTest {
         SampleClient client = new SampleClient();
         server.start();
 
-        RxClient rxClient = RxClient.forConfig(RxClient.Config
-                .builder()
-                .objectMapper(new ObjectMapper())
-                .endpointFactory(EndpointFactories.constructorFactory())
+        RxClient rxClient = RxClient.configBuilder()
                 .client(client)
-                .build());
+                .createClient();
 
         SampleEndpoint_RxClient sampleEndpointClient = rxClient.connect(uri).resolve(SampleEndpoint_RxClient.class);
         String msgFromServer = sampleEndpointClient.futureStringMethod("Test", new SampleRequest(3, "sampleName")).get();

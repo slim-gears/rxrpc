@@ -3,10 +3,12 @@ package com.slimgears.rxrpc.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.value.AutoValue;
+import com.slimgears.rxrpc.core.EndpointResolver;
 import com.slimgears.rxrpc.core.Transport;
 import com.slimgears.rxrpc.core.data.Invocation;
 import com.slimgears.rxrpc.core.data.Response;
 import com.slimgears.rxrpc.core.data.Result;
+import com.slimgears.rxrpc.core.util.HasObjectMapper;
 import com.slimgears.rxrpc.core.util.MappedFuture;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observer;
@@ -26,28 +28,25 @@ import java.util.stream.Collectors;
 
 public class RxClient {
     private final static Logger log = LoggerFactory.getLogger(RxClient.class);
+    private final EndpointFactory endpointFactory = EndpointFactories.constructorFactory();
     private final Config config;
 
     @AutoValue
-    public static abstract class Config {
+    public static abstract class Config implements HasObjectMapper {
         public abstract Transport.Client client();
-        public abstract ObjectMapper objectMapper();
-        public abstract EndpointFactory endpointFactory();
         public static Builder builder() {
-            return new AutoValue_RxClient_Config.Builder();
+            return new AutoValue_RxClient_Config.Builder().objectMapperProvider(ObjectMapper::new);
         }
 
         @AutoValue.Builder
-        public interface Builder {
+        public interface Builder extends HasObjectMapper.Builder<Builder> {
             Builder client(Transport.Client client);
-            Builder objectMapper(ObjectMapper mapper);
-            Builder endpointFactory(EndpointFactory factory);
             Config build();
-        }
-    }
 
-    public interface EndpointResolver {
-        <T> T resolve(Class<T> endpointClientClass);
+            default RxClient createClient() {
+                return RxClient.forConfig(build());
+            }
+        }
     }
 
     public interface EndpointFactory {
@@ -65,6 +64,9 @@ public class RxClient {
 
     public static RxClient forConfig(Config config) {
         return new RxClient(config);
+    }
+    public static RxClient.Config.Builder configBuilder() {
+        return RxClient.Config.builder();
     }
 
     private RxClient(Config config) {
@@ -85,7 +87,7 @@ public class RxClient {
 
         @Override
         public <T> T resolve(Class<T> endpointClientClass) {
-            return config.endpointFactory().create(endpointClientClass, session);
+            return endpointFactory.create(endpointClientClass, session);
         }
     }
 

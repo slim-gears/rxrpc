@@ -9,8 +9,11 @@ import io.reactivex.Single;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
+import static java.util.Objects.requireNonNull;
 
 public abstract class AbstractClient {
     private final Single<RxClient.Session> session;
@@ -48,8 +51,8 @@ public abstract class AbstractClient {
                 .flatMap(s -> Observable.fromPublisher(s.invoke(method, args.toMap())))
                 .takeWhile(result -> result.type() != Result.Type.Complete)
                 .flatMapSingle(result -> (result.type() == Result.Type.Data)
-                        ? Single.just(objectMapper.treeToValue(result.data(), responseType))
-                        : Single.error(new RuntimeException(result.error().message())));
+                        ? Single.just(objectMapper.treeToValue(requireNonNull(result.data()), responseType))
+                        : Single.error(new RuntimeException(requireNonNull(result.error()).message())));
     }
 
     protected <T> Single<T> invokeSingle(Class<T> responseType, String method, InvocationArguments args) {
