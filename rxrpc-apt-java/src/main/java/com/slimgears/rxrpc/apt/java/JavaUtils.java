@@ -3,9 +3,6 @@
  */
 package com.slimgears.rxrpc.apt.java;
 
-import com.google.googlejavaformat.java.Formatter;
-import com.google.googlejavaformat.java.FormatterException;
-import com.google.googlejavaformat.java.JavaFormatterOptions;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
 import com.slimgears.rxrpc.apt.util.ImportTracker;
 import com.slimgears.rxrpc.apt.util.LogUtils;
@@ -34,20 +31,6 @@ public class JavaUtils extends TemplateUtils {
 
     public static Consumer<String> fileWriter(ProcessingEnvironment environment, TypeInfo targetClass) {
         return code -> writeJavaFile(environment, targetClass, code);
-    }
-
-    public static Function<String, String> formatter() {
-        return code -> {
-            try {
-                return new Formatter(JavaFormatterOptions
-                        .builder()
-                        .style(JavaFormatterOptions.Style.AOSP)
-                        .build())
-                        .formatSource(code);
-            } catch (FormatterException e) {
-                throw new RuntimeException(e);
-            }
-        };
     }
 
     private static String addImports(ImportTracker importTracker, String code, Function<String, String> importSubstitutor) {

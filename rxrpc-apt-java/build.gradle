@@ -6,5 +6,4 @@ dependencies {
     testImplementation project(path: ':rxrpc-apt', configuration: 'testOutput')
     implementation "com.google.auto.service:auto-service:$autoServiceVer"
     annotationProcessor "com.google.auto.service:auto-service:$autoServiceVer"
-    implementation "com.google.googlejavaformat:google-java-format:$javaFormatVer"
 }
