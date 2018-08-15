@@ -8,5 +8,5 @@ import {
         SampleEndpointClient
     ]
 })
-export class GeneratedRxClientModule {
+export class RxRpcGeneratedClientModule {
 }

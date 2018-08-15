@@ -14,5 +14,5 @@ import {
 #end
     ]
 })
-export class GeneratedRxClientModule {
+export class $ngModuleName {
 }

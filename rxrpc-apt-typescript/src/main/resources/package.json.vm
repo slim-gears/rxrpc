@@ -1,9 +1,9 @@
 {
-  "name": "rxrpc-generated-client",
-  "version": "1.0.0",
-  "description": "",
+  "name": "$npmModuleName",
+  "version": "$npmModuleVersion",
+  "description": "$npmModuleDescription",
   "main": "index.ts",
-  "author": "Generated module",
+  "author": "$npmModuleDescription",
   "private": true,
   "dependencies": {
 #if ($generateNgModule)##

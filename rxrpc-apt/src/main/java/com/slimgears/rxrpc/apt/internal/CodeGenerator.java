@@ -12,6 +12,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.lang.model.element.TypeElement;
 import java.util.Map;
+import java.util.Optional;
 
 public interface CodeGenerator<C extends CodeGenerator.Context> {
     void generate(C context);
@@ -29,6 +30,18 @@ public interface CodeGenerator<C extends CodeGenerator.Context> {
         public Logger log() { return log; }
         public Map<String, String> options() {
             return environment().getOptions();
+        }
+
+        public Optional<String> option(String option) {
+            return Optional.ofNullable(options().get(option));
+        }
+
+        public String option(String option, String defaultVal) {
+            return option(option).orElse(defaultVal);
+        }
+
+        public boolean hasOption(String option) {
+            return option(option).isPresent();
         }
 
         public interface Builder<C extends Context, B extends Builder<C, B>> {
