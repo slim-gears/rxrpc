@@ -12,7 +12,9 @@
       <excludeFolder url="file://$MODULE_DIR$/../../rxrpc-apt-java/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/../../rxrpc-apt-java/build" />
       <excludeFolder url="file://$MODULE_DIR$/../../rxrpc-apt-java/build/classes" />
+      <excludeFolder url="file://$MODULE_DIR$/../../rxrpc-apt-java/build/docs" />
       <excludeFolder url="file://$MODULE_DIR$/../../rxrpc-apt-java/build/libs" />
+      <excludeFolder url="file://$MODULE_DIR$/../../rxrpc-apt-java/build/publications" />
       <excludeFolder url="file://$MODULE_DIR$/../../rxrpc-apt-java/build/reports" />
       <excludeFolder url="file://$MODULE_DIR$/../../rxrpc-apt-java/build/resources" />
       <excludeFolder url="file://$MODULE_DIR$/../../rxrpc-apt-java/build/test-results" />
