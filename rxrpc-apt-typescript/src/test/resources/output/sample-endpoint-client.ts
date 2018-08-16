@@ -1,4 +1,4 @@
-import { SampleArray, SampleData, SampleRequest } from './';
+import { SampleArray, SampleData, SampleRequest } from './index';
 import { Injectable } from '@angular/core';
 import { RxRpcClient } from 'ng-rxrpc';
 import { Observable } from 'rxjs';

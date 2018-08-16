@@ -29,7 +29,8 @@ public class TypeScriptEndpointGenerationTest {
                         "sample-enum.ts",
                         "sample-array.ts",
                         "index.ts",
-                        "module.ts")
+                        "module.ts",
+                        "tsconfig.json")
                 .processedWith(new RxRpcEndpointAnnotationProcessor())
                 .verbosity(Level.TRACE)
                 .test();

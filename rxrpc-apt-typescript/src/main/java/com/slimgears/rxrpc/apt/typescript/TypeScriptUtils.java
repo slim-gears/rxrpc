@@ -146,7 +146,7 @@ public class TypeScriptUtils extends TemplateUtils {
                     String packagePath = Optional
                             .of(camelCaseToDash(entry.getKey()).replace('.', '/'))
                             .filter(str -> !str.isEmpty())
-                            .orElse("./");
+                            .orElse("./index");
 
                     if (packagePath.startsWith("/")) {
                         packagePath = "." + packagePath;

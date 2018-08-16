@@ -2,14 +2,22 @@
   "name": "$npmModuleName",
   "version": "$npmModuleVersion",
   "description": "$npmModuleDescription",
-  "main": "index.ts",
-  "author": "$npmModuleDescription",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "$npmModuleAuthor",
   "private": true,
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^3.0.1"
+  },
   "dependencies": {
 #if ($generateNgModule)##
     "@angular/core": "^6.0.3",
 #end
     "rxjs": "^6.0.0",
     "ng-rxrpc": "^0.2.2"
-  }
+  },
+  "files": ["*.ts", "*.json", "dist/*"]
 }

@@ -1,4 +1,4 @@
-import { SampleData } from './';
+import { SampleData } from './index';
 
 export interface SampleRequest {
     id: number;

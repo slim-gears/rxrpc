@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core'
 import { RxRpcClientModule } from 'ng-rxrpc'
 import {
     SampleEndpointClient
-} from './';
+} from './index';
 
 @NgModule({
     imports: [ RxRpcClientModule ],
