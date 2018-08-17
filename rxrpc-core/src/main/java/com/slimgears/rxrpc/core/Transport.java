@@ -1,38 +1,21 @@
 package com.slimgears.rxrpc.core;
 
+import io.reactivex.Emitter;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+
 import java.net.URI;
-import java.util.concurrent.Future;
 
-public interface Transport {
-    interface Session extends AutoCloseable {
-        void send(String message);
-        void close();
-    }
-
-    interface Listener {
-        void onConnected(Session session);
-        void onMessage(String message);
-        void onClosed();
-        void onError(Throwable error);
-    }
-
-    interface Subscription {
-        Subscription EMPTY = () -> {};
-        void unsubscribe();
-    }
+public interface Transport extends AutoCloseable {
+    Emitter<String> outgoing();
+    Observable<String> incoming();
+    default void close() {}
 
     interface Client {
-        Future<Transport> connect(URI uri);
+        Single<Transport> connect(URI uri);
     }
 
     interface Server {
-        interface Listener {
-            void onAcceptTransport(Transport transport);
-            void onTerminate();
-        }
-
-        Subscription subscribe(Listener listener);
+        Observable<Transport> connections();
     }
-
-    Subscription subscribe(Listener listener);
 }

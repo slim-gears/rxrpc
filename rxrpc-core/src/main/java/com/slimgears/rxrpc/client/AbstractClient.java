@@ -41,8 +41,8 @@ public abstract class AbstractClient {
         };
     }
 
-    protected AbstractClient(Future<RxClient.Session> session) {
-        this.session = Single.fromFuture(session);
+    protected AbstractClient(Single<RxClient.Session> session) {
+        this.session = session;
     }
 
     protected <T> Observable<T> invokeObservable(Class<T> responseType, String method, InvocationArguments args) {

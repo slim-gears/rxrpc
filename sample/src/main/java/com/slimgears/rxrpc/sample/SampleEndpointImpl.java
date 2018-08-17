@@ -1,8 +1,7 @@
 package com.slimgears.rxrpc.sample;
 
-import com.slimgears.rxrpc.core.RxRpcMethod;
-import com.slimgears.rxrpc.core.util.ImmediateFuture;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -11,8 +10,9 @@ import java.util.concurrent.TimeUnit;
 public class SampleEndpointImpl implements SampleEndpoint {
     @Override
     public Future<String> futureStringMethod(String msg, SampleRequest request) {
-        return ImmediateFuture.of(
-                "Server received from client: " + msg + " (id: " + request.id + ", name: " + request.name + ")");
+        return Single
+                .just("Server received from client: " + msg + " (id: " + request.id + ", name: " + request.name + ")")
+                .toFuture();
     }
 
     @Override

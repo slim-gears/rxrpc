@@ -1,5 +1,6 @@
 package com.slimgears.rxrpc.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.value.AutoValue;
@@ -9,11 +10,12 @@ import com.slimgears.rxrpc.core.data.Invocation;
 import com.slimgears.rxrpc.core.data.Response;
 import com.slimgears.rxrpc.core.data.Result;
 import com.slimgears.rxrpc.core.util.HasObjectMapper;
-import com.slimgears.rxrpc.core.util.MappedFuture;
 import io.reactivex.BackpressureStrategy;
+import io.reactivex.Observable;
 import io.reactivex.Observer;
+import io.reactivex.Single;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
-import io.reactivex.subjects.SingleSubject;
 import io.reactivex.subjects.Subject;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
@@ -21,26 +23,31 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
-import java.util.concurrent.Future;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 public class RxClient {
     private final static Logger log = LoggerFactory.getLogger(RxClient.class);
-    private final EndpointFactory endpointFactory = EndpointFactories.constructorFactory();
     private final Config config;
 
     @AutoValue
     public static abstract class Config implements HasObjectMapper {
         public abstract Transport.Client client();
+        public abstract EndpointFactory factory();
         public static Builder builder() {
-            return new AutoValue_RxClient_Config.Builder().objectMapperProvider(ObjectMapper::new);
+            return new AutoValue_RxClient_Config.Builder()
+                    .objectMapperProvider(ObjectMapper::new)
+                    .factory(EndpointFactories.constructorFactory());
         }
 
         @AutoValue.Builder
         public interface Builder extends HasObjectMapper.Builder<Builder> {
             Builder client(Transport.Client client);
+            Builder factory(EndpointFactory factory);
             Config build();
 
             default RxClient createClient() {
@@ -50,15 +57,10 @@ public class RxClient {
     }
 
     public interface EndpointFactory {
-        <T> T create(Class<T> clientClass, Future<Session> session);
+        <T> T create(Class<T> clientClass, Single<Session> session);
     }
 
-    public interface Session {
-        interface Listener {
-            void onClosed();
-            void onDisconnected();
-        }
-
+    public interface Session extends AutoCloseable {
         Publisher<Result> invoke(String method, Map<String, Object> args);
     }
 
@@ -74,89 +76,93 @@ public class RxClient {
     }
 
     public EndpointResolver connect(URI uri) {
-        Future<Session> sessionFuture = MappedFuture.of(this.config.client().connect(uri), InternalSession::new);
-        return new InternalEndpointResolver(sessionFuture);
+        Single<Session> session = this.config.client().connect(uri).map(InternalSession::new);
+        return new InternalEndpointResolver(session);
     }
 
     private class InternalEndpointResolver implements EndpointResolver {
-        private final Future<Session> session;
+        private final Single<Session> session;
 
-        private InternalEndpointResolver(Future<Session> session) {
+        private InternalEndpointResolver(Single<Session> session) {
             this.session = session;
         }
 
         @Override
         public <T> T resolve(Class<T> endpointClientClass) {
-            return endpointFactory.create(endpointClientClass, session);
+            return config.factory().create(endpointClientClass, session);
         }
     }
 
-    private class InternalSession implements Session, Transport.Listener {
-        private final SingleSubject<Transport.Session> channelSession = SingleSubject.create();
+    private class InternalSession implements Session {
+        private final Transport transport;
+        private final Disposable disposable;
         private final AtomicLong invocationId = new AtomicLong();
-        private final Collection<Listener> listeners = new ArrayList<>();
         private final Map<Long, Subject<Result>> resultSubjects = new HashMap<>();
 
         private InternalSession(Transport transport) {
-            transport.subscribe(this);
+            this.transport = transport;
+            this.disposable = this.transport.incoming().subscribe(this::onMessage, this::onError, this::onClosed);
         }
 
         @Override
         public Publisher<Result> invoke(String method, Map<String, Object> args) {
-            long id = invocationId.incrementAndGet();
-            Subject<Result> subject = BehaviorSubject.create();
-            resultSubjects.put(id, subject);
-            Map<String, JsonNode> jsonArgs = args.entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, e -> config.objectMapper().valueToTree(e.getValue())));
-
-            Invocation invocation = Invocation.builder()
-                    .invocationId(id)
-                    .method(method)
-                    .arguments(jsonArgs)
-                    .build();
-
-            Publisher<Result> resultPublisher = subject
-                    .doFinally(() -> resultSubjects.remove(id))
+            return Observable
+                    .defer(() -> beginInvocation(method, args))
                     .toFlowable(BackpressureStrategy.BUFFER);
-
-            //noinspection ResultOfMethodCallIgnored
-            this.channelSession.subscribe(s ->
-                    s.send(config.objectMapper().writeValueAsString(invocation)));
-
-            return resultPublisher;
         }
 
-        @Override
-        public void onConnected(Transport.Session session) {
-            channelSession.onSuccess(session);
-        }
-
-        @Override
-        public void onMessage(String message) {
+        private void onMessage(String message) {
             try {
                 Response response = config.objectMapper().readValue(message, Response.class);
                 log.debug("Response received: {}", response);
-                Subject<Result> resultSubject = resultSubjects.get(response.invocationId());
-                if (resultSubject != null) {
-                    resultSubject.onNext(response.result());
-                } else {
-                    onError(new RuntimeException("Invocation with id " + invocationId + " not found"));
-                }
+                Optional.ofNullable(resultSubjects.get(response.invocationId()))
+                        .ifPresent(subj -> subj.onNext(response.result()));
             } catch (IOException e) {
                 onError(e);
             }
         }
 
-        @Override
-        public void onClosed() {
+        private void onClosed() {
             resultSubjects.values().forEach(Observer::onComplete);
-            listeners.forEach(Listener::onClosed);
+        }
+
+        private void onError(Throwable error) {
+            new ArrayList<>(resultSubjects.values()).forEach(subj -> subj.onError(error));
+        }
+
+        private Observable<Result> beginInvocation(String method, Map<String, Object> args) {
+            Subject<Result> subject = BehaviorSubject.create();
+            Map<String, JsonNode> jsonArgs = args.entrySet().stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, e -> config.objectMapper().valueToTree(e.getValue())));
+            long id = invocationId.incrementAndGet();
+            Invocation invocation = Invocation.builder()
+                    .invocationId(id)
+                    .method(method)
+                    .arguments(jsonArgs)
+                    .build();
+            return subject
+                    .doOnLifecycle(
+                            d -> {
+                                resultSubjects.put(id, subject);
+                                sendInvocation(invocation);
+                            },
+                            () -> sendInvocation(Invocation.ofCancellation(id)))
+                    .doFinally(() -> resultSubjects.remove(id))
+                    .share();
+        }
+
+        private void sendInvocation(Invocation invocation) {
+            try {
+                this.transport.outgoing().onNext(config.objectMapper().writeValueAsString(invocation));
+            } catch (JsonProcessingException e) {
+                this.transport.outgoing().onError(e);
+            }
         }
 
         @Override
-        public void onError(Throwable error) {
-            new ArrayList<>(resultSubjects.values()).forEach(subj -> subj.onError(error));
-            listeners.forEach(Listener::onDisconnected);
+        public void close() {
+            transport.outgoing().onComplete();
+            disposable.dispose();
         }
     }
 }

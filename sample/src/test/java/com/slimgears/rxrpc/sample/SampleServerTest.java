@@ -4,6 +4,7 @@ import ch.qos.logback.classic.Level;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.slimgears.rxrpc.client.EndpointFactories;
 import com.slimgears.rxrpc.client.RxClient;
+import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketTransport;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -24,11 +25,10 @@ public class SampleServerTest {
     @Test
     public void testClientServer() throws Exception {
         SampleServer server = new SampleServer(port);
-        SampleClient client = new SampleClient();
         server.start();
 
         RxClient rxClient = RxClient.configBuilder()
-                .client(client)
+                .client(new JettyWebSocketTransport.Client())
                 .createClient();
 
         SampleEndpoint_RxClient sampleEndpointClient = rxClient.connect(uri).resolve(SampleEndpoint_RxClient.class);

@@ -5,13 +5,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.auto.value.AutoValue;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 
 @AutoValue
 public abstract class Invocation {
     @JsonProperty public abstract long invocationId();
-    @JsonProperty public abstract String method();
-    @JsonProperty public abstract Map<String, JsonNode> arguments();
+    @Nullable @JsonProperty public abstract String method();
+    @Nullable @JsonProperty public abstract Map<String, JsonNode> arguments();
 
     @JsonCreator
     public static Invocation create(
@@ -23,6 +24,10 @@ public abstract class Invocation {
                 .method(method)
                 .arguments(arguments)
                 .build();
+    }
+
+    public static Invocation ofCancellation(long invocationId) {
+        return create(invocationId, null, null);
     }
 
     public static Builder builder() {

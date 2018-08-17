@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 import com.slimgears.rxrpc.core.EndpointResolver;
 import com.slimgears.rxrpc.core.EndpointResolvers;
 import com.slimgears.rxrpc.core.Transport;
@@ -13,7 +14,9 @@ import com.slimgears.rxrpc.core.util.HasObjectMapper;
 import com.slimgears.rxrpc.server.internal.InvocationArguments;
 import com.slimgears.rxrpc.server.internal.ScopedResolver;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.Disposables;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,13 +26,12 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
 
 public class RxServer implements AutoCloseable {
     private final static Logger log = LoggerFactory.getLogger(RxServer.class);
-    private final AtomicReference<Transport.Subscription> subscription = new AtomicReference<>(Transport.Subscription.EMPTY);
     private final Set<Session> sessions = new HashSet<>();
     private final Config config;
+    private final AtomicReference<Disposable> disposable = new AtomicReference<>(Disposables.empty());
 
     @AutoValue
     public static abstract class Config implements HasObjectMapper {
@@ -76,27 +78,17 @@ public class RxServer implements AutoCloseable {
     }
 
     public void start() {
-        subscription.set(config.server().subscribe(new Transport.Server.Listener() {
-            @Override
-            public void onAcceptTransport(Transport transport) {
-                RxServer.this.onAcceptTransport(transport);
-            }
-
-            @Override
-            public void onTerminate() {
-                RxServer.this.stop();
-            }
-        }));
+        this.disposable.set(config.server().connections().subscribe(this::onAcceptTransport));
     }
 
     public void stop() {
-        subscription.getAndSet(Transport.Subscription.EMPTY).unsubscribe();
-        Collection<Session> currentSessions = new ArrayList<>(sessions);
-        currentSessions.forEach(Session::close);
+        this.disposable.getAndSet(Disposables.empty()).dispose();
+        ImmutableList.copyOf(sessions).forEach(Session::close);
     }
 
     @Override
     public void close() {
+        stop();
     }
 
     private InvocationArguments toArguments(Map<String, JsonNode> args) {
@@ -117,14 +109,22 @@ public class RxServer implements AutoCloseable {
         };
     }
 
-    private void onAcceptTransport(Transport channel) {
-        channel.subscribe(new Session());
+    private void onAcceptTransport(Transport transport) {
+        sessions.add(new Session(transport));
     }
 
-    class Session implements Transport.Listener, AutoCloseable {
+    class Session implements AutoCloseable {
         private final ConcurrentMap<Long, Disposable> activeInvocations = new ConcurrentHashMap<>();
         private final EndpointResolver resolver = ScopedResolver.of(config.resolver());
-        private final AtomicReference<Transport.Session> channelSession = new AtomicReference<>();
+        private final Disposable disposable;
+        private final Transport transport;
+
+        Session(Transport transport) {
+            this.transport = transport;
+            this.disposable = this.transport
+                    .incoming()
+                    .subscribe(this::onMessage, this::onError, this::onClosed);
+        }
 
         private <T> void onDataResponse(Invocation invocation, T response) {
             sendResponse(Response.ofData(invocation.invocationId(), config.objectMapper().valueToTree(response)));
@@ -141,23 +141,23 @@ public class RxServer implements AutoCloseable {
         private void sendResponse(Response response) {
             try {
                 String msg = config.objectMapper().writeValueAsString(response);
-                channelSession.get().send(msg);
+                transport.outgoing().onNext(msg);
             } catch (JsonProcessingException e) {
                 log.error("Error occurred: ", e);
                 onError(e);
             }
         }
 
-        @Override
-        public void onConnected(Transport.Session session) {
-            channelSession.set(session);
-        }
-
-        @Override
-        public void onMessage(String message) {
+        private void onMessage(String message) {
             try {
                 Invocation invocation = config.objectMapper().readValue(message, Invocation.class);
                 try {
+                    if (invocation.method() == null) {
+                        Optional.ofNullable(activeInvocations.remove(invocation.invocationId()))
+                                .ifPresent(Disposable::dispose);
+                        return;
+                    }
+
                     EndpointDispatcher dispatcher = config.dispatcherFactory().create(resolver);
                     Publisher<?> response = dispatcher
                             .dispatch(invocation.method(), toArguments(invocation.arguments()));
@@ -179,17 +179,17 @@ public class RxServer implements AutoCloseable {
             }
         }
 
-        @Override
-        public void onClosed() {
+        private void onClosed() {
             clean();
         }
 
-        @Override
-        public void onError(Throwable error) {
+        private void onError(Throwable error) {
+            log.error("Error occurred: ", error);
             clean();
         }
 
         private synchronized void clean() {
+            this.disposable.dispose();
             sessions.remove(this);
             activeInvocations.values().forEach(Disposable::dispose);
             activeInvocations.clear();
@@ -198,7 +198,7 @@ public class RxServer implements AutoCloseable {
         @Override
         public void close() {
             try {
-                channelSession.get().close();
+                transport.outgoing().onComplete();
             } catch (Exception e) {
                 log.error("Error occurred when closing server: ", e);
             }

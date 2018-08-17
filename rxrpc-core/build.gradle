@@ -11,4 +11,8 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVer"
     implementation "com.google.auto.service:auto-service:$autoServiceVer"
     annotationProcessor "com.google.auto.service:auto-service:$autoServiceVer"
+
+    testImplementation "org.mockito:mockito-all:$mockitoVer"
+    testImplementation "ch.qos.logback:logback-classic:$logbackVer"
+    testImplementation "ch.qos.logback:logback-core:$logbackVer"
 }
