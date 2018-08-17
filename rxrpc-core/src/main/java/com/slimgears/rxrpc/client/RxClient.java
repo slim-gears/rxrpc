@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 import com.slimgears.rxrpc.core.EndpointResolver;
 import com.slimgears.rxrpc.core.Transport;
 import com.slimgears.rxrpc.core.data.Invocation;
@@ -15,7 +16,7 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.ReplaySubject;
 import io.reactivex.subjects.Subject;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
@@ -37,23 +38,30 @@ public class RxClient {
     @AutoValue
     public static abstract class Config implements HasObjectMapper {
         public abstract Transport.Client client();
-        public abstract EndpointFactory factory();
+        public abstract EndpointFactory endpointFactory();
+        public abstract SubjectFactory subjectFactory();
         public static Builder builder() {
             return new AutoValue_RxClient_Config.Builder()
                     .objectMapperProvider(ObjectMapper::new)
-                    .factory(EndpointFactories.constructorFactory());
+                    .endpointFactory(EndpointFactories.constructorFactory())
+                    .subjectFactory(ReplaySubject::create);
         }
 
         @AutoValue.Builder
         public interface Builder extends HasObjectMapper.Builder<Builder> {
             Builder client(Transport.Client client);
-            Builder factory(EndpointFactory factory);
+            Builder endpointFactory(EndpointFactory factory);
+            Builder subjectFactory(SubjectFactory factory);
             Config build();
 
             default RxClient createClient() {
                 return RxClient.forConfig(build());
             }
         }
+    }
+
+    public interface SubjectFactory {
+        <T> Subject<T> create();
     }
 
     public interface EndpointFactory {
@@ -89,7 +97,7 @@ public class RxClient {
 
         @Override
         public <T> T resolve(Class<T> endpointClientClass) {
-            return config.factory().create(endpointClientClass, session);
+            return config.endpointFactory().create(endpointClientClass, session);
         }
     }
 
@@ -123,7 +131,7 @@ public class RxClient {
         }
 
         private void onClosed() {
-            resultSubjects.values().forEach(Observer::onComplete);
+            ImmutableList.copyOf(resultSubjects.values()).forEach(Observer::onComplete);
         }
 
         private void onError(Throwable error) {
@@ -131,7 +139,7 @@ public class RxClient {
         }
 
         private Observable<Result> beginInvocation(String method, Map<String, Object> args) {
-            Subject<Result> subject = BehaviorSubject.create();
+            Subject<Result> subject = config.subjectFactory().create();
             Map<String, JsonNode> jsonArgs = args.entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> config.objectMapper().valueToTree(e.getValue())));
             long id = invocationId.incrementAndGet();
@@ -140,12 +148,10 @@ public class RxClient {
                     .method(method)
                     .arguments(jsonArgs)
                     .build();
+            resultSubjects.put(id, subject);
             return subject
                     .doOnLifecycle(
-                            d -> {
-                                resultSubjects.put(id, subject);
-                                sendInvocation(invocation);
-                            },
+                            d -> sendInvocation(invocation),
                             () -> sendInvocation(Invocation.ofCancellation(id)))
                     .doFinally(() -> resultSubjects.remove(id))
                     .share();

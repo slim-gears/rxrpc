@@ -10,6 +10,7 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 
 import java.net.URI;
@@ -24,8 +25,8 @@ class MockTransport implements Transport.Server, Transport.Client {
 
     @Override
     public Single<Transport> connect(URI uri) {
-        Subject<String> clientIncoming = BehaviorSubject.create();
-        Subject<String> serverIncoming = BehaviorSubject.create();
+        Subject<String> clientIncoming = PublishSubject.create();
+        Subject<String> serverIncoming = PublishSubject.create();
 
         Transport clientTransport = transportFor(clientIncoming, serverIncoming);
         Transport serverTransport = transportFor(serverIncoming, clientIncoming);

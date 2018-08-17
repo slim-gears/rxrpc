@@ -8,9 +8,13 @@ import com.slimgears.rxrpc.server.RxServer;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.subjects.ReplaySubject;
+import io.reactivex.subjects.Subject;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +32,7 @@ public class ClientServerTest {
 
     private RxServer rxServer;
     private RxClient rxClient;
+    private Subject<String> serverSubject;
 
     public static class EndpointClient extends AbstractClient {
         interface InvocationArgs {
@@ -54,13 +59,12 @@ public class ClientServerTest {
 
     @Before
     public void setUp() {
-        Observable<String> observable = Observable.just("One", "Two", "Three");
+        serverSubject = ReplaySubject.create();
 
         EndpointDispatcher.Factory factory = EndpointDispatchers
                 .builder(Object.class)
-                .method("testMethod", (target, args) -> observable
+                .method("testMethod", (target, args) -> serverSubject
                         .map(s -> args.get("prefix", String.class) + ":" + s)
-                        .doOnNext(log::debug)
                         .toFlowable(BackpressureStrategy.BUFFER))
                 .buildFactory();
 
@@ -84,17 +88,33 @@ public class ClientServerTest {
         rxServer.stop();
     }
 
-    @Ignore
     @Test
-    public void testClientServer() {
-        rxServer.start();
-        rxClient.connect(URI.create(""))
+    public void testBasicClientServer() {
+        TestObserver<String> tester = rxClient.connect(URI.create(""))
                 .resolve(EndpointClient.class)
                 .invokeObservable(String.class, "testMethod", args -> args.put("prefix", "[S]"))
-                .doOnNext(log::debug)
-                .test()
+                .test();
+
+        Observable.just("One", "Two", "Three").subscribe(serverSubject);
+        tester
                 .awaitDone(1000, TimeUnit.MILLISECONDS)
                 .assertValueCount(3)
                 .assertValueAt(1, "[S]:Two");
+    }
+
+    @Test
+    public void testClientUnsubscribeCausesServerUnsubscribe() {
+        Disposable subscription = rxClient.connect(URI.create(""))
+                .resolve(EndpointClient.class)
+                .invokeObservable(String.class, "testMethod", args -> args.put("prefix", "[S]"))
+                .subscribe();
+
+        Assert.assertTrue(serverSubject.hasObservers());
+        serverSubject.onNext("One");
+
+        Assert.assertTrue(serverSubject.hasObservers());
+        subscription.dispose();
+
+        Assert.assertFalse(serverSubject.hasObservers());
     }
 }

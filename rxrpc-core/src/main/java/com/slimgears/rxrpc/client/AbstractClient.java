@@ -1,15 +1,14 @@
 package com.slimgears.rxrpc.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.slimgears.rxrpc.core.data.Result;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Observable;
-import io.reactivex.Single;
+import io.reactivex.*;
+import io.reactivex.disposables.Disposable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -48,11 +47,32 @@ public abstract class AbstractClient {
     protected <T> Observable<T> invokeObservable(Class<T> responseType, String method, InvocationArguments args) {
         return session
                 .toObservable()
-                .flatMap(s -> Observable.fromPublisher(s.invoke(method, args.toMap())))
+                .map(s -> s.invoke(method, args.toMap()))
+                .flatMap(Observable::fromPublisher)
                 .takeWhile(result -> result.type() != Result.Type.Complete)
-                .flatMapSingle(result -> (result.type() == Result.Type.Data)
-                        ? Single.just(objectMapper.treeToValue(requireNonNull(result.data()), responseType))
-                        : Single.error(new RuntimeException(requireNonNull(result.error()).message())));
+                .compose(toValue(responseType));
+    }
+
+    private <T> ObservableTransformer<Result, T> toValue(Class<T> valueType) {
+        return source -> Observable.create(emitter -> {
+            Disposable disposable = source.subscribe(res -> {
+                if (res.type() == Result.Type.Data) {
+                    handleDataResult(res.data(), emitter, valueType);
+                } else {
+                    emitter.onError(new RuntimeException(requireNonNull(res.error()).message()));
+                }
+            }, emitter::onError, emitter::onComplete);
+            emitter.setDisposable(disposable);
+        });
+    }
+
+    private <T> void handleDataResult(JsonNode json, ObservableEmitter<T> emitter, Class<T> valueType) throws JsonProcessingException {
+        if (json == null) {
+            emitter.onComplete();
+            return;
+        }
+        T data = objectMapper.treeToValue(json, valueType);
+        emitter.onNext(data);
     }
 
     protected <T> Single<T> invokeSingle(Class<T> responseType, String method, InvocationArguments args) {
