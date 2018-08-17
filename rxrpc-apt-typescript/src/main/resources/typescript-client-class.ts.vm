@@ -3,7 +3,13 @@ $imports
 #if ($generateNgModule)
 @$[@angular.core.Injectable]()
 #end
-export class $targetClass.simpleName() {
+export class $targetClass.simpleName()##
+#if (!$interfaces.isEmpty())##
+ implements ##
+#foreach ($iface in $interfaces)$[$iface]#if($foreach.hasNext), #end##
+#end##
+#end##
+ {
     constructor(private client: $[ngRxrpc.RxRpcClient]) {
     }
 

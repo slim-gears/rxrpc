@@ -23,6 +23,9 @@ public class TypeScriptEndpointGenerationTest {
                         "SampleData.java",
                         "SampleEnum.java")
                 .expectedFiles(
+                        "sample-array-endpoint.ts",
+                        "sample-base-endpoint.ts",
+                        "sample-endpoint.ts",
                         "sample-endpoint-client.ts",
                         "sample-request.ts",
                         "sample-data.ts",

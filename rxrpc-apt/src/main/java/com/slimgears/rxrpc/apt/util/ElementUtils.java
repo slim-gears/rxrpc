@@ -6,25 +6,18 @@ package com.slimgears.rxrpc.apt.util;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableSet;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
+import javax.lang.model.element.*;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ElementUtils {
@@ -70,6 +63,14 @@ public class ElementUtils {
 
     public static boolean isNotStatic(Element element) {
         return modifiersContainNone(element, Modifier.STATIC);
+    }
+
+    public static boolean isInterface(Element element) {
+        return isOfKind(element, ElementKind.INTERFACE);
+    }
+
+    public static boolean isOfKind(Element element, ElementKind kind) {
+        return element.getKind() == kind;
     }
 
     public static boolean modifiersContainAll(Element element, Modifier... modifiers) {

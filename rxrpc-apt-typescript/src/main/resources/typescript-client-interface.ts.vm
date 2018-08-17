@@ -1,0 +1,17 @@
+$imports
+
+export interface $targetClass.simpleName()##
+#if (!$interfaces.isEmpty())##
+ extends ##
+#foreach ($iface in $interfaces)$iface#if($foreach.hasNext), #end##
+#end##
+#end##
+ {
+#foreach ($m in $sourceClass.methods())
+    $m.name()(##
+#foreach ($p in $m.params())##
+$p.name(): $[$tsUtils.toTypeScriptType($p.type())]##
+#if ($foreach.hasNext), #end##
+#end): $[rxjs.Observable<$tsUtils.toTypeScriptType($m.returnType().elementType())>];
+#end
+}

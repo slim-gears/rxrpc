@@ -1,10 +1,10 @@
-import { SampleArray, SampleData, SampleRequest } from './index';
+import { SampleArray, SampleData, SampleEndpoint, SampleRequest } from './index';
 import { Injectable } from '@angular/core';
 import { RxRpcClient } from 'ng-rxrpc';
 import { Observable } from 'rxjs';
 
 @Injectable()
-export class SampleEndpointClient {
+export class SampleEndpointClient implements SampleEndpoint {
     constructor(private client: RxRpcClient) {
     }
 
