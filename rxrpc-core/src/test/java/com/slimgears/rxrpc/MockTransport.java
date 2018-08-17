@@ -3,7 +3,7 @@
  */
 package com.slimgears.rxrpc;
 
-import com.slimgears.rxrpc.core.Transport;
+import com.slimgears.rxrpc.core.RxTransport;
 import com.slimgears.rxrpc.core.util.Emitters;
 import io.reactivex.Emitter;
 import io.reactivex.Observable;
@@ -15,28 +15,28 @@ import io.reactivex.subjects.Subject;
 
 import java.net.URI;
 
-class MockTransport implements Transport.Server, Transport.Client {
-    private final Subject<Transport> connections = BehaviorSubject.create();
+class MockTransport implements RxTransport.Server, RxTransport.Client {
+    private final Subject<RxTransport> connections = BehaviorSubject.create();
 
     @Override
-    public Observable<Transport> connections() {
+    public Observable<RxTransport> connections() {
         return connections;
     }
 
     @Override
-    public Single<Transport> connect(URI uri) {
+    public Single<RxTransport> connect(URI uri) {
         Subject<String> clientIncoming = PublishSubject.create();
         Subject<String> serverIncoming = PublishSubject.create();
 
-        Transport clientTransport = transportFor(clientIncoming, serverIncoming);
-        Transport serverTransport = transportFor(serverIncoming, clientIncoming);
+        RxTransport clientTransport = transportFor(clientIncoming, serverIncoming);
+        RxTransport serverTransport = transportFor(serverIncoming, clientIncoming);
 
         connections.onNext(serverTransport);
         return Single.just(clientTransport);
     }
 
-    private Transport transportFor(Observable<String> incoming, Observer<String> outgoing) {
-        return new Transport() {
+    private RxTransport transportFor(Observable<String> incoming, Observer<String> outgoing) {
+        return new RxTransport() {
             @Override
             public Emitter<String> outgoing() {
                 return Emitters.fromObserver(outgoing);

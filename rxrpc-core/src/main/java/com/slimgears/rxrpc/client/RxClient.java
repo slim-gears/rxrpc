@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.slimgears.rxrpc.core.EndpointResolver;
-import com.slimgears.rxrpc.core.Transport;
+import com.slimgears.rxrpc.core.RxTransport;
 import com.slimgears.rxrpc.core.data.Invocation;
 import com.slimgears.rxrpc.core.data.Response;
 import com.slimgears.rxrpc.core.data.Result;
@@ -37,7 +37,7 @@ public class RxClient {
 
     @AutoValue
     public static abstract class Config implements HasObjectMapper {
-        public abstract Transport.Client client();
+        public abstract RxTransport.Client client();
         public abstract EndpointFactory endpointFactory();
         public abstract SubjectFactory subjectFactory();
         public static Builder builder() {
@@ -49,7 +49,7 @@ public class RxClient {
 
         @AutoValue.Builder
         public interface Builder extends HasObjectMapper.Builder<Builder> {
-            Builder client(Transport.Client client);
+            Builder client(RxTransport.Client client);
             Builder endpointFactory(EndpointFactory factory);
             Builder subjectFactory(SubjectFactory factory);
             Config build();
@@ -70,6 +70,10 @@ public class RxClient {
 
     public interface Session extends AutoCloseable {
         Publisher<Result> invoke(String method, Map<String, Object> args);
+    }
+
+    public static RxClient forClient(RxTransport.Client client) {
+        return configBuilder().client(client).createClient();
     }
 
     public static RxClient forConfig(Config config) {
@@ -102,12 +106,12 @@ public class RxClient {
     }
 
     private class InternalSession implements Session {
-        private final Transport transport;
+        private final RxTransport transport;
         private final Disposable disposable;
         private final AtomicLong invocationId = new AtomicLong();
         private final Map<Long, Subject<Result>> resultSubjects = new HashMap<>();
 
-        private InternalSession(Transport transport) {
+        private InternalSession(RxTransport transport) {
             this.transport = transport;
             this.disposable = this.transport.incoming().subscribe(this::onMessage, this::onError, this::onClosed);
         }

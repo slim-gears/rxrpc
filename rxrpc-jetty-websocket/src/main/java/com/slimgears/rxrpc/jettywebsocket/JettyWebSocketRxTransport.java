@@ -1,6 +1,6 @@
 package com.slimgears.rxrpc.jettywebsocket;
 
-import com.slimgears.rxrpc.core.Transport;
+import com.slimgears.rxrpc.core.RxTransport;
 import io.reactivex.Emitter;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -22,15 +22,15 @@ import org.slf4j.LoggerFactory;
 import java.net.URI;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class JettyWebSocketTransport implements Transport, WebSocketListener {
-    private final static Logger log = LoggerFactory.getLogger(JettyWebSocketTransport.class);
+public class JettyWebSocketRxTransport implements RxTransport, WebSocketListener {
+    private final static Logger log = LoggerFactory.getLogger(JettyWebSocketRxTransport.class);
     private final AtomicReference<Disposable> disposable = new AtomicReference<>(Disposables.empty());
     private final Emitter<String> outgoing;
     private final Subject<String> outgoingSubject = BehaviorSubject.create();
     private final Subject<String> incoming = BehaviorSubject.create();
     private final CompletableSubject connected = CompletableSubject.create();
 
-    public JettyWebSocketTransport() {
+    public JettyWebSocketRxTransport() {
         this.outgoing = new Emitter<String>() {
             @Override
             public void onNext(String value) {
@@ -98,32 +98,32 @@ public class JettyWebSocketTransport implements Transport, WebSocketListener {
         incoming().onComplete();
     }
 
-    public static class Server extends WebSocketServlet implements Transport.Server {
-        private final Subject<Transport> connections = BehaviorSubject.create();
+    public static class Server extends WebSocketServlet implements RxTransport.Server {
+        private final Subject<RxTransport> connections = BehaviorSubject.create();
 
         @Override
         public void configure(WebSocketServletFactory factory) {
             factory.setCreator((servletUpgradeRequest, servletUpgradeResponse) -> {
-                JettyWebSocketTransport transport = new JettyWebSocketTransport();
+                JettyWebSocketRxTransport transport = new JettyWebSocketRxTransport();
                 connections.onNext(transport);
                 return transport;
             });
         }
 
         @Override
-        public Observable<Transport> connections() {
+        public Observable<RxTransport> connections() {
             return connections;
         }
     }
 
-    public static class Client implements Transport.Client {
+    public static class Client implements RxTransport.Client {
         private final WebSocketClient webSocketClient = new WebSocketClient();
 
         @Override
-        public Single<Transport> connect(URI uri) {
+        public Single<RxTransport> connect(URI uri) {
             try {
                 webSocketClient.start();
-                JettyWebSocketTransport transport = new JettyWebSocketTransport();
+                JettyWebSocketRxTransport transport = new JettyWebSocketRxTransport();
                 webSocketClient.connect(transport, uri);
                 transport.incoming().subscribe(Functions.emptyConsumer(), e -> webSocketClient.stop(), webSocketClient::stop);
                 return transport.connected.toSingle(() -> transport);

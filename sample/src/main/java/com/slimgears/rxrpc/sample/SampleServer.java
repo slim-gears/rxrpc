@@ -1,7 +1,7 @@
 package com.slimgears.rxrpc.sample;
 
 import com.slimgears.rxrpc.core.EndpointResolvers;
-import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketTransport;
+import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketRxTransport;
 import com.slimgears.rxrpc.server.RxServer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -9,7 +9,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 
 public class SampleServer {
     private final Server jetty;
-    private final JettyWebSocketTransport.Server msgChannelServer = new JettyWebSocketTransport.Server();
+    private final JettyWebSocketRxTransport.Server msgChannelServer = new JettyWebSocketRxTransport.Server();
     private final RxServer rxServer;
 
     public SampleServer(int port) {

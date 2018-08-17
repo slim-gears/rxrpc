@@ -7,14 +7,13 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.slimgears.rxrpc.core.EndpointResolver;
 import com.slimgears.rxrpc.core.EndpointResolvers;
-import com.slimgears.rxrpc.core.Transport;
+import com.slimgears.rxrpc.core.RxTransport;
 import com.slimgears.rxrpc.core.data.Invocation;
 import com.slimgears.rxrpc.core.data.Response;
 import com.slimgears.rxrpc.core.util.HasObjectMapper;
 import com.slimgears.rxrpc.server.internal.InvocationArguments;
 import com.slimgears.rxrpc.server.internal.ScopedResolver;
 import io.reactivex.Observable;
-import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
 import org.reactivestreams.Publisher;
@@ -22,7 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -35,7 +37,7 @@ public class RxServer implements AutoCloseable {
 
     @AutoValue
     public static abstract class Config implements HasObjectMapper {
-        public abstract Transport.Server server();
+        public abstract RxTransport.Server server();
         public abstract EndpointResolver resolver();
         public abstract EndpointDispatcher.Factory dispatcherFactory();
 
@@ -47,7 +49,7 @@ public class RxServer implements AutoCloseable {
 
         @AutoValue.Builder
         public interface Builder extends HasObjectMapper.Builder<Builder> {
-            Builder server(Transport.Server server);
+            Builder server(RxTransport.Server server);
             Builder resolver(EndpointResolver resolver);
             Builder dispatcherFactory(EndpointDispatcher.Factory factory);
             Config build();
@@ -109,7 +111,7 @@ public class RxServer implements AutoCloseable {
         };
     }
 
-    private void onAcceptTransport(Transport transport) {
+    private void onAcceptTransport(RxTransport transport) {
         sessions.add(new Session(transport));
     }
 
@@ -117,9 +119,9 @@ public class RxServer implements AutoCloseable {
         private final ConcurrentMap<Long, Disposable> activeInvocations = new ConcurrentHashMap<>();
         private final EndpointResolver resolver = ScopedResolver.of(config.resolver());
         private final Disposable disposable;
-        private final Transport transport;
+        private final RxTransport transport;
 
-        Session(Transport transport) {
+        Session(RxTransport transport) {
             this.transport = transport;
             this.disposable = this.transport
                     .incoming()

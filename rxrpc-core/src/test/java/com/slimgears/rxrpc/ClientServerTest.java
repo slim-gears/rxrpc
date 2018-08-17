@@ -75,10 +75,7 @@ public class ClientServerTest {
                 .dispatcherFactory(factory)
                 .createServer();
 
-        rxClient = RxClient
-                .configBuilder()
-                .client(mockTransport)
-                .createClient();
+        rxClient = RxClient.forClient(mockTransport);
 
         rxServer.start();
     }

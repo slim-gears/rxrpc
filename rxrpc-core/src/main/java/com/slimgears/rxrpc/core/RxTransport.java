@@ -6,16 +6,16 @@ import io.reactivex.Single;
 
 import java.net.URI;
 
-public interface Transport extends AutoCloseable {
+public interface RxTransport extends AutoCloseable {
     Emitter<String> outgoing();
     Observable<String> incoming();
     default void close() {}
 
     interface Client {
-        Single<Transport> connect(URI uri);
+        Single<RxTransport> connect(URI uri);
     }
 
     interface Server {
-        Observable<Transport> connections();
+        Observable<RxTransport> connections();
     }
 }

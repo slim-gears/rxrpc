@@ -1,10 +1,8 @@
 package com.slimgears.rxrpc.sample;
 
 import ch.qos.logback.classic.Level;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.slimgears.rxrpc.client.EndpointFactories;
 import com.slimgears.rxrpc.client.RxClient;
-import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketTransport;
+import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketRxTransport;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -27,9 +25,7 @@ public class SampleServerTest {
         SampleServer server = new SampleServer(port);
         server.start();
 
-        RxClient rxClient = RxClient.configBuilder()
-                .client(new JettyWebSocketTransport.Client())
-                .createClient();
+        RxClient rxClient = RxClient.forClient(new JettyWebSocketRxTransport.Client());
 
         SampleEndpoint_RxClient sampleEndpointClient = rxClient.connect(uri).resolve(SampleEndpoint_RxClient.class);
         String msgFromServer = sampleEndpointClient.futureStringMethod("Test", new SampleRequest(3, "sampleName")).get();
