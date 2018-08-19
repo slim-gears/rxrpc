@@ -18,7 +18,7 @@ export class $targetClass.simpleName()##
 #foreach ($p in $m.params())##
 $p.name(): $[$tsUtils.toTypeScriptType($p.type())]##
 #if ($foreach.hasNext), #end##
-#end): $[rxjs.Observable<$tsUtils.toTypeScriptType($m.returnType().elementType())>] {
+#end): $[rxjs.Observable<$tsUtils.toTypeScriptType($utils.elementType($m.returnType()))>] {
         return this.client.invoke('$meta.value()/$m.name()', {
 #foreach ($p in $m.params())##
             $p.name(): $p.name()#if ($foreach.hasNext),#end

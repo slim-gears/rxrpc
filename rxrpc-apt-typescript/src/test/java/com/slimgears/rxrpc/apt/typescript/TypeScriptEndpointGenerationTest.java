@@ -32,6 +32,7 @@ public class TypeScriptEndpointGenerationTest {
         TestBundles.sampleSpecializedEndpointTester()
                 .apply(this::typeScriptOptions)
                 .expectedFiles(
+                        "sample-generic-data.ts",
                         "sample-generic-endpoint.ts",
                         "sample-specialized-endpoint.ts",
                         "sample-specialized-endpoint-client.ts")

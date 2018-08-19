@@ -31,6 +31,7 @@ public class SampleEndpoint_RxModule implements Module {
             Publishers.toPublisher(target.arrayObservableMethod(
                     args.get("sampleData", SampleData.class)));
 
+
     private final static Factory dispatcherFactory = EndpointDispatchers
             .builder(SampleEndpoint.class)
             .method("futureStringMethod", futureStringMethod)

@@ -14,6 +14,9 @@ import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.lang.model.element.Element;
+import javax.lang.model.element.Name;
+
 @AutoService(DataClassGenerator.class)
 public class TypeScriptDataClassGenerator implements DataClassGenerator {
     private final static Logger log = LoggerFactory.getLogger(TypeScriptDataClassGenerator.class);
@@ -22,6 +25,13 @@ public class TypeScriptDataClassGenerator implements DataClassGenerator {
     public void generate(Context context) {
         String className = context.sourceTypeElement().getQualifiedName().toString();
         ImportTracker importTracker = ImportTracker.create(TypeInfo.packageName(className));
+        context.sourceTypeElement()
+                .getTypeParameters()
+                .stream()
+                .map(Element::getSimpleName)
+                .map(Name::toString)
+                .map(TypeInfo::of)
+                .forEach(importTracker::knownClass);
 
         log.debug("Generating code for source type: {}", context.sourceTypeElement().getQualifiedName());
         log.debug("Target class name: {}", className);

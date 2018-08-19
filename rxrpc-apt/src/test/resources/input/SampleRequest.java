@@ -1,16 +1,11 @@
-/**
- *
- */
 package com.slimgears.rxrpc.sample;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.slimgears.rxrpc.core.RxRpcData;
 import com.slimgears.rxrpc.sample.SampleData;
 
 import java.util.Map;
 
-@RxRpcData
 public class SampleRequest {
     public final int id;
 

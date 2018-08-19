@@ -2,9 +2,16 @@ package $sourceClass.packageName();
 
 $imports
 
-#set ($simpleClassName = $imports.use($targetClass.name()))
-#set ($sourceClassName = $sourceClass.name())
+#set ($simpleClassName = $imports.use($targetClass.name()))##
+#set ($sourceClassName = $sourceClass.name())##
 
+#macro (classLiteral $type)##
+#if ($type.hasTypeParams())##
+(Class<$[$type]>)(Class)${type.simpleName()}.class##
+#else##
+$[$type.asBoxed()].class##
+#end##
+#end##
 
 @$[javax.annotation.Generated]("$processorClass.name()")
 #if ($autoService)##
@@ -14,11 +21,11 @@ public class $simpleClassName implements $[com.slimgears.rxrpc.server.EndpointDi
 #foreach ($m in $methods)
 #set ($methodName = $m.name())
 #set ($returnType = $m.returnType())
-#set ($elementType = $returnType.elementType())
+#set ($elementType = $utils.elementType($returnType))
     private final static $[com.slimgears.rxrpc.server.internal.MethodDispatcher]<$[$sourceClassName], $[$elementType.asBoxed()]> $methodName = (target, args) ->
         $[com.slimgears.rxrpc.server.internal.Publishers].toPublisher(target.$methodName(
 #foreach ($p in $m.params())
-            args.get("$p.name()", $[$p.type()].class)#if ($foreach.hasNext),
+            args.get("$p.name()", #classLiteral($p.type()))#if ($foreach.hasNext),
 #end##
 #end));
 

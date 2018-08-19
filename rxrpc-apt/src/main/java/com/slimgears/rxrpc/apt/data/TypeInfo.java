@@ -47,10 +47,18 @@ public abstract class TypeInfo implements HasName, HasMethods, HasAnnotations, H
                 .collect(Collectors.joining(", ", "<", ">"));
     }
 
-    public TypeInfo elementType() {
+    public Optional<TypeInfo> elementType() {
         return typeParams().isEmpty()
-                ? isArray() ? TypeInfo.of(name().substring(0, name().indexOf("[]"))) : this
-                : typeParams().get(0).type();
+                ? isArray() ? Optional.of(TypeInfo.of(name().substring(0, name().indexOf("[]")))) : Optional.empty()
+                : Optional.of(typeParams().get(0).type());
+    }
+
+    public TypeInfo elementTypeOrVoid() {
+        return elementType().orElse(TypeInfo.of(Void.class));
+    }
+
+    public TypeInfo elementTypeOrSelf() {
+        return elementType().orElse(this);
     }
 
     public String simpleName() {
@@ -82,7 +90,7 @@ public abstract class TypeInfo implements HasName, HasMethods, HasAnnotations, H
     }
 
     public static TypeInfo arrayOf(TypeInfo typeInfo) {
-        return builder().name(typeInfo.elementType().name() + "[]").build();
+        return builder().name(typeInfo.elementTypeOrSelf().name() + "[]").build();
     }
 
     public static TypeInfo of(String name, TypeInfo... params) {

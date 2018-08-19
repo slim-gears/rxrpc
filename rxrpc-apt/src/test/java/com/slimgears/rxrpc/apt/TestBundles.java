@@ -24,6 +24,7 @@ public class TestBundles {
     public static AnnotationProcessingTester sampleSpecializedEndpointTester() {
         return rxRpcEndpointProcessingTester()
                 .inputFiles(
+                        "SampleGenericData.java",
                         "SampleGenericEndpoint.java",
                         "SampleSpecializedEndpoint.java");
     }

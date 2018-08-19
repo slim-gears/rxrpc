@@ -24,6 +24,10 @@ public class TemplateUtils {
         return knownAsyncTypes.contains(type.name());
     }
 
+    public static TypeInfo elementType(TypeInfo type) {
+        return isKnownAsyncType(type) ? type.elementTypeOrVoid() : type.elementTypeOrSelf();
+    }
+
     public static String camelCaseToDash(String camelCase) {
         return camelCasePattern.matcher(camelCase).replaceAll("$1-$2").toLowerCase();
     }

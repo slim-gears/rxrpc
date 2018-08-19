@@ -57,6 +57,7 @@ public class TypeScriptUtils extends TemplateUtils {
             .putAll(types("string", String.class, char.class, Character.class, CharSequence.class))
             .putAll(types("boolean", boolean.class, Boolean.class))
             .putAll(types("any", JsonNode.class, Object.class))
+            .putAll(types("void", void.class, Void.class))
             .putAll(types("Map", Map.class))
             .build();
 
@@ -73,7 +74,7 @@ public class TypeScriptUtils extends TemplateUtils {
     private final TypeConverter typeConverter = TypeConverter.ofMultiple(
             TypeConverter.create(typeMapping::containsKey, typeMapping::get),
             TypeConverter.create(type -> type.is(Map.class), type -> convertTypeParams(type, "Map")),
-            TypeConverter.create(type -> type.is(List.class), type -> TypeInfo.arrayOf(convertType(type.elementType()))),
+            TypeConverter.create(type -> type.is(List.class), type -> TypeInfo.arrayOf(convertType(type.elementTypeOrSelf()))),
             TypeConverter.create(TypeInfo::isArray, this::convertArray),
             //TypeConverter.create(generatedClasses::containsKey, generatedClasses::get),
             TypeConverter.create(type -> true, this::convertRecursively));
@@ -191,7 +192,7 @@ public class TypeScriptUtils extends TemplateUtils {
 
     private TypeInfo convertArray(TypeInfo arrayType) {
         Preconditions.checkArgument(arrayType.isArray());
-        return TypeInfo.of(convertType(arrayType.elementType()).name() + "[]");
+        return TypeInfo.of(convertType(arrayType.elementTypeOrSelf()).name() + "[]");
     }
 
     private TypeInfo convertTypeParams(TypeInfo typeInfo, String newName) {

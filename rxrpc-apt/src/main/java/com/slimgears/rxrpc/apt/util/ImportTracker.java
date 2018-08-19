@@ -52,12 +52,13 @@ public class ImportTracker {
     }
 
     private TypeInfo simplify(TypeInfo typeInfo) {
-        if (knownClasses.contains(typeInfo)) {
+        if (knownClasses.contains(typeInfo) ||
+                (typeInfo.isArray() && knownClasses.contains(typeInfo.elementTypeOrSelf()))) {
             return typeInfo;
         }
 
         usedClasses.add(typeInfo.isArray()
-                ? typeInfo.elementType()
+                ? typeInfo.elementTypeOrSelf()
                 : TypeInfo.of(typeInfo.name()));
 
         String packageName = typeInfo.packageName();

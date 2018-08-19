@@ -14,6 +14,10 @@ import java.util.stream.Stream;
 public interface HasTypeParameters {
     ImmutableList<TypeParameterInfo> typeParams();
 
+    default boolean hasTypeParams() {
+        return !typeParams().isEmpty();
+    }
+
     interface Builder<B extends Builder<B>> {
         ImmutableList.Builder<TypeParameterInfo> typeParamsBuilder();
 
