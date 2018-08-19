@@ -2,18 +2,21 @@ package com.slimgears.rxrpc.apt.data;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
+import com.slimgears.rxrpc.apt.util.ElementUtils;
 import com.slimgears.rxrpc.apt.util.TypeInfoParser;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import java.lang.reflect.Type;
 import java.util.Comparator;
 import java.util.Optional;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.slimgears.rxrpc.apt.util.StreamUtils.ofType;
 
 @AutoValue
 public abstract class TypeInfo implements HasName, HasMethods, HasAnnotations, HasTypeParameters {
@@ -97,6 +100,7 @@ public abstract class TypeInfo implements HasName, HasMethods, HasAnnotations, H
     }
 
     public static TypeInfo of(TypeElement typeElement) {
+        DeclaredType declaredType = ElementUtils.toDeclaredType(typeElement);
         Builder builder = builder()
                 .name(typeElement.getQualifiedName().toString())
                 .annotationsFromElement(typeElement)
@@ -104,8 +108,8 @@ public abstract class TypeInfo implements HasName, HasMethods, HasAnnotations, H
 
         typeElement.getEnclosedElements()
                 .stream()
-                .filter(ExecutableElement.class::isInstance)
-                .map(ExecutableElement.class::cast)
+                .flatMap(ofType(ExecutableElement.class))
+                .map(m -> MethodInfo.create(m, declaredType))
                 .forEach(builder::method);
 
         return builder.build();

@@ -1,22 +1,18 @@
 package com.slimgears.rxrpc.apt.internal;
 
+import com.slimgears.rxrpc.apt.data.Environment;
 import com.slimgears.rxrpc.apt.util.LogUtils;
+import com.slimgears.rxrpc.apt.util.Safe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.ServiceLoader;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static com.slimgears.rxrpc.apt.util.StreamUtils.ofType;
@@ -36,7 +32,8 @@ public abstract class AbstractAnnotationProcessor<G extends CodeGenerator<C>, C 
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        try (LogUtils.SelfClosable ignored = LogUtils.applyLogging(processingEnv)) {
+        try (LogUtils.SelfClosable ignored = LogUtils.applyLogging(processingEnv);
+             Safe.SafeClosable envClosable = Environment.withEnvironment(processingEnv, roundEnv)) {
             onStart();
             boolean res = annotations
                     .stream()

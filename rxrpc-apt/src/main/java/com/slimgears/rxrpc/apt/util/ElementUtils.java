@@ -6,19 +6,20 @@ package com.slimgears.rxrpc.apt.util;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableSet;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Future;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+
+import static com.slimgears.rxrpc.apt.util.StreamUtils.ofType;
+import static com.slimgears.rxrpc.apt.util.StreamUtils.self;
 
 public class ElementUtils {
     private final static ImmutableSet<String> knownClasses = ImmutableSet
@@ -40,6 +41,8 @@ public class ElementUtils {
             .add("io.reactivex.Maybe")
             .add("io.reactivex.Completable")
             .build();
+
+    private final static ThreadLocal<ProcessingEnvironment> processingEnvironment = new ThreadLocal<>();
 
     private static String[] types(Class... classes) {
         return Stream.of(classes).map(Class::getName).toArray(String[]::new);
@@ -110,11 +113,7 @@ public class ElementUtils {
                                 .filter(VariableElement.class::isInstance)
                                 .map(VariableElement.class::cast)
                                 .flatMap(v -> getReferencedTypeParams(v.asType()))
-                                .filter(DeclaredType.class::isInstance)
-                                .map(DeclaredType.class::cast)
-                                .map(DeclaredType::asElement)
-                                .filter(TypeElement.class::isInstance)
-                                .map(TypeElement.class::cast)))
+                                .flatMap(ElementUtils::toTypeElement)))
                 .filter(ElementUtils::isUnknownType)
                 .distinct();
     }
@@ -125,11 +124,7 @@ public class ElementUtils {
                 executableElement.getParameters().stream()
                         .map(VariableElement::asType))
                         .flatMap(ElementUtils::getReferencedTypeParams)
-                .filter(DeclaredType.class::isInstance)
-                .map(DeclaredType.class::cast)
-                .map(DeclaredType::asElement)
-                .filter(TypeElement.class::isInstance)
-                .map(TypeElement.class::cast)
+                .flatMap(ElementUtils::toTypeElement)
                 .distinct();
     }
 
@@ -145,8 +140,26 @@ public class ElementUtils {
                         .filter(ArrayType.class::isInstance)
                         .map(ArrayType.class::cast)
                         .map(ArrayType::getComponentType))
-                .flatMap(s -> s)
+                .flatMap(self())
                 .distinct();
+    }
+
+    public static Stream<DeclaredType> getHierarchy(DeclaredType declaredType) {
+        return Stream.of(
+                Stream.of(declaredType),
+                getSuperClass(declaredType),
+                getInterfaces(declaredType))
+                .flatMap(self())
+                .distinct();
+    }
+
+    public static Stream<ExecutableElement> getMethods(DeclaredType declaredType) {
+        return toTypeElement(declaredType)
+                .map(TypeElement::getEnclosedElements)
+                .flatMap(Collection::stream)
+                .flatMap(ofType(ExecutableElement.class))
+                .filter(ElementUtils::isPublic)
+                .filter(ElementUtils::isNotStatic);
     }
 
     public static Stream<TypeElement> getHierarchy(TypeElement typeElement) {
@@ -154,21 +167,44 @@ public class ElementUtils {
                 Stream.of(typeElement),
                 Stream.of(typeElement)
                         .map(TypeElement::getSuperclass)
-                        .filter(DeclaredType.class::isInstance)
-                        .map(DeclaredType.class::cast)
-                        .map(DeclaredType::asElement)
-                        .filter(TypeElement.class::isInstance)
-                        .map(TypeElement.class::cast)
+                        .flatMap(ElementUtils::toTypeElement)
                         .flatMap(ElementUtils::getHierarchy),
                 Stream.of(typeElement)
                         .flatMap(t -> t.getInterfaces().stream())
-                        .filter(DeclaredType.class::isInstance)
-                        .map(DeclaredType.class::cast)
-                        .map(DeclaredType::asElement)
-                        .filter(TypeElement.class::isInstance)
-                        .map(TypeElement.class::cast)
+                        .flatMap(ElementUtils::toTypeElement)
                         .flatMap(ElementUtils::getHierarchy))
-                .flatMap(s -> s)
+                .flatMap(self())
                 .distinct();
+    }
+
+    public static Stream<DeclaredType> toDeclaredTypeStream(TypeElement typeElement) {
+        return Stream.of(typeElement)
+                .map(TypeElement::asType)
+                .flatMap(ofType(DeclaredType.class));
+    }
+
+    public static DeclaredType toDeclaredType(TypeElement typeElement) {
+        return toDeclaredTypeStream(typeElement)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Cannot convert " + typeElement.getQualifiedName() + " to DeclaredType"));
+    }
+
+    private static Stream<TypeElement> toTypeElement(TypeMirror type) {
+        return Stream.of(type)
+                .flatMap(ofType(DeclaredType.class))
+                .map(DeclaredType::asElement)
+                .flatMap(ofType(TypeElement.class));
+    }
+
+    private static Stream<DeclaredType> getSuperClass(DeclaredType type) {
+        return toTypeElement(type)
+                .map(TypeElement::getSuperclass)
+                .flatMap(ofType(DeclaredType.class));
+    }
+
+    private static Stream<DeclaredType> getInterfaces(DeclaredType type) {
+        return toTypeElement(type)
+                .flatMap(e -> e.getInterfaces().stream())
+                .flatMap(ofType(DeclaredType.class));
     }
 }

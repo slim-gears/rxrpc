@@ -8,18 +8,14 @@ import com.slimgears.rxrpc.apt.internal.AbstractAnnotationProcessor;
 import com.slimgears.rxrpc.apt.util.ElementUtils;
 import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import com.slimgears.rxrpc.core.RxRpcEndpoint;
-import com.slimgears.rxrpc.core.RxRpcMethod;
 
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.ServiceLoader;
+import javax.lang.model.type.DeclaredType;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @AutoService(Processor.class)
@@ -80,13 +76,12 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
 
     @Override
     protected EndpointGenerator.Context createContext(TypeElement annotationType, TypeElement typeElement) {
-        Collection<MethodInfo> methods = ElementUtils.getHierarchy(typeElement)
-                .flatMap(t -> t.getEnclosedElements().stream())
-                .filter(el -> el.getAnnotation(RxRpcMethod.class) != null)
-                .filter(ExecutableElement.class::isInstance)
-                .map(ExecutableElement.class::cast)
+        DeclaredType declaredType = (DeclaredType)typeElement.asType();
+        Collection<MethodInfo> methods = ElementUtils.toDeclaredTypeStream(typeElement)
+                .flatMap(ElementUtils::getHierarchy)
+                .flatMap(ElementUtils::getMethods)
                 .map(this::ensureReferencedTypesGenerated)
-                .map(MethodInfo::of)
+                .map(methodElement -> MethodInfo.create(methodElement, declaredType))
                 .collect(Collectors.toList());
 
         return EndpointGenerator.Context.builder()

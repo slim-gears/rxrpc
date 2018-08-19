@@ -19,6 +19,20 @@ public class Safe {
         R apply(T from) throws Exception;
     }
 
+    public interface SafeClosable extends AutoCloseable {
+        void close();
+    }
+
+    public static SafeClosable of(AutoCloseable closeable) {
+        return () -> {
+            try {
+                closeable.close();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
     public static <T> Supplier<T> of(UnsafeSupplier<T> supplier) {
         return () -> {
             try {

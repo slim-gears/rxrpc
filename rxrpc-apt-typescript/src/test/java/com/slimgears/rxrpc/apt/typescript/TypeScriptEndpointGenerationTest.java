@@ -3,25 +3,15 @@ package com.slimgears.rxrpc.apt.typescript; /**
  */
 
 import com.slimgears.rxrpc.apt.AnnotationProcessingTester;
-import com.slimgears.rxrpc.apt.RxRpcEndpointAnnotationProcessor;
+import com.slimgears.rxrpc.apt.TestBundles;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.event.Level;
 
 public class TypeScriptEndpointGenerationTest {
     @Test
-    public void testEndpointClientServerGeneration() {
-        AnnotationProcessingTester.create()
-                .options(
-                        "-Arxrpc.ts.ngmodule",
-                        "-Arxrpc.ts.npm")
-                .inputFiles(
-                        "SampleBaseEndpoint.java",
-                        "SampleArrayEndpoint.java",
-                        "SampleArray.java",
-                        "SampleEndpoint.java",
-                        "SampleRequest.java",
-                        "SampleData.java",
-                        "SampleEnum.java")
+    public void testEndpointClientGeneration() {
+        TestBundles.sampleEndpointTester()
+                .apply(this::typeScriptOptions)
                 .expectedFiles(
                         "sample-array-endpoint.ts",
                         "sample-base-endpoint.ts",
@@ -34,8 +24,24 @@ public class TypeScriptEndpointGenerationTest {
                         "index.ts",
                         "module.ts",
                         "tsconfig.json")
-                .processedWith(new RxRpcEndpointAnnotationProcessor())
-                .verbosity(Level.TRACE)
                 .test();
+    }
+
+    @Ignore
+    @Test
+    public void testSpecializedClientGeneration() {
+        TestBundles.sampleSpecializedEndpointTester()
+                .apply(this::typeScriptOptions)
+                .expectedFiles(
+                        "sample-generic-endpoint.ts",
+                        "sample-specialized-endpoint.ts",
+                        "sample-specialized-endpoint-client.ts")
+                .test();
+    }
+
+    private AnnotationProcessingTester typeScriptOptions(AnnotationProcessingTester tester) {
+        return tester.options(
+                        "-Arxrpc.ts.ngmodule",
+                        "-Arxrpc.ts.npm");
     }
 }

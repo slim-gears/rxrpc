@@ -6,7 +6,10 @@ package com.slimgears.rxrpc.apt.typescript;
 import com.google.auto.service.AutoService;
 import com.slimgears.rxrpc.apt.EndpointGenerator;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
-import com.slimgears.rxrpc.apt.util.*;
+import com.slimgears.rxrpc.apt.util.ElementUtils;
+import com.slimgears.rxrpc.apt.util.ImportTracker;
+import com.slimgears.rxrpc.apt.util.TemplateEvaluator;
+import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +22,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.slimgears.rxrpc.apt.util.StreamUtils.ofType;
 
 @AutoService(EndpointGenerator.class)
 public class TypeScriptEndpointGenerator implements EndpointGenerator {
@@ -59,6 +64,7 @@ public class TypeScriptEndpointGenerator implements EndpointGenerator {
                 .apply(TypeScriptUtils.imports(importTracker))
                 .write(TypeScriptUtils.fileWriter(context.environment(), filename));
 
+        DeclaredType declaredType = ElementUtils.toDeclaredType(context.sourceTypeElement());
         TypeScriptUtils.addGeneratedClass(
                 TypeInfo.of(context.sourceTypeElement()),
                 targetClass);
@@ -68,11 +74,11 @@ public class TypeScriptEndpointGenerator implements EndpointGenerator {
         TypeElement typeElement = context.sourceTypeElement();
 
         Stream<? extends TypeMirror> interfaceTypes = typeElement.getInterfaces().stream();
-        return StreamUtils.ofType(DeclaredType.class, interfaceTypes)
+        return interfaceTypes
+                .flatMap(ofType(DeclaredType.class))
                 .map(t -> ensureInterfaceGenerated(t, context))
                 .map(DeclaredType::asElement)
-                .filter(TypeElement.class::isInstance)
-                .map(TypeElement.class::cast)
+                .flatMap(ofType(TypeElement.class))
                 .map(TypeElement::getSimpleName)
                 .map(Object::toString)
                 .map(TypeInfo::of)

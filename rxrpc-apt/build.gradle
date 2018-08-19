@@ -36,6 +36,7 @@ dependencies {
     implementation "ch.qos.logback:logback-classic:$logbackVer"
     implementation "ch.qos.logback:logback-core:$logbackVer"
     implementation "javax.annotation:javax.annotation-api:$annotationApiVer"
+    implementation "com.squareup:javapoet:$javaPoetVer"
 
     testImplementation files(Jvm.current().getToolsJar())
 }

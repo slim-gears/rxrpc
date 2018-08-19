@@ -31,6 +31,7 @@ project.ext {
     commonsIoVer = "2.6"
     annotationApiVer = "1.3.2"
     mockitoVer = "1.10.19"
+    javaPoetVer = "1.11.1"
 
     sourceCompatibility = 1.8
     javaGradle = "$projectDir/gradle/java.gradle"

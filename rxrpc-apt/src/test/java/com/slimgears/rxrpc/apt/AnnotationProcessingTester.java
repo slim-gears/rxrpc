@@ -72,6 +72,10 @@ public class AnnotationProcessingTester {
         return this;
     }
 
+    public AnnotationProcessingTester apply(Function<AnnotationProcessingTester, AnnotationProcessingTester> config) {
+        return config.apply(this);
+    }
+
     public void test() {
         options("-Averbosity=" + verbosityLevel);
 

@@ -4,6 +4,7 @@
 package com.slimgears.rxrpc.apt.internal;
 
 import com.slimgears.rxrpc.apt.data.TypeInfo;
+import com.slimgears.rxrpc.apt.util.ElementUtils;
 import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
 import java.util.Map;
 import java.util.Optional;
 
@@ -26,6 +28,9 @@ public interface CodeGenerator<C extends CodeGenerator.Context> {
         public TemplateUtils utils() { return TemplateUtils.instance; }
         public TypeInfo sourceClass() {
             return TypeInfo.of(sourceTypeElement());
+        }
+        public DeclaredType sourceDeclaredType() {
+            return ElementUtils.toDeclaredType(sourceTypeElement());
         }
         public Logger log() { return log; }
         public Map<String, String> options() {
