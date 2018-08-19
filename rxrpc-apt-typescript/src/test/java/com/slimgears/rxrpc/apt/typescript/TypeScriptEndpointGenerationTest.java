@@ -27,7 +27,6 @@ public class TypeScriptEndpointGenerationTest {
                 .test();
     }
 
-    @Ignore
     @Test
     public void testSpecializedClientGeneration() {
         TestBundles.sampleSpecializedEndpointTester()

@@ -7,8 +7,10 @@ import com.slimgears.rxrpc.apt.data.TypeInfo;
 import com.slimgears.rxrpc.apt.data.TypeParameterInfo;
 import org.apache.commons.text.StringSubstitutor;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.TreeSet;
 import java.util.function.Function;
 
@@ -16,6 +18,7 @@ public class ImportTracker {
     private final static String importsMagicWord = "`imports`";
     private final Collection<String> imports = new TreeSet<>();
     private final Collection<TypeInfo> usedClasses = new TreeSet<>(TypeInfo.comparator);
+    private final Collection<TypeInfo> knownClasses = new HashSet<>();
     private final String selfPackageName;
 
     public static ImportTracker create(String selfPackageName) {
@@ -34,6 +37,11 @@ public class ImportTracker {
         return this.usedClasses.toArray(new TypeInfo[usedClasses.size()]);
     }
 
+    public ImportTracker knownClass(TypeInfo... typeInfo) {
+        knownClasses.addAll(Arrays.asList(typeInfo));
+        return this;
+    }
+
     public String use(TypeInfo typeInfo) {
         return simplify(typeInfo).fullName();
     }
@@ -44,6 +52,10 @@ public class ImportTracker {
     }
 
     private TypeInfo simplify(TypeInfo typeInfo) {
+        if (knownClasses.contains(typeInfo)) {
+            return typeInfo;
+        }
+
         usedClasses.add(typeInfo.isArray()
                 ? typeInfo.elementType()
                 : TypeInfo.of(typeInfo.name()));

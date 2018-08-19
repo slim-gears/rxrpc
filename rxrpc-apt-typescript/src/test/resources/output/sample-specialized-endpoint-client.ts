@@ -1,4 +1,7 @@
-import { SampleSpecializedEndpoint } from './index'
+import { SampleSpecializedEndpoint } from './index';
+import { Injectable } from '@angular/core';
+import { RxRpcClient } from 'ng-rxrpc';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class SampleSpecializedEndpointClient implements SampleSpecializedEndpoint {

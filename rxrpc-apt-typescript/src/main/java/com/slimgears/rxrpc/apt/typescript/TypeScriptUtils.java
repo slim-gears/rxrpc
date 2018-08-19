@@ -75,8 +75,8 @@ public class TypeScriptUtils extends TemplateUtils {
             TypeConverter.create(type -> type.is(Map.class), type -> convertTypeParams(type, "Map")),
             TypeConverter.create(type -> type.is(List.class), type -> TypeInfo.arrayOf(convertType(type.elementType()))),
             TypeConverter.create(TypeInfo::isArray, this::convertArray),
-            TypeConverter.create(generatedClasses::containsKey, generatedClasses::get),
-            TypeConverter.create(type -> true, type -> TypeInfo.of(type.simpleName())));
+            //TypeConverter.create(generatedClasses::containsKey, generatedClasses::get),
+            TypeConverter.create(type -> true, this::convertRecursively));
 
     private final ImportTracker importTracker;
 
@@ -211,5 +211,15 @@ public class TypeScriptUtils extends TemplateUtils {
                 .stream()
                 .map(type -> "export * from './" + TemplateUtils.camelCaseToDash(type.simpleName()) + "';")
                 .collect(Collectors.joining("\n"));
+    }
+
+    private TypeInfo convertRecursively(TypeInfo typeInfo) {
+        if (typeInfo.typeParams().isEmpty()) {
+            return TypeInfo.of(typeInfo.simpleName());
+        }
+
+        TypeInfo.Builder builder = TypeInfo.builder().name(typeInfo.simpleName());
+        typeInfo.typeParams().forEach(tp -> builder.typeParam(tp.name(), typeConverter.convert(tp.type())));
+        return builder.build();
     }
 }

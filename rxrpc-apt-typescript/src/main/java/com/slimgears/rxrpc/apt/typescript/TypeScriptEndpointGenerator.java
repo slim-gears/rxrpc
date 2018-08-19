@@ -13,13 +13,16 @@ import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -33,21 +36,34 @@ public class TypeScriptEndpointGenerator implements EndpointGenerator {
     @Override
     public void generate(Context context) {
         TypeInfo targetClass = TypeInfo.of(context.sourceTypeElement().getSimpleName().toString() + "Client");
-        Collection<TypeInfo> interfaces = getInterfaces(context);
-        if (ElementUtils.isInterface(context.sourceTypeElement())) {
-            ensureInterfaceGenerated((DeclaredType) context.sourceTypeElement().asType(), context);
-            interfaces = Collections.singleton(TypeInfo.of(context.sourceClass().simpleName()));
-        }
         generateCode(
                 context,
                 targetClass,
-                interfaces,
+                typeScriptUtils -> {
+                    if (ElementUtils.isInterface(context.sourceTypeElement())) {
+                        ensureInterfaceGenerated((DeclaredType) context.sourceTypeElement().asType(), context);
+                        return Collections.singleton(TypeInfo.of(context.sourceClass().simpleName()));
+                    } else {
+                        return getInterfaces(context, typeScriptUtils);
+                    }
+                },
                 "/typescript-client-class.ts.vm");
         TypeScriptUtils.addGeneratedEndpoint(targetClass);
     }
 
-    private void generateCode(Context context, TypeInfo targetClass, Collection<TypeInfo> interfaces, String templateName) {
+    private void generateCode(Context context,
+                              TypeInfo targetClass,
+                              Function<TypeScriptUtils, Collection<TypeInfo>> interfaceProvider,
+                              String templateName) {
         ImportTracker importTracker = ImportTracker.create("");
+        context.sourceTypeElement()
+                .getTypeParameters()
+                .stream()
+                .map(Element::getSimpleName)
+                .map(Name::toString)
+                .map(TypeInfo::of)
+                .forEach(importTracker::knownClass);
+
         String filename = TemplateUtils.camelCaseToDash(targetClass.name()) + ".ts";
 
         log.debug("Generating code for source type: {}", context.sourceTypeElement().getQualifiedName());
@@ -55,33 +71,30 @@ public class TypeScriptEndpointGenerator implements EndpointGenerator {
 
         log.debug("Target file name: {}", filename);
 
+        TypeScriptUtils typeScriptUtils = new TypeScriptUtils(importTracker);
         TemplateEvaluator.forResource(templateName)
                 .variable("targetClass", targetClass)
                 .variable("generateNgModule", context.hasOption("rxrpc.ts.ngmodule"))
-                .variable("tsUtils", new TypeScriptUtils(importTracker))
-                .variable("interfaces", interfaces)
+                .variable("tsUtils", typeScriptUtils)
+                .variable("interfaces", interfaceProvider.apply(typeScriptUtils))
                 .variables(context)
                 .apply(TypeScriptUtils.imports(importTracker))
                 .write(TypeScriptUtils.fileWriter(context.environment(), filename));
 
-        DeclaredType declaredType = ElementUtils.toDeclaredType(context.sourceTypeElement());
         TypeScriptUtils.addGeneratedClass(
                 TypeInfo.of(context.sourceTypeElement()),
                 targetClass);
     }
 
-    private Collection<TypeInfo> getInterfaces(Context context) {
+    private Collection<TypeInfo> getInterfaces(Context context, TypeScriptUtils typeScriptUtils) {
         TypeElement typeElement = context.sourceTypeElement();
 
         Stream<? extends TypeMirror> interfaceTypes = typeElement.getInterfaces().stream();
         return interfaceTypes
                 .flatMap(ofType(DeclaredType.class))
                 .map(t -> ensureInterfaceGenerated(t, context))
-                .map(DeclaredType::asElement)
-                .flatMap(ofType(TypeElement.class))
-                .map(TypeElement::getSimpleName)
-                .map(Object::toString)
                 .map(TypeInfo::of)
+                .map(typeScriptUtils::toTypeScriptType)
                 .collect(Collectors.toList());
     }
 
@@ -89,7 +102,7 @@ public class TypeScriptEndpointGenerator implements EndpointGenerator {
         generateCode(
                 context,
                 TypeInfo.of(context.sourceTypeElement().getSimpleName().toString()),
-                getInterfaces(context),
+                typeScriptUtils -> getInterfaces(context, typeScriptUtils),
                 "/typescript-client-interface.ts.vm");
     }
 

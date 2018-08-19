@@ -1,4 +1,4 @@
-import { SampleData, SampleRequest } from './index';
+import { SampleArrayEndpoint, SampleBaseEndpoint, SampleData, SampleRequest } from './index';
 import { Observable } from 'rxjs';
 
 export interface SampleEndpoint extends SampleBaseEndpoint, SampleArrayEndpoint {
