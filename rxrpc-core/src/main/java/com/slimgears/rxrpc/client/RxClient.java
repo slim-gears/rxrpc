@@ -11,6 +11,7 @@ import com.slimgears.rxrpc.core.data.Invocation;
 import com.slimgears.rxrpc.core.data.Response;
 import com.slimgears.rxrpc.core.data.Result;
 import com.slimgears.rxrpc.core.util.HasObjectMapper;
+import com.slimgears.rxrpc.core.util.MoreDisposables;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -24,10 +25,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -37,13 +40,17 @@ public class RxClient {
 
     @AutoValue
     public static abstract class Config implements HasObjectMapper {
+        private final static Duration defaultKeepAlive = Duration.ofSeconds(60);
+
         public abstract RxTransport.Client client();
         public abstract EndpointFactory endpointFactory();
         public abstract SubjectFactory subjectFactory();
+        public abstract Duration keepAlivePeriod();
         public static Builder builder() {
             return new AutoValue_RxClient_Config.Builder()
                     .objectMapperProvider(ObjectMapper::new)
                     .endpointFactory(EndpointFactories.constructorFactory())
+                    .keepAlivePeriod(defaultKeepAlive)
                     .subjectFactory(ReplaySubject::create);
         }
 
@@ -52,6 +59,7 @@ public class RxClient {
             Builder client(RxTransport.Client client);
             Builder endpointFactory(EndpointFactory factory);
             Builder subjectFactory(SubjectFactory factory);
+            Builder keepAlivePeriod(Duration period);
             Config build();
 
             default RxClient createClient() {
@@ -113,7 +121,15 @@ public class RxClient {
 
         private InternalSession(RxTransport transport) {
             this.transport = transport;
-            this.disposable = this.transport.incoming().subscribe(this::onMessage, this::onError, this::onClosed);
+            Observable<Response> responses = this.transport
+                    .incoming()
+                    .map(this::toResponse);
+
+            this.disposable = MoreDisposables.ofAll(
+                    responses.subscribe(this::onResponse, this::onError, this::onClosed),
+                    Observable
+                            .interval(config.keepAlivePeriod().toMillis(), TimeUnit.MILLISECONDS)
+                            .forEach(i -> sendKeepAlive()));
         }
 
         @Override
@@ -123,15 +139,14 @@ public class RxClient {
                     .toFlowable(BackpressureStrategy.BUFFER);
         }
 
-        private void onMessage(String message) {
-            try {
-                Response response = config.objectMapper().readValue(message, Response.class);
-                log.debug("Response received: {}", response);
-                Optional.ofNullable(resultSubjects.get(response.invocationId()))
+        private void onResponse(Response response) {
+            log.debug("Response received: {}", response);
+            Optional.ofNullable(resultSubjects.get(response.invocationId()))
                         .ifPresent(subj -> subj.onNext(response.result()));
-            } catch (IOException e) {
-                onError(e);
-            }
+        }
+
+        private Response toResponse(String msg) throws IOException {
+            return config.objectMapper().readValue(msg, Response.class);
         }
 
         private void onClosed() {
@@ -147,16 +162,12 @@ public class RxClient {
             Map<String, JsonNode> jsonArgs = args.entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> config.objectMapper().valueToTree(e.getValue())));
             long id = invocationId.incrementAndGet();
-            Invocation invocation = Invocation.builder()
-                    .invocationId(id)
-                    .method(method)
-                    .arguments(jsonArgs)
-                    .build();
+            Invocation invocation = Invocation.ofSubscription(id, method, jsonArgs);
             resultSubjects.put(id, subject);
             return subject
                     .doOnLifecycle(
                             d -> sendInvocation(invocation),
-                            () -> sendInvocation(Invocation.ofCancellation(id)))
+                            () -> sendInvocation(Invocation.ofUnsubscription(id)))
                     .doFinally(() -> resultSubjects.remove(id))
                     .share();
         }
@@ -167,6 +178,10 @@ public class RxClient {
             } catch (JsonProcessingException e) {
                 this.transport.outgoing().onError(e);
             }
+        }
+
+        private void sendKeepAlive() throws IOException {
+            this.transport.outgoing().onNext(config.objectMapper().writeValueAsString(Invocation.ofKeepAlive()));
         }
 
         @Override

@@ -9,7 +9,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 
 public class SampleServer {
     private final Server jetty;
-    private final JettyWebSocketRxTransport.Server msgChannelServer = new JettyWebSocketRxTransport.Server();
+    private final JettyWebSocketRxTransport.Server msgChannelServer = JettyWebSocketRxTransport.builder().buildServer();
     private final RxServer rxServer;
 
     public SampleServer(int port) {

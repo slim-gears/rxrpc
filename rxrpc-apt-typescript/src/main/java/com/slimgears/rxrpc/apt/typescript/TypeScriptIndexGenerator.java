@@ -9,6 +9,8 @@ import com.slimgears.rxrpc.apt.util.TemplateEvaluator;
 
 @AutoService(CodeGenerationFinalizer.class)
 public class TypeScriptIndexGenerator implements CodeGenerationFinalizer {
+    private final static String defaultNgRxRpcVersion = "0.3.0";
+
     @Override
     public void generate(Context context) {
         boolean generateNgModule = context.options().containsKey("rxrpc.ts.ngmodule");
@@ -34,7 +36,7 @@ public class TypeScriptIndexGenerator implements CodeGenerationFinalizer {
                     .variable("npmModuleDescription", context.option("rxrpc.ts.npm.description", ""))
                     .variable("npmModuleAuthor", context.option("rxrpc.ts.npm.author", "RxRpc Generated module"))
                     .variable("npmModuleName", context.option("rxrpc.ts.npm.name", "rxrpc-generated-client"))
-                    .variable("ngRxRpcVersion", context.option("rxrpc.ts.ngrxrpc.version", "0.2.8"))
+                    .variable("ngRxRpcVersion", context.option("rxrpc.ts.ngrxrpc.version", "0.3.0"))
                     .write(TypeScriptUtils.fileWriter(context.environment(), "package.json"));
             TemplateEvaluator
                     .forResource("/tsconfig.json.vm")

@@ -25,7 +25,7 @@ public class SampleServerTest {
         SampleServer server = new SampleServer(port);
         server.start();
 
-        RxClient rxClient = RxClient.forClient(new JettyWebSocketRxTransport.Client());
+        RxClient rxClient = RxClient.forClient(JettyWebSocketRxTransport.builder().buildClient());
 
         SampleEndpoint_RxClient sampleEndpointClient = rxClient.connect(uri).resolve(SampleEndpoint_RxClient.class);
         String msgFromServer = sampleEndpointClient.futureStringMethod("Test", new SampleRequest(3, "sampleName")).get();

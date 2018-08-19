@@ -24,12 +24,7 @@ public abstract class Result {
             @JsonProperty("type") Type type,
             @JsonProperty("data") JsonNode data,
             @JsonProperty("error") ErrorInfo error) {
-        switch (type) {
-            case Data: return ofData(data);
-            case Complete: return ofComplete();
-            case Error: return ofError(error);
-        }
-        throw new IllegalArgumentException();
+        return new AutoValue_Result(type, data, error);
     }
 
     public static Result ofData(JsonNode data) {

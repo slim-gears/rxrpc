@@ -6,8 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.auto.value.AutoValue;
 
 @AutoValue
-public abstract class Response {
-    @JsonProperty public abstract long invocationId();
+public abstract class Response implements HasInvocationId {
     @JsonProperty public abstract Result result();
 
     @JsonCreator

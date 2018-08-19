@@ -11,6 +11,7 @@ import com.slimgears.rxrpc.core.RxTransport;
 import com.slimgears.rxrpc.core.data.Invocation;
 import com.slimgears.rxrpc.core.data.Response;
 import com.slimgears.rxrpc.core.util.HasObjectMapper;
+import com.slimgears.rxrpc.core.util.MoreDisposables;
 import com.slimgears.rxrpc.server.internal.InvocationArguments;
 import com.slimgears.rxrpc.server.internal.ScopedResolver;
 import io.reactivex.Observable;
@@ -28,6 +29,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static java.util.Objects.requireNonNull;
 
 public class RxServer implements AutoCloseable {
     private final static Logger log = LoggerFactory.getLogger(RxServer.class);
@@ -123,9 +126,16 @@ public class RxServer implements AutoCloseable {
 
         Session(RxTransport transport) {
             this.transport = transport;
-            this.disposable = this.transport
+
+            Observable<Invocation> invocations = this.transport
                     .incoming()
-                    .subscribe(this::onMessage, this::onError, this::onClosed);
+                    .map(this::toInvocation)
+                    .share();
+
+            this.disposable = MoreDisposables.ofAll(
+                    invocations.filter(Invocation::isSubscription).subscribe(this::handleSubscription),
+                    invocations.filter(Invocation::isUnsubscription).subscribe(this::handleUnsubscription),
+                    invocations.filter(Invocation::isKeepAlive).subscribe(this::handleKeepAlive));
         }
 
         private <T> void onDataResponse(Invocation invocation, T response) {
@@ -140,43 +150,16 @@ public class RxServer implements AutoCloseable {
             sendResponse(Response.ofComplete(invocation.invocationId()));
         }
 
+        private Invocation toInvocation(String msg) throws IOException {
+            return config.objectMapper().readValue(msg, Invocation.class);
+        }
+
         private void sendResponse(Response response) {
             try {
                 String msg = config.objectMapper().writeValueAsString(response);
                 transport.outgoing().onNext(msg);
             } catch (JsonProcessingException e) {
                 log.error("Error occurred: ", e);
-                onError(e);
-            }
-        }
-
-        private void onMessage(String message) {
-            try {
-                Invocation invocation = config.objectMapper().readValue(message, Invocation.class);
-                try {
-                    if (invocation.method() == null) {
-                        Optional.ofNullable(activeInvocations.remove(invocation.invocationId()))
-                                .ifPresent(Disposable::dispose);
-                        return;
-                    }
-
-                    EndpointDispatcher dispatcher = config.dispatcherFactory().create(resolver);
-                    Publisher<?> response = dispatcher
-                            .dispatch(invocation.method(), toArguments(invocation.arguments()));
-
-                    //noinspection ResultOfMethodCallIgnored
-                    Observable
-                            .fromPublisher(response)
-                            .doOnSubscribe(disposable -> activeInvocations.put(invocation.invocationId(), disposable))
-                            .doFinally(() -> activeInvocations.remove(invocation.invocationId()))
-                            .subscribe(
-                                    val -> onDataResponse(invocation, val),
-                                    error -> onErrorResponse(invocation, error),
-                                    () -> onCompleteResponse(invocation));
-                } catch (Throwable e) {
-                    onErrorResponse(invocation, e);
-                }
-            } catch (IOException e) {
                 onError(e);
             }
         }
@@ -195,6 +178,34 @@ public class RxServer implements AutoCloseable {
             sessions.remove(this);
             activeInvocations.values().forEach(Disposable::dispose);
             activeInvocations.clear();
+        }
+
+        private void handleSubscription(Invocation message) {
+            try {
+                EndpointDispatcher dispatcher = config.dispatcherFactory().create(resolver);
+                Publisher<?> response = dispatcher
+                        .dispatch(message.method(), toArguments(message.arguments()));
+
+                //noinspection ResultOfMethodCallIgnored
+                Observable
+                        .fromPublisher(response)
+                        .doOnSubscribe(disposable -> activeInvocations.put(message.invocationId(), disposable))
+                        .doFinally(() -> activeInvocations.remove(message.invocationId()))
+                        .subscribe(
+                                val -> onDataResponse(message, val),
+                                error -> onErrorResponse(message, error),
+                                () -> onCompleteResponse(message));
+            } catch (Throwable e) {
+                onErrorResponse(message, e);
+            }
+        }
+
+        private void handleUnsubscription(Invocation message) {
+            Optional.ofNullable(activeInvocations.remove(message.invocationId()))
+                    .ifPresent(Disposable::dispose);
+        }
+
+        private void handleKeepAlive(Invocation message) {
         }
 
         @Override
