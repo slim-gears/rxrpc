@@ -6,7 +6,10 @@ package com.slimgears.rxrpc.apt.typescript;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.TreeMultimap;
 import com.slimgears.rxrpc.apt.data.TypeConverter;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
 import com.slimgears.rxrpc.apt.data.TypeParameterInfo;
@@ -28,6 +31,7 @@ import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -68,7 +72,7 @@ public class TypeScriptUtils extends TemplateUtils {
                 .collect(Collectors.toMap(t -> t, t -> TypeInfo.of(toType)));
     }
 
-    private final static Map<TypeInfo, TypeInfo> generatedClasses = new TreeMap<>(TypeInfo.comparator);
+    private final static Multimap<TypeInfo, TypeInfo> generatedClasses = TreeMultimap.create(TypeInfo.comparator, TypeInfo.comparator);
     private final static Set<TypeInfo> generatedEndpoints = new TreeSet<>(TypeInfo.comparator);
 
     private final TypeConverter typeConverter = TypeConverter.ofMultiple(
@@ -89,8 +93,8 @@ public class TypeScriptUtils extends TemplateUtils {
         generatedEndpoints.add(generated);
     }
 
-    public static ImmutableMap<TypeInfo, TypeInfo> getGeneratedClasses() {
-        return ImmutableMap.copyOf(generatedClasses);
+    public static ImmutableMultimap<TypeInfo, TypeInfo> getGeneratedClasses() {
+        return ImmutableMultimap.copyOf(generatedClasses);
     }
 
     public static ImmutableSet<TypeInfo> getGeneratedEndpoints() {

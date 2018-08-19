@@ -34,7 +34,7 @@ public class TypeScriptIndexGenerator implements CodeGenerationFinalizer {
                     .variable("npmModuleDescription", context.option("rxrpc.ts.npm.description", ""))
                     .variable("npmModuleAuthor", context.option("rxrpc.ts.npm.author", "RxRpc Generated module"))
                     .variable("npmModuleName", context.option("rxrpc.ts.npm.name", "rxrpc-generated-client"))
-                    .variable("ngRxRpcVersion", context.option("rxrpc.ts.ngrxrpc.version", "0.2.4"))
+                    .variable("ngRxRpcVersion", context.option("rxrpc.ts.ngrxrpc.version", "0.2.8"))
                     .write(TypeScriptUtils.fileWriter(context.environment(), "package.json"));
             TemplateEvaluator
                     .forResource("/tsconfig.json.vm")
