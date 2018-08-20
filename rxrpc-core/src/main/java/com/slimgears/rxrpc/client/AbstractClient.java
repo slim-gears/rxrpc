@@ -14,13 +14,26 @@ import java.util.concurrent.Future;
 
 import static java.util.Objects.requireNonNull;
 
-public abstract class AbstractClient {
-    private final Single<RxClient.Session> session;
+public abstract class AbstractClient implements AutoCloseable {
+    private final RxClient.Session session;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     protected interface InvocationArguments {
         InvocationArguments put(String name, Object arg);
         Map<String, Object> toMap();
+    }
+
+    protected AbstractClient(RxClient.Session session) {
+        this.session = session;
+    }
+
+    @Override
+    public void close() {
+        try {
+            session.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected InvocationArguments arguments() {
@@ -40,15 +53,9 @@ public abstract class AbstractClient {
         };
     }
 
-    protected AbstractClient(Single<RxClient.Session> session) {
-        this.session = session;
-    }
-
     protected <T> Observable<T> invokeObservable(Class<T> responseType, String method, InvocationArguments args) {
-        return session
-                .toObservable()
-                .map(s -> s.invoke(method, args.toMap()))
-                .flatMap(Observable::fromPublisher)
+        return Observable
+                .fromPublisher(session.invoke(method, args.toMap()))
                 .takeWhile(result -> result.type() != Result.Type.Complete)
                 .compose(toValue(responseType));
     }

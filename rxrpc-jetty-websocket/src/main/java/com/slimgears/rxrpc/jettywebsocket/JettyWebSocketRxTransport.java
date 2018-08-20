@@ -1,6 +1,7 @@
 package com.slimgears.rxrpc.jettywebsocket;
 
 import com.slimgears.rxrpc.core.RxTransport;
+import com.slimgears.rxrpc.core.util.Emitters;
 import io.reactivex.Emitter;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -35,22 +36,7 @@ public class JettyWebSocketRxTransport implements RxTransport, WebSocketListener
     private final CompletableSubject connected = CompletableSubject.create();
 
     public JettyWebSocketRxTransport() {
-        this.outgoing = new Emitter<String>() {
-            @Override
-            public void onNext(String value) {
-                outgoingSubject.onNext(value);
-            }
-
-            @Override
-            public void onError(Throwable error) {
-                outgoingSubject.onError(error);
-            }
-
-            @Override
-            public void onComplete() {
-                outgoingSubject.onComplete();
-            }
-        };
+        this.outgoing = Emitters.fromObserver(outgoingSubject);
     }
 
     @Override

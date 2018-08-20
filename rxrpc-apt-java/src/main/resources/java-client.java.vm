@@ -39,7 +39,7 @@ invokeBlocking(
 
 @$[javax.annotation.Generated]("$processorClass.name()")
 public class $simpleClassName extends $[com.slimgears.rxrpc.client.AbstractClient] #if($isInterface)implements $[$sourceClass]#end {
-    public $simpleClassName($[io.reactivex.Single<com.slimgears.rxrpc.client.RxClient.Session>] session) {
+    public $simpleClassName($[com.slimgears.rxrpc.client.RxClient.Session] session) {
         super(session);
     }
 

@@ -2,6 +2,7 @@ package com.slimgears.rxrpc;
 
 import com.slimgears.rxrpc.client.AbstractClient;
 import com.slimgears.rxrpc.client.RxClient;
+import com.slimgears.rxrpc.core.EndpointResolver;
 import com.slimgears.rxrpc.server.EndpointDispatcher;
 import com.slimgears.rxrpc.server.EndpointDispatchers;
 import com.slimgears.rxrpc.server.RxServer;
@@ -39,7 +40,7 @@ public class ClientServerTest {
             InvocationArgs put(String name, Object value);
         }
 
-        public EndpointClient(Single<RxClient.Session> session) {
+        public EndpointClient(RxClient.Session session) {
             super(session);
         }
 
@@ -111,6 +112,19 @@ public class ClientServerTest {
 
         Assert.assertTrue(serverSubject.hasObservers());
         subscription.dispose();
+
+        Assert.assertFalse(serverSubject.hasObservers());
+    }
+
+    @Test
+    public void testEndpointResolverClosesConnection() {
+        try (EndpointResolver resolver = rxClient.connect(URI.create(""))) {
+            resolver
+                    .resolve(EndpointClient.class)
+                    .invokeObservable(String.class, "testMethod", args -> args.put("prefix", "[S]"))
+                    .subscribe();
+            Assert.assertTrue(serverSubject.hasObservers());
+        }
 
         Assert.assertFalse(serverSubject.hasObservers());
     }

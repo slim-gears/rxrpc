@@ -31,6 +31,7 @@ public class ScopedResolver implements EndpointResolver {
                         throw new RuntimeException(e);
                     }
                 });
+        sourceResolver.close();
     }
 
     public static EndpointResolver of(EndpointResolver resolver) {

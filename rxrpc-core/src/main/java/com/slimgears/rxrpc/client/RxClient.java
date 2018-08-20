@@ -13,10 +13,13 @@ import com.slimgears.rxrpc.core.data.Result;
 import com.slimgears.rxrpc.core.util.HasObjectMapper;
 import com.slimgears.rxrpc.core.util.MoreDisposables;
 import io.reactivex.BackpressureStrategy;
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.internal.functions.Functions;
+import io.reactivex.subjects.CompletableSubject;
 import io.reactivex.subjects.ReplaySubject;
 import io.reactivex.subjects.Subject;
 import org.reactivestreams.Publisher;
@@ -73,7 +76,7 @@ public class RxClient {
     }
 
     public interface EndpointFactory {
-        <T> T create(Class<T> clientClass, Single<Session> session);
+        <T> T create(Class<T> clientClass, Session session);
     }
 
     public interface Session extends AutoCloseable {
@@ -96,20 +99,51 @@ public class RxClient {
     }
 
     public EndpointResolver connect(URI uri) {
-        Single<Session> session = this.config.client().connect(uri).map(InternalSession::new);
-        return new InternalEndpointResolver(session);
+        Single<RxTransport> transport = this.config.client().connect(uri);
+        return new InternalEndpointResolver(new DeferredSession(transport));
     }
 
     private class InternalEndpointResolver implements EndpointResolver {
-        private final Single<Session> session;
+        private final Session session;
 
-        private InternalEndpointResolver(Single<Session> session) {
+        private InternalEndpointResolver(Session session) {
             this.session = session;
         }
 
         @Override
         public <T> T resolve(Class<T> endpointClientClass) {
             return config.endpointFactory().create(endpointClientClass, session);
+        }
+
+        public void close() {
+            try {
+                session.close();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private class DeferredSession implements Session {
+        private final Single<Session> session;
+        private final CompletableSubject cancellation = CompletableSubject.create();
+
+        private DeferredSession(Single<RxTransport> transport) {
+            this.session = transport
+                    .<Session>map(InternalSession::new)
+                    .takeUntil(cancellation)
+                    .cache();
+        }
+
+        @Override
+        public Publisher<Result> invoke(String method, Map<String, Object> args) {
+            return session.flatMapPublisher(s -> s.invoke(method, args));
+        }
+
+        @Override
+        public void close() {
+            cancellation.onComplete();
+            this.session.subscribe(AutoCloseable::close);
         }
     }
 
@@ -151,10 +185,12 @@ public class RxClient {
 
         private void onClosed() {
             ImmutableList.copyOf(resultSubjects.values()).forEach(Observer::onComplete);
+            close();
         }
 
         private void onError(Throwable error) {
             new ArrayList<>(resultSubjects.values()).forEach(subj -> subj.onError(error));
+            close();
         }
 
         private Observable<Result> beginInvocation(String method, Map<String, Object> args) {

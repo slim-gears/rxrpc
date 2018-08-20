@@ -17,6 +17,7 @@ import com.slimgears.rxrpc.server.internal.ScopedResolver;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
+import io.reactivex.internal.functions.Functions;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,6 +134,7 @@ public class RxServer implements AutoCloseable {
                     .share();
 
             this.disposable = MoreDisposables.ofAll(
+                    invocations.subscribe(Functions.emptyConsumer(), this::onError, this::close),
                     invocations.filter(Invocation::isSubscription).subscribe(this::handleSubscription),
                     invocations.filter(Invocation::isUnsubscription).subscribe(this::handleUnsubscription),
                     invocations.filter(Invocation::isKeepAlive).subscribe(this::handleKeepAlive));
