@@ -39,6 +39,14 @@ public class TypeScriptEndpointGenerationTest {
                 .test();
     }
 
+    @Test
+    public void testOptionalDataGeneration() {
+        TestBundles.sampleOptionalDataTester()
+                .apply(this::typeScriptOptions)
+                .expectedFiles("sample-optional-data.ts")
+                .test();
+    }
+
     private AnnotationProcessingTester typeScriptOptions(AnnotationProcessingTester tester) {
         return tester.options(
                         "-Arxrpc.ts.ngmodule",

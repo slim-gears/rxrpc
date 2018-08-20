@@ -13,6 +13,6 @@ $tp.name()##
 ##
 export interface $sourceClass.simpleName()#typeParams($sourceClass) {
 #foreach($p in $properties)
-    $p.name(): $[$tsUtils.toTypeScriptType($p.type())];
+    $p.name()#if ($p.isOptional())?#end: $[$tsUtils.toTypeScriptType($p.type())];
 #end
 }

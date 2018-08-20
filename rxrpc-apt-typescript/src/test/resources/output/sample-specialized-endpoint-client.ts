@@ -9,20 +9,14 @@ export class SampleSpecializedEndpointClient implements SampleSpecializedEndpoin
     }
 
     public genericMethod(data: string): Observable<string> {
-        return this.client.invoke('sampleSpecializedEndpoint/genericMethod', {
-            data: data
-        });
+        return this.client.invoke('sampleSpecializedEndpoint/genericMethod', {data: data});
     }
 
     public genericDataMethod(request: string): Observable<SampleGenericData<string>> {
-        return this.client.invoke('sampleSpecializedEndpoint/genericDataMethod', {
-            request: request
-        });
+        return this.client.invoke('sampleSpecializedEndpoint/genericDataMethod', {request: request});
     }
 
     public genericInputDataMethod(data: SampleGenericData<string>): Observable<void> {
-        return this.client.invoke('sampleSpecializedEndpoint/genericInputDataMethod', {
-            data: data
-        });
+        return this.client.invoke('sampleSpecializedEndpoint/genericInputDataMethod', {data: data});
     }
 }

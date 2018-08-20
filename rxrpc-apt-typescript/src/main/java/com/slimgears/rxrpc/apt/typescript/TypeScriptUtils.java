@@ -78,6 +78,7 @@ public class TypeScriptUtils extends TemplateUtils {
             TypeConverter.create(type -> type.is(Map.class), type -> convertTypeParams(type, "Map")),
             TypeConverter.create(type -> type.is(List.class), type -> TypeInfo.arrayOf(convertType(type.elementTypeOrSelf()))),
             TypeConverter.create(TypeInfo::isArray, this::convertArray),
+            TypeConverter.create(type -> type.is(Optional.class), type -> convertType(type.elementTypeOrSelf())),
             //TypeConverter.create(generatedClasses::containsKey, generatedClasses::get),
             TypeConverter.create(type -> true, this::convertRecursively));
 

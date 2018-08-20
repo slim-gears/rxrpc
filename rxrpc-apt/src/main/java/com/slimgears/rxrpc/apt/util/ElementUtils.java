@@ -11,6 +11,7 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
+import java.lang.annotation.Annotation;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
@@ -36,6 +37,7 @@ public class ElementUtils {
             .add(types(Future.class))
             .add(types(JsonNode.class))
             .add(types(Object.class))
+            .add(types(Optional.class))
             .add("io.reactivex.Observable")
             .add("io.reactivex.Single")
             .add("io.reactivex.Maybe")
@@ -96,6 +98,10 @@ public class ElementUtils {
 
     public static boolean isEnumConstant(Element element) {
         return ofKind(ElementKind.ENUM_CONSTANT).test(element);
+    }
+
+    public static boolean hasAnnotation(Element elemenet, Class<? extends Annotation> annotationCls) {
+        return elemenet.getAnnotation(annotationCls) != null;
     }
 
     public static Stream<TypeElement> getReferencedTypes(TypeElement typeElement) {
@@ -189,7 +195,7 @@ public class ElementUtils {
                 .orElseThrow(() -> new RuntimeException("Cannot convert " + typeElement.getQualifiedName() + " to DeclaredType"));
     }
 
-    private static Stream<TypeElement> toTypeElement(TypeMirror type) {
+    public static Stream<TypeElement> toTypeElement(TypeMirror type) {
         return Stream.of(type)
                 .flatMap(ofType(DeclaredType.class))
                 .map(DeclaredType::asElement)

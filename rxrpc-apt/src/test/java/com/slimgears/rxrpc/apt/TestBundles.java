@@ -28,4 +28,12 @@ public class TestBundles {
                         "SampleGenericEndpoint.java",
                         "SampleSpecializedEndpoint.java");
     }
+
+    public static AnnotationProcessingTester sampleOptionalDataTester() {
+        return rxRpcEndpointProcessingTester()
+                .inputFiles(
+                        "SampleEnum.java",
+                        "SampleOptionalData.java",
+                        "SampleOptionalDataEndpoint.java");
+    }
 }

@@ -8,18 +8,26 @@ import com.google.auto.value.AutoValue;
 import com.slimgears.rxrpc.apt.util.ElementUtils;
 import com.slimgears.rxrpc.apt.util.Optionals;
 
+import javax.annotation.Nullable;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
 import java.util.Optional;
+import java.util.stream.Stream;
+
+import static com.slimgears.rxrpc.apt.util.StreamUtils.ofType;
 
 @AutoValue
 public abstract class PropertyInfo implements HasName, HasType {
+    public abstract boolean isOptional();
+
     public static Builder builder() {
-        return new AutoValue_PropertyInfo.Builder();
+        return new AutoValue_PropertyInfo.Builder().isOptional(false);
     }
 
     public static PropertyInfo of(String name, TypeInfo type) {
@@ -39,9 +47,10 @@ public abstract class PropertyInfo implements HasName, HasType {
     }
 
     public static Optional<PropertyInfo> of(Element element) {
-        return Optionals.or(
-                () -> fromPropertyGetter(element),
-                () -> fromPublicField(element));
+        return Optionals
+                .or(
+                        () -> fromPropertyGetter(element),
+                        () -> fromPublicField(element));
     }
 
     private static Optional<PropertyInfo> fromPropertyGetter(Element element) {
@@ -54,7 +63,9 @@ public abstract class PropertyInfo implements HasName, HasType {
                 .filter(el -> el.getParameters().size() == 0)
                 .filter(el -> el.getReturnType().getKind() != TypeKind.VOID)
                 .map(el -> fromJsonProperty(el, el.getReturnType())
-                        .orElseGet(() -> of(propertyName(el), el.getReturnType())));
+                        .orElseGet(() -> builder().name(propertyName(el)).type(el.getReturnType()))
+                        .isOptional(isOptional(el, el.getReturnType()))
+                        .build());
     }
 
     private static Optional<PropertyInfo> fromPublicField(Element element) {
@@ -63,14 +74,23 @@ public abstract class PropertyInfo implements HasName, HasType {
                 .filter(ElementUtils::isPublic)
                 .filter(ElementUtils::isNotStatic)
                 .map(el -> fromJsonProperty(el, el.asType())
-                        .orElseGet(() -> of(el.getSimpleName().toString(), element.asType())));
+                        .orElseGet(() -> builder().name(el.getSimpleName().toString()).type(element.asType()))
+                        .isOptional(isOptional(el, element.asType()))
+                        .build());
     }
 
-    private static Optional<PropertyInfo> fromJsonProperty(Element element, TypeMirror type) {
+    private static boolean isOptional(Element element, TypeMirror propertyType) {
+        return ElementUtils.hasAnnotation(element, Nullable.class) ||
+                Stream.of(propertyType)
+                        .flatMap(ElementUtils::toTypeElement)
+                        .anyMatch(te -> te.getQualifiedName().toString().equals(Optional.class.getName()));
+    }
+
+    private static Optional<PropertyInfo.Builder> fromJsonProperty(Element element, TypeMirror type) {
         return Optional.ofNullable(element.getAnnotation(JsonProperty.class))
                 .map(JsonProperty::value)
                 .filter(n -> !n.isEmpty())
-                .map(name -> of(name, type));
+                .map(name -> builder().name(name).type(type));
     }
 
     private static String propertyName(ExecutableElement element) {
@@ -94,5 +114,6 @@ public abstract class PropertyInfo implements HasName, HasType {
 
     @AutoValue.Builder
     public interface Builder extends InfoBuilder<PropertyInfo>, HasName.Builder<Builder>, HasType.Builder<Builder> {
+        Builder isOptional(boolean optional);
     }
 }
