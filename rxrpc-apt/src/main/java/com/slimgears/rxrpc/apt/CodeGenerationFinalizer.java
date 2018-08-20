@@ -10,7 +10,7 @@ public interface CodeGenerationFinalizer extends CodeGenerator<CodeGenerationFin
     @AutoValue
     abstract class Context extends CodeGenerator.Context {
         public static Builder builder() {
-            return new AutoValue_CodeGenerationFinalizer_Context.Builder();
+            return new AutoValue_CodeGenerationFinalizer_Context.Builder().configFromResource();
         }
 
         @AutoValue.Builder

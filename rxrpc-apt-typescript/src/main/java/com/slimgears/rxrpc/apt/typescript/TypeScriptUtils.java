@@ -45,8 +45,6 @@ import java.util.stream.Stream;
 
 public class TypeScriptUtils extends TemplateUtils {
     private final static Logger log = LoggerFactory.getLogger(TypeScriptUtils.class);
-    public final static String typeScriptOutputDirOption = "tsOutDir";
-
 
     private final static ImmutableMap<TypeInfo, TypeInfo> typeMapping = ImmutableMap.<TypeInfo, TypeInfo>builder()
             .putAll(types("number",

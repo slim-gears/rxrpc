@@ -9,8 +9,6 @@ import com.slimgears.rxrpc.apt.util.TemplateEvaluator;
 
 @AutoService(CodeGenerationFinalizer.class)
 public class TypeScriptIndexGenerator implements CodeGenerationFinalizer {
-    private final static String defaultNgRxRpcVersion = "0.3.0";
-
     @Override
     public void generate(Context context) {
         boolean generateNgModule = context.options().containsKey("rxrpc.ts.ngmodule");
@@ -20,9 +18,7 @@ public class TypeScriptIndexGenerator implements CodeGenerationFinalizer {
                     .forResource("/typescript-ngmodule.ts.vm")
                     .variables(context)
                     .variable("classes", TypeScriptUtils.getGeneratedEndpoints())
-                    .variable("ngModuleName", context
-                            .options()
-                            .getOrDefault("rxrpc.ts.ngmodule.name", "RxRpcGeneratedClientModule"))
+                    .variable("ngModuleName", context.option("rxrpc.ts.ngmodule.name"))
                     .write(TypeScriptUtils.fileWriter(context.environment(), "module.ts"));
             index.append("\n");
             index.append("export * from './module';\n");
@@ -32,11 +28,11 @@ public class TypeScriptIndexGenerator implements CodeGenerationFinalizer {
             TemplateEvaluator
                     .forResource("/package.json.vm")
                     .variable("generateNgModule", generateNgModule)
-                    .variable("npmModuleVersion", context.option("rxrpc.ts.npm.version", "1.0.0"))
-                    .variable("npmModuleDescription", context.option("rxrpc.ts.npm.description", ""))
-                    .variable("npmModuleAuthor", context.option("rxrpc.ts.npm.author", "RxRpc Generated module"))
-                    .variable("npmModuleName", context.option("rxrpc.ts.npm.name", "rxrpc-generated-client"))
-                    .variable("ngRxRpcVersion", context.option("rxrpc.ts.ngrxrpc.version", "0.3.0"))
+                    .variable("npmModuleVersion", context.option("rxrpc.ts.npm.version"))
+                    .variable("npmModuleDescription", context.option("rxrpc.ts.npm.description"))
+                    .variable("npmModuleAuthor", context.option("rxrpc.ts.npm.author"))
+                    .variable("npmModuleName", context.option("rxrpc.ts.npm.name"))
+                    .variable("ngRxRpcVersion", context.option("rxrpc.ts.ngrxrpc.version"))
                     .write(TypeScriptUtils.fileWriter(context.environment(), "package.json"));
             TemplateEvaluator
                     .forResource("/tsconfig.json.vm")

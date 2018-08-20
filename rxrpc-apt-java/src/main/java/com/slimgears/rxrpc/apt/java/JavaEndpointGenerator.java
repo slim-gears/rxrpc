@@ -15,10 +15,10 @@ import javax.lang.model.element.ElementKind;
 public class JavaEndpointGenerator implements EndpointGenerator {
     @Override
     public void generate(Context context) {
-        if (context.options().containsKey("rxrpc.java.client")) {
+        if (context.hasOption("rxrpc.java.client")) {
             generateClass(context, "_RxClient", "/java-client.java.vm");
         }
-        if (context.options().containsKey("rxrpc.java.server")) {
+        if (context.hasOption("rxrpc.java.server")) {
             generateClass(context, "_RxModule", "/java-server.java.vm");
         }
     }
@@ -35,7 +35,7 @@ public class JavaEndpointGenerator implements EndpointGenerator {
                 .variables(context)
                 .variable("isInterface", context.sourceTypeElement().getKind() == ElementKind.INTERFACE)
                 .variable("javaUtils", new JavaUtils())
-                .variable("autoService", context.options().containsKey("rxrpc.java.autoservice"))
+                .variable("autoService", context.hasOption("rxrpc.java.autoservice"))
                 .variable("targetClass", targetClass)
                 .apply(JavaUtils.imports(importTracker))
                 //.postProcess(JavaUtils.formatter())
