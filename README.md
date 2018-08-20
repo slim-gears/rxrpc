@@ -92,7 +92,10 @@ Jetty-based embedded server example:
 ```java
 public class SampleServer {
     private final Server jetty;
-    private final JettyWebSocketRxTransport.Server transportServer = JettyWebSocketRxTransport.builder().buildServer();
+    private final JettyWebSocketRxTransport.Server transportServer = JettyWebSocketRxTransport
+            .builder()
+            .buildServer();
+    
     private final RxServer rxServer;
 
     public SampleServer(int port) {
@@ -100,8 +103,8 @@ public class SampleServer {
         this.rxServer = RxServer.configBuilder()
                 .server(transportServer) // Use jetty WebSocket-servlet based transport
                 .discoverModules() // Discover auto-generated endpoint modules
-                .resolver(EndpointResolvers
-                        .builder()
+                .resolver(EndpointResolvers // dependency injection framework of your choice 
+                        .builder()          // can be used here
                         .bind(SampleEndpoint.class).to(SampleEndpointImpl.class)
                         .build())
                 .createServer();
