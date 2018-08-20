@@ -29,6 +29,16 @@ public class JavaEndpointGenerationTest {
                 .test();
     }
 
+    @Test
+    public void testMetaEndpointGeneration() {
+        TestBundles.sampleMetaEndpointTester()
+                .apply(this::javaOptions)
+                .expectedSources(
+                        "SampleGenericMetaEndpoint_Of_Integer.java",
+                        "SampleGenericMetaEndpointWithSpecificName.java")
+                .test();
+    }
+
     private AnnotationProcessingTester javaOptions(AnnotationProcessingTester tester) {
         return tester.options(
                         "-Arxrpc.java.client",

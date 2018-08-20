@@ -1,0 +1,8 @@
+package $targetType.packageName();
+
+$imports
+
+@$[javax.annotation.Generated]("$processorClass.name()")
+@$[com.slimgears.rxrpc.core.RxRpcEndpoint]("$endpointName")
+public interface $targetType.simpleName() extends $[$superType] {
+}

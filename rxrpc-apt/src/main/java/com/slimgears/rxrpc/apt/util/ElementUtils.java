@@ -5,17 +5,21 @@ package com.slimgears.rxrpc.apt.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableSet;
+import com.slimgears.rxrpc.apt.data.TypeInfo;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.MirroredTypesException;
 import javax.lang.model.type.TypeMirror;
 import java.lang.annotation.Annotation;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.Future;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -200,6 +204,22 @@ public class ElementUtils {
                 .flatMap(ofType(DeclaredType.class))
                 .map(DeclaredType::asElement)
                 .flatMap(ofType(TypeElement.class));
+    }
+
+    public static <A extends Annotation> TypeInfo[] typesFromAnnotation(A annotation, Function<A, Class[]> classRetriever) {
+        try {
+            return Stream.of(classRetriever.apply(annotation)).map(TypeInfo::of).toArray(TypeInfo[]::new);
+        } catch (MirroredTypesException e) {
+            return e.getTypeMirrors().stream().map(TypeInfo::of).toArray(TypeInfo[]::new);
+        }
+    }
+
+    public static <A extends Annotation> TypeInfo typeFromAnnotation(A annotation, Function<A, Class> classRetriever) {
+        try {
+            return TypeInfo.of(classRetriever.apply(annotation));
+        } catch (MirroredTypeException e) {
+            return TypeInfo.of(e.getTypeMirror());
+        }
     }
 
     private static Stream<DeclaredType> getSuperClass(DeclaredType type) {

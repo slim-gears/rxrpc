@@ -36,4 +36,12 @@ public class TestBundles {
                         "SampleOptionalData.java",
                         "SampleOptionalDataEndpoint.java");
     }
+
+    public static AnnotationProcessingTester sampleMetaEndpointTester() {
+        return rxRpcEndpointProcessingTester()
+                .inputFiles(
+                        "SampleGenericMetaEndpoint.java",
+                        "SampleGenericData.java")
+                .processedWith(new RxRpcGenerateAnnotationProcessor());
+    }
 }

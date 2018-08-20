@@ -31,10 +31,6 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
         ServiceLoader.load(DataClassGenerator.class, getClass().getClassLoader()).forEach(dataClassGenerators::add);
     }
 
-    public RxRpcEndpointAnnotationProcessor(EndpointGenerator... generators) {
-        super(generators);
-    }
-
     private void generateDataType(TypeElement typeElement) {
         if (processedClasses.contains(typeElement.getQualifiedName()) || TemplateUtils.isKnownAsyncType(TypeInfo.of(typeElement))) {
             return;

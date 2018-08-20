@@ -25,11 +25,6 @@ public abstract class AbstractAnnotationProcessor<G extends CodeGenerator<C>, C 
         ServiceLoader.load(codeGeneratorClass, getClass().getClassLoader()).forEach(codeGenerators::add);
     }
 
-    @SafeVarargs
-    protected AbstractAnnotationProcessor(G... generators) {
-        codeGenerators.addAll(Arrays.asList(generators));
-    }
-
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         try (LogUtils.SelfClosable ignored = LogUtils.applyLogging(processingEnv);
