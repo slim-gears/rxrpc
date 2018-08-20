@@ -4,7 +4,6 @@ import com.slimgears.rxrpc.client.AbstractClient;
 import com.slimgears.rxrpc.client.RxClient.Session;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
-import io.reactivex.Single;
 import java.lang.String;
 import java.lang.Void;
 import javax.annotation.Generated;
@@ -13,7 +12,7 @@ import javax.annotation.Generated;
 
 @Generated("com.slimgears.rxrpc.apt.RxRpcEndpointAnnotationProcessor")
 public class SampleSpecializedEndpoint_RxClient extends AbstractClient implements SampleSpecializedEndpoint {
-    public SampleSpecializedEndpoint_RxClient(Single<Session> session) {
+    public SampleSpecializedEndpoint_RxClient(Session session) {
         super(session);
     }
 
