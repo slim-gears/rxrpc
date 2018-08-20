@@ -1,6 +1,6 @@
 ## RxRpc: End-to-end asynchronus ReactiveX-based RPC framework for Java and TypeScript
 
-[![Build Status](https://travis-ci.org/slim-gears/rxrpc.svg?branch=master)](https://travis-ci.org/slim-gears/rxrpc)
+[![Build Status](https://travis-ci.org/slim-gears/rxrpc.svg?branch=dev)](https://travis-ci.org/slim-gears/rxrpc)
 [![](https://jitpack.io/v/slim-gears/rxrpc.svg)](https://jitpack.io/#slim-gears/rxrpc)
 
 # WORK IN PROGRESS...
@@ -62,7 +62,6 @@ public class SampleEndpoint {
 *POJO* classes can be used either as arguments or return values  
 
 ```java
-@RxRpcData
 public class SampleRequest {
     @JsonProperty public final int id;
     @JsonProperty public final String name;
@@ -76,7 +75,6 @@ public class SampleRequest {
 ```
 
 ```java
-@RxRpcData
 public class SampleNotification {
     @JsonProperty public final String data;
     @JsonProperty public final long sequenceNum;
@@ -94,18 +92,19 @@ Jetty-based embedded server example:
 ```java
 public class SampleServer {
     private final Server jetty;
-    private final JettyWebSocketTransport.Server msgChannelServer = new JettyWebSocketTransport.Server();
+    private final JettyWebSocketRxTransport.Server transportServer = JettyWebSocketRxTransport.builder().buildServer();
     private final RxServer rxServer;
 
     public SampleServer(int port) {
         this.jetty = createJetty(port);
-        this.rxServer = RxServer.forConfig(RxServer.Config
-                .builder()
-                .server(msgChannelServer) // Use jetty WebSocket-servlet based transport
-                .resolver(EndpointResolvers.defaultConstructorResolver()) // No dependency injection
-                .modules(EndpointDispatchers.discover()) // Discover auto-generated endpoint modules
-                .objectMapper(new ObjectMapper()) // You may provide preconfigured ObjectMapper
-                .build());
+        this.rxServer = RxServer.configBuilder()
+                .server(transportServer) // Use jetty WebSocket-servlet based transport
+                .discoverModules() // Discover auto-generated endpoint modules
+                .resolver(EndpointResolvers
+                        .builder()
+                        .bind(SampleEndpoint.class).to(SampleEndpointImpl.class)
+                        .build())
+                .createServer();
     }
 
     public void start() throws Exception {
@@ -126,7 +125,7 @@ public class SampleServer {
         Server jetty = new Server(port);
         ServletContextHandler context = new ServletContextHandler();
         context.setContextPath("/");
-        ServletHolder servletHolder = new ServletHolder(msgChannelServer);
+        ServletHolder servletHolder = new ServletHolder(transportServer);
         context.addServlet(servletHolder, "/api/");
         jetty.setHandler(context);
         return jetty;
@@ -139,14 +138,14 @@ public class SampleServer {
 #### Java client
 
 ```java
-RxClient rxClient = RxClient.forConfig(RxClient.Config
+RxClient rxClient = RxClient.forClient(JettyWebSocketRxTransport
         .builder()
-        .objectMapper(new ObjectMapper())
-        .endpointFactory(EndpointFactories.defaultConstructorFactory())
-        .client(client)
-        .build());
+        .buildClient());
 
-SampleEndpoint_RxClient sampleEndpointClient = rxClient.connect(uri).resolve(SampleEndpoint_RxClient.class);
+SampleEndpoint_RxClient sampleEndpointClient = rxClient
+        .connect(uri)
+        .resolve(SampleEndpoint_RxClient.class);
+
 sampleEndpointClient
         .observableMethod(new SampleRequest(5, "Test"))
         .map(n -> n.data)
@@ -155,3 +154,7 @@ sampleEndpointClient
         .assertComplete()
         .assertValueCount(5);
 ```
+
+#### Component diagram
+
+![Diagram](http://www.plantuml.com/plantuml/png/3OpB3G8n30NlgG8A8BvpsbP2Okr6SXpB7vRoyUdfQKPpc3VrM5IUapl5m51wNEvYRm1jTpsdN_49G-sR7TbhtmkCvdgTsDH0VoeT1duXCv1GDgTcLVAN0tda_W40)
