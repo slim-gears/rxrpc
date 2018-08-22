@@ -3,6 +3,7 @@
  */
 package com.slimgears.rxrpc.apt.util;
 
+import com.google.common.base.Preconditions;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
 
 import java.util.List;
@@ -35,7 +36,7 @@ public class TypeInfoParser {
         private final Stack<Integer> paramsCounters = new Stack<>();
 
         public TypeInfo getType() {
-            assert builders.size() == 1;
+            Preconditions.checkState(builders.size() == 1);
             return getTypes()[0];
         }
 

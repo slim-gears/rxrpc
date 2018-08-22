@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 @AutoValue
 public abstract class Environment {
     private final static String configOptionName = "rxrpc.config";
+    private final static String ignoredTypesOptionName = "rxrpc.ignoredTypes";
     private final static ThreadLocal<Environment> instance = new ThreadLocal<>();
 
     public abstract ProcessingEnvironment processingEnvironment();
@@ -45,16 +46,21 @@ public abstract class Environment {
 
     private static Environment create(ProcessingEnvironment processingEnvironment, RoundEnvironment roundEnvironment) {
         Properties properties = ConfigProviders.create(
-                ConfigProviders.loadFromResource("/config.properties"),
+                ConfigProviders.loadFromResource("/rxrpc-apt.properties"),
                 ConfigProviders.fromServiceLoader(),
                 loadFromExternalConfig(processingEnvironment),
                 loadFromOptions(processingEnvironment));
+
+        Predicate<TypeInfo> ignoredTypesFilter = Optional
+                .ofNullable(properties.getProperty(ignoredTypesOptionName))
+                .map(Environment::typeFilterFromWildcards)
+                .orElse(t -> false);
 
         return new AutoValue_Environment(
                 processingEnvironment,
                 roundEnvironment,
                 properties,
-                typeFilterFromWildcards("java.*, io.reactivex.*, com.fasterxml.*"));
+                ignoredTypesFilter);
     }
 
     public static Environment instance() {
