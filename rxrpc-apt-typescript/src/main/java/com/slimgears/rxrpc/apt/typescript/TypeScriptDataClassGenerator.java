@@ -44,10 +44,11 @@ public class TypeScriptDataClassGenerator implements DataClassGenerator {
                 TypeInfo.of(context.sourceTypeElement()),
                 targetClass);
 
+        TypeScriptUtils typeScriptUtils = new TypeScriptUtils();
         evaluator(context)
-                .variable("tsUtils", new TypeScriptUtils(importTracker))
+                .variable("tsUtils", typeScriptUtils)
                 .variables(context)
-                .apply(TypeScriptUtils.imports(importTracker))
+                .apply(typeScriptUtils.imports(importTracker))
                 .write(TypeScriptUtils.fileWriter(context.environment(), filename));
     }
 

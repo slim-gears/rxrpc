@@ -2,13 +2,12 @@
  */
 package com.slimgears.rxrpc.apt.util;
 
+import com.slimgears.rxrpc.apt.data.Environment;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
 
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -27,6 +26,19 @@ public class TypeConverters {
                 .map(fromType -> createConverter(fromType, properties.getProperty(fromType)))
                 .reduce(TypeConverter::combineWith)
                 .orElse(TypeConverters.empty);
+    }
+
+    public static TypeConverter fromEnvironment(String typeMapsKey) {
+        return Optional
+                .ofNullable(Environment.instance().properties().getProperty(typeMapsKey))
+                .map(typeMaps -> typeMaps.split(","))
+                .map(Stream::of)
+                .orElseGet(Stream::empty)
+                .map(String::trim)
+                .map(Paths::get)
+                .map(TypeConverters::fromPropertiesFile)
+                .reduce(TypeConverter::combineWith)
+                .orElse(empty);
     }
 
     public static TypeConverter fromPropertiesFile(Path path) {

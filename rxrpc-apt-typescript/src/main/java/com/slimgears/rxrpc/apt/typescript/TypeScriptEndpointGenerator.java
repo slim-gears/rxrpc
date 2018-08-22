@@ -71,14 +71,14 @@ public class TypeScriptEndpointGenerator implements EndpointGenerator {
 
         log.debug("Target file name: {}", filename);
 
-        TypeScriptUtils typeScriptUtils = new TypeScriptUtils(importTracker);
+        TypeScriptUtils typeScriptUtils = new TypeScriptUtils();
         TemplateEvaluator.forResource(templateName)
                 .variable("targetClass", targetClass)
                 .variable("generateNgModule", context.hasOption("rxrpc.ts.ngmodule"))
                 .variable("tsUtils", typeScriptUtils)
                 .variable("interfaces", interfaceProvider.apply(typeScriptUtils))
                 .variables(context)
-                .apply(TypeScriptUtils.imports(importTracker))
+                .apply(typeScriptUtils.imports(importTracker))
                 .write(TypeScriptUtils.fileWriter(context.environment(), filename));
 
         TypeScriptUtils.addGeneratedClass(
