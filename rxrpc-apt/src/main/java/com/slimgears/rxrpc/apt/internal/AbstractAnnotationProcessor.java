@@ -17,25 +17,22 @@ import java.util.stream.Stream;
 
 import static com.slimgears.rxrpc.apt.util.StreamUtils.ofType;
 
-public abstract class AbstractAnnotationProcessor<G extends CodeGenerator<C>, C extends CodeGenerator.Context> extends AbstractProcessor {
+public abstract class AbstractAnnotationProcessor extends AbstractProcessor {
     protected final Logger log = LoggerFactory.getLogger(getClass());
-    private final Collection<G> codeGenerators = new ArrayList<>();
-
-    protected AbstractAnnotationProcessor(Class<G> codeGeneratorClass) {
-        ServiceLoader.load(codeGeneratorClass, getClass().getClassLoader()).forEach(codeGenerators::add);
-    }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         try (LogUtils.SelfClosable ignored = LogUtils.applyLogging(processingEnv);
              Safe.SafeClosable envClosable = Environment.withEnvironment(processingEnv, roundEnv)) {
-            onStart();
             boolean res = annotations
                     .stream()
                     .map(a -> processAnnotation(a, roundEnv))
                     .reduce(Boolean::logicalOr)
                     .orElse(false);
-            onComplete();
+
+            if (annotations.isEmpty()) {
+                onComplete();
+            }
             return res;
         }
     }
@@ -43,9 +40,6 @@ public abstract class AbstractAnnotationProcessor<G extends CodeGenerator<C>, C 
     @Override
     public SourceVersion getSupportedSourceVersion() {
         return processingEnv.getSourceVersion();
-    }
-
-    protected void onStart() {
     }
 
     protected void onComplete() {
@@ -65,8 +59,6 @@ public abstract class AbstractAnnotationProcessor<G extends CodeGenerator<C>, C 
                 .orElse(false);
     }
 
-    protected abstract C createContext(TypeElement annotationType, TypeElement typeElement);
-
     protected boolean processAnnotation(Class annotationType, RoundEnvironment roundEnv) {
         return processAnnotation(
                 processingEnv.getElementUtils().getTypeElement(annotationType.getCanonicalName()),
@@ -74,10 +66,7 @@ public abstract class AbstractAnnotationProcessor<G extends CodeGenerator<C>, C 
     }
 
     protected boolean processType(TypeElement annotationType, TypeElement typeElement) {
-        log.info("Processing type: {}", typeElement.getQualifiedName());
-        C context = createContext(annotationType, typeElement);
-        codeGenerators.forEach(cg -> cg.generate(context));
-        return true;
+        return false;
     }
 
     protected boolean processMethod(TypeElement annotationType, ExecutableElement methodElement) { return false; }

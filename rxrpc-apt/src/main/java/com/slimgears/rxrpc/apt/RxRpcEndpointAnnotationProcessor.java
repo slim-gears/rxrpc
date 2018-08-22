@@ -20,15 +20,23 @@ import java.util.stream.Collectors;
 
 @AutoService(Processor.class)
 @SupportedAnnotationTypes("com.slimgears.rxrpc.core.RxRpcEndpoint")
-public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcessor<EndpointGenerator, EndpointGenerator.Context> {
+public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcessor {
+    private final Collection<EndpointGenerator> endpointGenerators = new ArrayList<>();
     private final Collection<CodeGenerationFinalizer> finalizers = new ArrayList<>();
     private final Collection<DataClassGenerator> dataClassGenerators = new ArrayList<>();
     private final Collection<Name> processedClasses = new HashSet<>();
 
     public RxRpcEndpointAnnotationProcessor() {
-        super(EndpointGenerator.class);
+        ServiceLoader.load(EndpointGenerator.class, getClass().getClassLoader()).forEach(endpointGenerators::add);
         ServiceLoader.load(CodeGenerationFinalizer.class, getClass().getClassLoader()).forEach(finalizers::add);
         ServiceLoader.load(DataClassGenerator.class, getClass().getClassLoader()).forEach(dataClassGenerators::add);
+    }
+
+    protected boolean processType(TypeElement annotationType, TypeElement typeElement) {
+        log.info("Processing type: {}", typeElement.getQualifiedName());
+        EndpointGenerator.Context context = createContext(annotationType, typeElement);
+        endpointGenerators.forEach(cg -> cg.generate(context));
+        return true;
     }
 
     private void generateDataType(TypeElement typeElement) {
@@ -70,7 +78,6 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
         finalizers.clear();
     }
 
-    @Override
     protected EndpointGenerator.Context createContext(TypeElement annotationType, TypeElement typeElement) {
         DeclaredType declaredType = (DeclaredType)typeElement.asType();
         Collection<MethodInfo> methods = ElementUtils.toDeclaredTypeStream(typeElement)

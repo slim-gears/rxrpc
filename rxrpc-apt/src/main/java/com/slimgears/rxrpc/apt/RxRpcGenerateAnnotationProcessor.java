@@ -15,24 +15,27 @@ import org.apache.commons.text.lookup.StringLookup;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.TypeElement;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @AutoService(Processor.class)
 @SupportedAnnotationTypes("com.slimgears.rxrpc.core.RxRpcGenerate")
-public class RxRpcGenerateAnnotationProcessor extends AbstractAnnotationProcessor<MetaEndpointGenerator, MetaEndpointGenerator.Context> {
+public class RxRpcGenerateAnnotationProcessor extends AbstractAnnotationProcessor {
+    private final Collection<MetaEndpointGenerator> metaEndpointGenerators = new ArrayList<>();
+
     public RxRpcGenerateAnnotationProcessor() {
-        super(MetaEndpointGenerator.class);
+        ServiceLoader.load(MetaEndpointGenerator.class).forEach(metaEndpointGenerators::add);
     }
 
-    @Override
+    protected boolean processType(TypeElement annotationType, TypeElement typeElement) {
+        log.info("Processing type: {}", typeElement.getQualifiedName());
+        MetaEndpointGenerator.Context context = createContext(annotationType, typeElement);
+        metaEndpointGenerators.forEach(cg -> cg.generate(context));
+        return true;
+    }
+
     protected MetaEndpointGenerator.Context createContext(TypeElement annotationType, TypeElement typeElement) {
         validateType(typeElement);
 
