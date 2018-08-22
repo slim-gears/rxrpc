@@ -16,7 +16,7 @@ public interface MetaEndpointGenerator extends CodeGenerator<MetaEndpointGenerat
         public abstract ImmutableList<MetaEndpointInfo> endpoints();
 
         public static Context.Builder builder() {
-            return new AutoValue_MetaEndpointGenerator_Context.Builder().configFromResource();
+            return new AutoValue_MetaEndpointGenerator_Context.Builder();
         }
 
         @AutoValue.Builder

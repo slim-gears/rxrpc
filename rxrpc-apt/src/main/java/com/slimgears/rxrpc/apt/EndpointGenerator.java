@@ -17,7 +17,7 @@ public interface EndpointGenerator extends CodeGenerator<EndpointGenerator.Conte
         public abstract Builder toBuilder();
 
         public static Builder builder() {
-            return new AutoValue_EndpointGenerator_Context.Builder().configFromResource();
+            return new AutoValue_EndpointGenerator_Context.Builder();
         }
 
         @AutoValue.Builder
