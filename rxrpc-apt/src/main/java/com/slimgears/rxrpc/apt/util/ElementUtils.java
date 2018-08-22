@@ -5,6 +5,7 @@ package com.slimgears.rxrpc.apt.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableSet;
+import com.slimgears.rxrpc.apt.data.Environment;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -27,43 +28,37 @@ import static com.slimgears.rxrpc.apt.util.StreamUtils.ofType;
 import static com.slimgears.rxrpc.apt.util.StreamUtils.self;
 
 public class ElementUtils {
-    private final static ImmutableSet<String> knownClasses = ImmutableSet
-            .<String>builder()
-            .add(types(byte.class, Byte.class))
-            .add(types(short.class, Short.class))
-            .add(types(int.class, Integer.class))
-            .add(types(long.class, Long.class))
-            .add(types(float.class, Float.class))
-            .add(types(double.class, Double.class))
-            .add(types(char.class, Character.class, String.class))
-            .add(types(BigInteger.class, BigDecimal.class))
-            .add(types(Map.class, List.class))
-            .add(types(Future.class))
-            .add(types(JsonNode.class))
-            .add(types(Object.class))
-            .add(types(Optional.class))
-            .add("io.reactivex.Observable")
-            .add("io.reactivex.Single")
-            .add("io.reactivex.Maybe")
-            .add("io.reactivex.Completable")
-            .build();
-
-    private final static ThreadLocal<ProcessingEnvironment> processingEnvironment = new ThreadLocal<>();
+//    private final static ImmutableSet<String> knownClasses = ImmutableSet
+//            .<String>builder()
+//            .add(types(byte.class, Byte.class))
+//            .add(types(short.class, Short.class))
+//            .add(types(int.class, Integer.class))
+//            .add(types(long.class, Long.class))
+//            .add(types(float.class, Float.class))
+//            .add(types(double.class, Double.class))
+//            .add(types(char.class, Character.class, String.class))
+//            .add(types(BigInteger.class, BigDecimal.class))
+//            .add(types(Map.class, List.class))
+//            .add(types(Future.class))
+//            .add(types(JsonNode.class))
+//            .add(types(Object.class))
+//            .add(types(Optional.class))
+//            .add("io.reactivex.Observable")
+//            .add("io.reactivex.Single")
+//            .add("io.reactivex.Maybe")
+//            .add("io.reactivex.Completable")
+//            .build();
 
     private static String[] types(Class... classes) {
         return Stream.of(classes).map(Class::getName).toArray(String[]::new);
     }
 
     public static boolean isKnownType(TypeElement typeElement) {
-        return knownClasses.contains(typeElement.getQualifiedName().toString());
+        return Environment.instance().isIgnoredType(TypeInfo.of(typeElement.getQualifiedName().toString()));
     }
 
     public static boolean isUnknownType(TypeElement typeElement) {
-        return !knownClasses.contains(typeElement.getQualifiedName().toString());
-    }
-
-    public static boolean isKnownType(TypeMirror typeMirror) {
-        return knownClasses.contains(typeMirror.toString());
+        return !isKnownType(typeElement);
     }
 
     public static boolean isPublic(Element element) {

@@ -10,14 +10,9 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
-import com.slimgears.rxrpc.apt.data.TypeConverter;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
 import com.slimgears.rxrpc.apt.data.TypeParameterInfo;
-import com.slimgears.rxrpc.apt.util.ImportTracker;
-import com.slimgears.rxrpc.apt.util.LogUtils;
-import com.slimgears.rxrpc.apt.util.Safe;
-import com.slimgears.rxrpc.apt.util.TemplateEvaluator;
-import com.slimgears.rxrpc.apt.util.TemplateUtils;
+import com.slimgears.rxrpc.apt.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +26,6 @@ import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -73,14 +67,14 @@ public class TypeScriptUtils extends TemplateUtils {
     private final static Multimap<TypeInfo, TypeInfo> generatedClasses = TreeMultimap.create(TypeInfo.comparator, TypeInfo.comparator);
     private final static Set<TypeInfo> generatedEndpoints = new TreeSet<>(TypeInfo.comparator);
 
-    private final TypeConverter typeConverter = TypeConverter.ofMultiple(
-            TypeConverter.create(typeMapping::containsKey, typeMapping::get),
-            TypeConverter.create(type -> type.is(Map.class), type -> convertTypeParams(type, "Map")),
-            TypeConverter.create(type -> type.is(List.class), type -> TypeInfo.arrayOf(convertType(type.elementTypeOrSelf()))),
-            TypeConverter.create(TypeInfo::isArray, this::convertArray),
-            TypeConverter.create(type -> type.is(Optional.class), type -> convertType(type.elementTypeOrSelf())),
+    private final TypeConverter typeConverter = TypeConverters.ofMultiple(
+            TypeConverters.create(typeMapping::containsKey, typeMapping::get),
+            TypeConverters.create(type -> type.is(Map.class), type -> convertTypeParams(type, "Map")),
+            TypeConverters.create(type -> type.is(List.class), type -> TypeInfo.arrayOf(convertType(type.elementTypeOrSelf()))),
+            TypeConverters.create(TypeInfo::isArray, this::convertArray),
+            TypeConverters.create(type -> type.is(Optional.class), type -> convertType(type.elementTypeOrSelf())),
             //TypeConverter.create(generatedClasses::containsKey, generatedClasses::get),
-            TypeConverter.create(type -> true, this::convertRecursively));
+            TypeConverters.create(type -> true, this::convertRecursively));
 
     private final ImportTracker importTracker;
 
