@@ -9,4 +9,5 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVer"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVer"
     implementation "com.google.guava:guava:$guavaVer"
+    implementation "com.google.inject:guice:$guiceVer"
 }

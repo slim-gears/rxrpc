@@ -6,7 +6,6 @@ package com.slimgears.rxrpc.apt;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.slimgears.rxrpc.apt.data.MetaEndpointInfo;
-import com.slimgears.rxrpc.apt.internal.CodeGenerator;
 import com.slimgears.rxrpc.core.RxRpcGenerate;
 
 public interface MetaEndpointGenerator extends CodeGenerator<MetaEndpointGenerator.Context> {
@@ -16,7 +15,7 @@ public interface MetaEndpointGenerator extends CodeGenerator<MetaEndpointGenerat
         public abstract ImmutableList<MetaEndpointInfo> endpoints();
 
         public static Context.Builder builder() {
-            return new AutoValue_MetaEndpointGenerator_Context.Builder().configFromResource();
+            return new AutoValue_MetaEndpointGenerator_Context.Builder();
         }
 
         @AutoValue.Builder

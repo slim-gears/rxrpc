@@ -3,109 +3,80 @@
  */
 package com.slimgears.rxrpc.apt.typescript;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
-import com.slimgears.rxrpc.apt.data.TypeConverter;
+import com.google.inject.Inject;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
-import com.slimgears.rxrpc.apt.data.TypeParameterInfo;
 import com.slimgears.rxrpc.apt.util.ImportTracker;
 import com.slimgears.rxrpc.apt.util.LogUtils;
 import com.slimgears.rxrpc.apt.util.Safe;
 import com.slimgears.rxrpc.apt.util.TemplateEvaluator;
 import com.slimgears.rxrpc.apt.util.TemplateUtils;
+import com.slimgears.rxrpc.apt.util.TypeConverter;
+import com.slimgears.rxrpc.apt.util.TypeConverters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.inject.Named;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.math.BigDecimal;
-import java.math.BigInteger;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TypeScriptUtils extends TemplateUtils {
+
     private final static Logger log = LoggerFactory.getLogger(TypeScriptUtils.class);
-
-    private final static ImmutableMap<TypeInfo, TypeInfo> typeMapping = ImmutableMap.<TypeInfo, TypeInfo>builder()
-            .putAll(types("number",
-                    byte.class, Byte.class,
-                    short.class, Short.class,
-                    int.class, Integer.class,
-                    long.class, Long.class,
-                    float.class, Float.class,
-                    double.class, Double.class,
-                    BigInteger.class,
-                    BigDecimal.class))
-            .putAll(types("string", String.class, char.class, Character.class, CharSequence.class))
-            .putAll(types("boolean", boolean.class, Boolean.class))
-            .putAll(types("any", JsonNode.class, Object.class))
-            .putAll(types("void", void.class, Void.class))
-            .putAll(types("Map", Map.class))
-            .build();
-
-    private static Map<TypeInfo, TypeInfo> types(String toType, Class... cls) {
-        return Stream.of(cls)
-                .map(Class::getName)
-                .map(TypeInfo::of)
-                .collect(Collectors.toMap(t -> t, t -> TypeInfo.of(toType)));
-    }
-
+    private final AtomicReference<TypeConverter> configuredTypeConverter = new AtomicReference<>(TypeConverters.empty);
     private final static Multimap<TypeInfo, TypeInfo> generatedClasses = TreeMultimap.create(TypeInfo.comparator, TypeInfo.comparator);
     private final static Set<TypeInfo> generatedEndpoints = new TreeSet<>(TypeInfo.comparator);
+    private final AtomicReference<TypeConverter> typeConverter = new AtomicReference<>(TypeConverters.empty);
+    private final TypeConverter fallbackTypeConverter = TypeConverters.create(t -> true, (up, t) -> convertRecursively(t));
 
-    private final TypeConverter typeConverter = TypeConverter.ofMultiple(
-            TypeConverter.create(typeMapping::containsKey, typeMapping::get),
-            TypeConverter.create(type -> type.is(Map.class), type -> convertTypeParams(type, "Map")),
-            TypeConverter.create(type -> type.is(List.class), type -> TypeInfo.arrayOf(convertType(type.elementTypeOrSelf()))),
-            TypeConverter.create(TypeInfo::isArray, this::convertArray),
-            TypeConverter.create(type -> type.is(Optional.class), type -> convertType(type.elementTypeOrSelf())),
-            //TypeConverter.create(generatedClasses::containsKey, generatedClasses::get),
-            TypeConverter.create(type -> true, this::convertRecursively));
+    @Inject
+    public TypeScriptUtils() {
+        addTypeConverter(TypeConverters.fromPropertiesResource("/types.properties"));
+    }
 
-    private final ImportTracker importTracker;
+    @Inject(optional = true)
+    private void addTypeMap(@Named("rxrpc.ts.typemap") Path path) {
+        addTypeConverter(TypeConverters.fromPropertiesFile(path));
+    }
 
-    public static void addGeneratedClass(TypeInfo source, TypeInfo generated) {
+    private void addTypeConverter(TypeConverter typeConverter) {
+        this.configuredTypeConverter.updateAndGet(old -> old.combineWith(typeConverter));
+        this.typeConverter.set(this.configuredTypeConverter.get().combineWith(fallbackTypeConverter));
+    }
+
+    public void addGeneratedClass(TypeInfo source, TypeInfo generated) {
         generatedClasses.put(source, generated);
     }
 
-    public static void addGeneratedEndpoint(TypeInfo generated) {
+    public void addGeneratedEndpoint(TypeInfo generated) {
         generatedEndpoints.add(generated);
     }
 
-    public static ImmutableMultimap<TypeInfo, TypeInfo> getGeneratedClasses() {
+    public ImmutableMultimap<TypeInfo, TypeInfo> getGeneratedClasses() {
         return ImmutableMultimap.copyOf(generatedClasses);
     }
 
-    public static ImmutableSet<TypeInfo> getGeneratedEndpoints() {
+    public ImmutableSet<TypeInfo> getGeneratedEndpoints() {
         return ImmutableSet.copyOf(generatedEndpoints);
-    }
-
-    public TypeScriptUtils(ImportTracker importTracker) {
-        this.importTracker = importTracker;
-    }
-
-    public ImportTracker imports() {
-        return importTracker;
     }
 
     public boolean isSupportedType(Class cls) {
@@ -113,33 +84,31 @@ public class TypeScriptUtils extends TemplateUtils {
     }
 
     public boolean isSupportedType(TypeInfo type) {
-        return typeMapping.containsKey(type);
+        return typeConverter.get().canConvert(type);
     }
 
     public TypeInfo toTypeScriptType(TypeInfo type) {
-        return typeConverter.convert(type);
+        return typeConverter.get().convert(type);
     }
 
-    public static Consumer<String> fileWriter(ProcessingEnvironment environment, String filename) {
-        return content -> {
-            writeFile(environment, filename, content.trim() + "\n");
-        };
+    public Consumer<String> fileWriter(ProcessingEnvironment environment, String filename) {
+        return content -> writeFile(environment, filename, content.trim() + "\n");
     }
 
-    public static void writeIndex(ProcessingEnvironment environment) {
+    public void writeIndex(ProcessingEnvironment environment) {
         writeFile(environment, "index.ts", generateIndex());
     }
 
-    public static Function<TemplateEvaluator, TemplateEvaluator> imports(ImportTracker importTracker) {
+    public Function<TemplateEvaluator, TemplateEvaluator> imports(ImportTracker importTracker) {
         return evaluator -> evaluator
                 .variable("imports", importTracker)
                 .postProcess(TemplateUtils.postProcessImports(importTracker))
                 .postProcess(code -> addImports(importTracker, code));
     }
 
-    private static String addImports(ImportTracker importTracker, String code) {
+    private String addImports(ImportTracker importTracker, String code) {
         String importsStr = Stream.of(importTracker.usedClasses())
-                .filter(type -> !typeMapping.containsValue(type))
+                .filter(type -> !configuredTypeConverter.get().canConvert(type))
                 .collect(Collectors.groupingBy(
                         TypeInfo::packageName,
                         TreeMap::new,
@@ -189,27 +158,7 @@ public class TypeScriptUtils extends TemplateUtils {
         }
     }
 
-    private TypeInfo convertType(TypeInfo type) {
-        return typeConverter.convert(type);
-    }
-
-    private TypeInfo convertArray(TypeInfo arrayType) {
-        Preconditions.checkArgument(arrayType.isArray());
-        return TypeInfo.of(convertType(arrayType.elementTypeOrSelf()).name() + "[]");
-    }
-
-    private TypeInfo convertTypeParams(TypeInfo typeInfo, String newName) {
-        return TypeInfo.builder()
-                .name(newName)
-                .typeParams(typeInfo.typeParams()
-                        .stream()
-                        .map(TypeParameterInfo::type)
-                        .map(this::convertType)
-                        .toArray(TypeInfo[]::new))
-                .build();
-    }
-
-    public static String generateIndex() {
+    public String generateIndex() {
         return getGeneratedClasses()
                 .values()
                 .stream()
@@ -223,7 +172,7 @@ public class TypeScriptUtils extends TemplateUtils {
         }
 
         TypeInfo.Builder builder = TypeInfo.builder().name(typeInfo.simpleName());
-        typeInfo.typeParams().forEach(tp -> builder.typeParam(tp.name(), typeConverter.convert(tp.type())));
+        typeInfo.typeParams().forEach(tp -> builder.typeParam(tp.name(), typeConverter.get().convert(tp.type())));
         return builder.build();
     }
 }

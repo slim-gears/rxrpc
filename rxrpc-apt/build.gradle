@@ -38,5 +38,9 @@ dependencies {
     implementation "javax.annotation:javax.annotation-api:$annotationApiVer"
     implementation "com.squareup:javapoet:$javaPoetVer"
 
+    implementation "com.google.inject:guice:$guiceVer"
+    implementation "com.google.inject.extensions:guice-multibindings:$guiceVer"
+    implementation "com.google.inject.extensions:guice-assistedinject:$guiceVer"
+
     testImplementation files(Jvm.current().getToolsJar())
 }

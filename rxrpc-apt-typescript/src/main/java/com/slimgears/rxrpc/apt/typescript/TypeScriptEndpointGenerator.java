@@ -13,6 +13,7 @@ import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Name;
@@ -32,6 +33,14 @@ import static com.slimgears.rxrpc.apt.util.StreamUtils.ofType;
 public class TypeScriptEndpointGenerator implements EndpointGenerator {
     private final static Logger log = LoggerFactory.getLogger(TypeScriptEndpointGenerator.class);
     private final Collection<TypeElement> generatedInterfaces = new HashSet<>();
+    private final TypeScriptUtils typeScriptUtils;
+    private final TypeScriptConfig config;
+
+    @Inject
+    public TypeScriptEndpointGenerator(TypeScriptUtils typeScriptUtils, TypeScriptConfig config) {
+        this.typeScriptUtils = typeScriptUtils;
+        this.config = config;
+    }
 
     @Override
     public void generate(Context context) {
@@ -48,7 +57,7 @@ public class TypeScriptEndpointGenerator implements EndpointGenerator {
                     }
                 },
                 "/typescript-client-class.ts.vm");
-        TypeScriptUtils.addGeneratedEndpoint(targetClass);
+        typeScriptUtils.addGeneratedEndpoint(targetClass);
     }
 
     private void generateCode(Context context,
@@ -71,17 +80,16 @@ public class TypeScriptEndpointGenerator implements EndpointGenerator {
 
         log.debug("Target file name: {}", filename);
 
-        TypeScriptUtils typeScriptUtils = new TypeScriptUtils(importTracker);
         TemplateEvaluator.forResource(templateName)
                 .variable("targetClass", targetClass)
-                .variable("generateNgModule", context.hasOption("rxrpc.ts.ngmodule"))
+                .variable("generateNgModule", config.generateNgModule)
                 .variable("tsUtils", typeScriptUtils)
                 .variable("interfaces", interfaceProvider.apply(typeScriptUtils))
                 .variables(context)
-                .apply(TypeScriptUtils.imports(importTracker))
-                .write(TypeScriptUtils.fileWriter(context.environment(), filename));
+                .apply(typeScriptUtils.imports(importTracker))
+                .write(typeScriptUtils.fileWriter(context.environment(), filename));
 
-        TypeScriptUtils.addGeneratedClass(
+        typeScriptUtils.addGeneratedClass(
                 TypeInfo.of(context.sourceTypeElement()),
                 targetClass);
     }

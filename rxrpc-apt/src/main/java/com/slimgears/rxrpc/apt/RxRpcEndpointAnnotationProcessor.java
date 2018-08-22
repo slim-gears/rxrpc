@@ -3,36 +3,54 @@ package com.slimgears.rxrpc.apt;
 import com.google.auto.service.AutoService;
 import com.slimgears.rxrpc.apt.data.MethodInfo;
 import com.slimgears.rxrpc.apt.data.PropertyInfo;
-import com.slimgears.rxrpc.apt.data.TypeInfo;
 import com.slimgears.rxrpc.apt.internal.AbstractAnnotationProcessor;
 import com.slimgears.rxrpc.apt.util.ElementUtils;
-import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import com.slimgears.rxrpc.core.RxRpcEndpoint;
 
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @AutoService(Processor.class)
 @SupportedAnnotationTypes("com.slimgears.rxrpc.core.RxRpcEndpoint")
-public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcessor<EndpointGenerator, EndpointGenerator.Context> {
-    private final Collection<CodeGenerationFinalizer> finalizers = new ArrayList<>();
-    private final Collection<DataClassGenerator> dataClassGenerators = new ArrayList<>();
+public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcessor {
+    @Inject private Set<EndpointGenerator> endpointGenerators;
+    @Inject private Set<DataClassGenerator> dataClassGenerators;
+    @Inject private Set<CodeGenerationFinalizer> finalizers;
+    @Inject @Named("rxrpc.ignoredTypes") private Set<Pattern> ignoredTypes;
+
     private final Collection<Name> processedClasses = new HashSet<>();
 
-    public RxRpcEndpointAnnotationProcessor() {
-        super(EndpointGenerator.class);
-        ServiceLoader.load(CodeGenerationFinalizer.class, getClass().getClassLoader()).forEach(finalizers::add);
-        ServiceLoader.load(DataClassGenerator.class, getClass().getClassLoader()).forEach(dataClassGenerators::add);
+    @Override
+    protected boolean processType(TypeElement annotationType, TypeElement typeElement) {
+        log.info("Processing type: {}", typeElement.getQualifiedName());
+        EndpointGenerator.Context context = createContext(typeElement);
+        endpointGenerators.forEach(cg -> cg.generate(context));
+        return true;
+    }
+
+    private boolean isNotIgnoredType(TypeElement typeElement) {
+        String name = typeElement.getQualifiedName().toString();
+        boolean isIgnored = ignoredTypes
+                .stream()
+                .map(Pattern::asPredicate)
+                .anyMatch(p -> p.test(name));
+        return !isIgnored;
     }
 
     private void generateDataType(TypeElement typeElement) {
-        if (processedClasses.contains(typeElement.getQualifiedName()) || TemplateUtils.isKnownAsyncType(TypeInfo.of(typeElement))) {
+        if (processedClasses.contains(typeElement.getQualifiedName()) || !isNotIgnoredType(typeElement)) {
             return;
         }
         processedClasses.add(typeElement.getQualifiedName());
@@ -67,11 +85,9 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
                 .build();
 
         finalizers.forEach(f -> f.generate(context));
-        finalizers.clear();
     }
 
-    @Override
-    protected EndpointGenerator.Context createContext(TypeElement annotationType, TypeElement typeElement) {
+    private EndpointGenerator.Context createContext(TypeElement typeElement) {
         DeclaredType declaredType = (DeclaredType)typeElement.asType();
         Collection<MethodInfo> methods = ElementUtils.toDeclaredTypeStream(typeElement)
                 .flatMap(ElementUtils::getHierarchy)
@@ -92,7 +108,7 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
     private ExecutableElement ensureReferencedTypesGenerated(ExecutableElement element) {
         ElementUtils
                 .getReferencedTypes(element)
-                .filter(ElementUtils::isUnknownType)
+                .filter(this::isNotIgnoredType)
                 .forEach(this::generateDataType);
         return element;
     }

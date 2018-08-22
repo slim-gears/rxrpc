@@ -1,5 +1,7 @@
 package com.slimgears.rxrpc.apt.internal;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.slimgears.rxrpc.apt.data.Environment;
 import com.slimgears.rxrpc.apt.util.LogUtils;
 import com.slimgears.rxrpc.apt.util.Safe;
@@ -12,31 +14,32 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import java.util.*;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.slimgears.rxrpc.apt.util.StreamUtils.ofType;
 
-public abstract class AbstractAnnotationProcessor<G extends CodeGenerator<C>, C extends CodeGenerator.Context> extends AbstractProcessor {
+public abstract class AbstractAnnotationProcessor extends AbstractProcessor {
     protected final Logger log = LoggerFactory.getLogger(getClass());
-    private final Collection<G> codeGenerators = new ArrayList<>();
-
-    protected AbstractAnnotationProcessor(Class<G> codeGeneratorClass) {
-        ServiceLoader.load(codeGeneratorClass, getClass().getClassLoader()).forEach(codeGenerators::add);
-    }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        try (LogUtils.SelfClosable ignored = LogUtils.applyLogging(processingEnv);
-             Safe.SafeClosable envClosable = Environment.withEnvironment(processingEnv, roundEnv)) {
+        Injector injector = Guice.createInjector(new EnvironmentModule(processingEnv));
+        injector.injectMembers(this);
+
+        try (LogUtils.SelfClosable ignored1 = LogUtils.applyLogging(processingEnv);
+             Safe.SafeClosable ignored2 = Environment.withEnvironment(processingEnv, roundEnv)) {
             onStart();
-            boolean res = annotations
+
+            return annotations
                     .stream()
                     .map(a -> processAnnotation(a, roundEnv))
                     .reduce(Boolean::logicalOr)
                     .orElse(false);
-            onComplete();
-            return res;
+        } finally {
+            if (annotations.isEmpty()) {
+                onComplete();
+            }
         }
     }
 
@@ -49,7 +52,6 @@ public abstract class AbstractAnnotationProcessor<G extends CodeGenerator<C>, C 
     }
 
     protected void onComplete() {
-
     }
 
     protected boolean processAnnotation(TypeElement annotationType, RoundEnvironment roundEnv) {
@@ -65,21 +67,13 @@ public abstract class AbstractAnnotationProcessor<G extends CodeGenerator<C>, C 
                 .orElse(false);
     }
 
-    protected abstract C createContext(TypeElement annotationType, TypeElement typeElement);
-
     protected boolean processAnnotation(Class annotationType, RoundEnvironment roundEnv) {
         return processAnnotation(
                 processingEnv.getElementUtils().getTypeElement(annotationType.getCanonicalName()),
                 roundEnv);
     }
 
-    protected boolean processType(TypeElement annotationType, TypeElement typeElement) {
-        log.info("Processing type: {}", typeElement.getQualifiedName());
-        C context = createContext(annotationType, typeElement);
-        codeGenerators.forEach(cg -> cg.generate(context));
-        return true;
-    }
-
+    protected boolean processType(TypeElement annotationType, TypeElement typeElement) { return false; }
     protected boolean processMethod(TypeElement annotationType, ExecutableElement methodElement) { return false; }
     protected boolean processField(TypeElement annotationType, VariableElement variableElement) { return false; }
 }

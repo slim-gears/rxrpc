@@ -4,7 +4,6 @@ package com.slimgears.rxrpc.apt.typescript; /**
 
 import com.slimgears.rxrpc.apt.AnnotationProcessingTester;
 import com.slimgears.rxrpc.apt.TestBundles;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class TypeScriptEndpointGenerationTest {
@@ -49,7 +48,7 @@ public class TypeScriptEndpointGenerationTest {
 
     private AnnotationProcessingTester typeScriptOptions(AnnotationProcessingTester tester) {
         return tester.options(
-                        "-Arxrpc.ts.ngmodule",
-                        "-Arxrpc.ts.npm");
+                        "-Arxrpc.ts.ngmodule=true",
+                        "-Arxrpc.ts.npm=true");
     }
 }

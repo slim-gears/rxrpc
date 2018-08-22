@@ -14,12 +14,19 @@ import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Name;
 
 @AutoService(DataClassGenerator.class)
 public class TypeScriptDataClassGenerator implements DataClassGenerator {
     private final static Logger log = LoggerFactory.getLogger(TypeScriptDataClassGenerator.class);
+    private final TypeScriptUtils typeScriptUtils;
+
+    @Inject
+    public TypeScriptDataClassGenerator(TypeScriptUtils typeScriptUtils) {
+        this.typeScriptUtils = typeScriptUtils;
+    }
 
     @Override
     public void generate(Context context) {
@@ -40,15 +47,15 @@ public class TypeScriptDataClassGenerator implements DataClassGenerator {
         String filename = TemplateUtils.camelCaseToDash(targetClass.name()) + ".ts";
         log.debug("Target file name: {}", filename);
 
-        TypeScriptUtils.addGeneratedClass(
+        typeScriptUtils.addGeneratedClass(
                 TypeInfo.of(context.sourceTypeElement()),
                 targetClass);
 
         evaluator(context)
-                .variable("tsUtils", new TypeScriptUtils(importTracker))
+                .variable("tsUtils", typeScriptUtils)
                 .variables(context)
-                .apply(TypeScriptUtils.imports(importTracker))
-                .write(TypeScriptUtils.fileWriter(context.environment(), filename));
+                .apply(typeScriptUtils.imports(importTracker))
+                .write(typeScriptUtils.fileWriter(context.environment(), filename));
     }
 
     private TemplateEvaluator evaluator(Context context) {

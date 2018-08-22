@@ -9,16 +9,24 @@ import com.slimgears.rxrpc.apt.data.TypeInfo;
 import com.slimgears.rxrpc.apt.util.ImportTracker;
 import com.slimgears.rxrpc.apt.util.TemplateEvaluator;
 
+import javax.inject.Inject;
 import javax.lang.model.element.ElementKind;
 
 @AutoService(EndpointGenerator.class)
 public class JavaEndpointGenerator implements EndpointGenerator {
+    private final JavaConfig config;
+
+    @Inject
+    public JavaEndpointGenerator(JavaConfig config) {
+        this.config = config;
+    }
+
     @Override
     public void generate(Context context) {
-        if (context.hasOption("rxrpc.java.client")) {
+        if (config.generateClient) {
             generateClass(context, "_RxClient", "/java-client.java.vm");
         }
-        if (context.hasOption("rxrpc.java.server")) {
+        if (config.generateServer) {
             generateClass(context, "_RxModule", "/java-server.java.vm");
         }
     }
@@ -35,7 +43,7 @@ public class JavaEndpointGenerator implements EndpointGenerator {
                 .variables(context)
                 .variable("isInterface", context.sourceTypeElement().getKind() == ElementKind.INTERFACE)
                 .variable("javaUtils", new JavaUtils())
-                .variable("autoService", context.hasOption("rxrpc.java.autoservice"))
+                .variable("autoService", config.applyAutoService)
                 .variable("targetClass", targetClass)
                 .apply(JavaUtils.imports(importTracker))
                 //.postProcess(JavaUtils.formatter())

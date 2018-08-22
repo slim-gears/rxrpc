@@ -14,6 +14,7 @@ import org.apache.commons.text.lookup.StringLookup;
 
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.inject.Inject;
 import javax.lang.model.element.TypeElement;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,15 +26,22 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 @AutoService(Processor.class)
 @SupportedAnnotationTypes("com.slimgears.rxrpc.core.RxRpcGenerate")
-public class RxRpcGenerateAnnotationProcessor extends AbstractAnnotationProcessor<MetaEndpointGenerator, MetaEndpointGenerator.Context> {
-    public RxRpcGenerateAnnotationProcessor() {
-        super(MetaEndpointGenerator.class);
-    }
+public class RxRpcGenerateAnnotationProcessor extends AbstractAnnotationProcessor {
+    @Inject private Set<MetaEndpointGenerator> metaEndpointGenerators;
 
     @Override
-    protected MetaEndpointGenerator.Context createContext(TypeElement annotationType, TypeElement typeElement) {
+    protected boolean processType(TypeElement annotationType, TypeElement typeElement) {
+        log.info("Processing type: {}", typeElement.getQualifiedName());
+        MetaEndpointGenerator.Context context = createContext(typeElement);
+        metaEndpointGenerators.forEach(cg -> cg.generate(context));
+        return true;
+    }
+
+    private MetaEndpointGenerator.Context createContext(TypeElement typeElement) {
         validateType(typeElement);
 
         RxRpcGenerate meta = typeElement.getAnnotation(RxRpcGenerate.class);
@@ -90,25 +98,25 @@ public class RxRpcGenerateAnnotationProcessor extends AbstractAnnotationProcesso
     }
 
     private void validateType(TypeElement typeElement) {
-        require(ElementUtils.isInterface(typeElement), "Annotated type should be interface");
-        require(!typeElement.getTypeParameters().isEmpty(), "Annotated type should have one or more type parameters");
+        checkArgument(ElementUtils.isInterface(typeElement), "Annotated type should be interface");
+        checkArgument(!typeElement.getTypeParameters().isEmpty(), "Annotated type should have one or more type parameters");
         RxRpcGenerate meta = typeElement.getAnnotation(RxRpcGenerate.class);
-        require(meta.value().length > 0, "Meta endpoint instantiations are not defined");
+        checkArgument(meta.value().length > 0, "Meta endpoint instantiations are not defined");
         Stream.of(meta.value()).forEach(epm -> validateEndpoint(typeElement, meta, epm));
     }
 
     private void validateEndpoint(TypeElement typeElement, RxRpcGenerate meta, RxRpcGenerate.Endpoint endpointMeta) {
         if (endpointMeta.className().isEmpty()) {
-            require(!meta.className().isEmpty(), "Class name/template is not defined for some endpoint instantiations");
+            checkArgument(!meta.className().isEmpty(), "Class name/template is not defined for some endpoint instantiations");
             validateNameTemplate(meta.className(), typeElement);
         }
 
         if (endpointMeta.endpointName().isEmpty()) {
-            require(!meta.endpointName().isEmpty(), "Endpoint name/template is not defined for some endpoint instantiations");
+            checkArgument(!meta.endpointName().isEmpty(), "Endpoint name/template is not defined for some endpoint instantiations");
             validateNameTemplate(meta.endpointName(), typeElement);
         }
 
-        require(ElementUtils.typesFromAnnotation(endpointMeta, RxRpcGenerate.Endpoint::params).length == typeElement.getTypeParameters().size(), "Parameter number mismatch");
+        checkArgument(ElementUtils.typesFromAnnotation(endpointMeta, RxRpcGenerate.Endpoint::params).length == typeElement.getTypeParameters().size(), "Parameter number mismatch");
     }
 
     private void validateNameTemplate(String template, TypeElement typeElement) {
@@ -119,14 +127,8 @@ public class RxRpcGenerateAnnotationProcessor extends AbstractAnnotationProcesso
 
         Set<String> varNames = getVarNames(template);
 
-        require(varNames.size() == typeElement.getTypeParameters().size(), "Template variable names number mismatch");
-        varNames.forEach(n -> require(namesFromTypeParams.contains(n), "Template variable name " + n + " does not correspond to type parameter"));
-    }
-
-    private static void require(boolean condition, String errorMsg) {
-        if (!condition) {
-            throw new RuntimeException("Incorrent @" + RxRpcGenerate.class.getSimpleName() + " usage: " + errorMsg);
-        }
+        checkArgument(varNames.size() == typeElement.getTypeParameters().size(), "Template variable names number mismatch");
+        varNames.forEach(n -> checkArgument(namesFromTypeParams.contains(n), "Template variable name " + n + " does not correspond to type parameter"));
     }
 
     private Set<String> getVarNames(String template) {

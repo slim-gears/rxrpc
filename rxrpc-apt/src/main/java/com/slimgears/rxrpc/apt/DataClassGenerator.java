@@ -7,7 +7,6 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.slimgears.rxrpc.apt.data.PropertyInfo;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
-import com.slimgears.rxrpc.apt.internal.CodeGenerator;
 
 public interface DataClassGenerator extends CodeGenerator<DataClassGenerator.Context> {
     @AutoValue
@@ -15,7 +14,7 @@ public interface DataClassGenerator extends CodeGenerator<DataClassGenerator.Con
         public abstract ImmutableList<PropertyInfo> properties();
 
         public static Builder builder() {
-            return new AutoValue_DataClassGenerator_Context.Builder().configFromResource();
+            return new AutoValue_DataClassGenerator_Context.Builder();
         }
 
         @AutoValue.Builder

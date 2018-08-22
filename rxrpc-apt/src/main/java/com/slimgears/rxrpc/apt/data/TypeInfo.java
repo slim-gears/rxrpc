@@ -5,12 +5,10 @@ import com.google.common.collect.ImmutableMap;
 import com.slimgears.rxrpc.apt.util.ElementUtils;
 import com.slimgears.rxrpc.apt.util.TypeInfoParser;
 
-import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.lang.reflect.Type;
 import java.util.Comparator;
@@ -93,16 +91,18 @@ public abstract class TypeInfo implements HasName, HasMethods, HasAnnotations, H
         return builder().name(typeInfo.elementTypeOrSelf().name() + "[]").build();
     }
 
-    public static TypeInfo of(String name, TypeInfo... params) {
-        return builder().name(name).typeParams(params).build();
+    public static TypeInfo of(String name, TypeInfo param, TypeInfo... otherParams) {
+        return builder().name(name)
+                .typeParams(param)
+                .typeParams(otherParams).build();
     }
 
-    public static TypeInfo parse(String fullName) {
+    public static TypeInfo of(String fullName) {
         return TypeInfoParser.parse(fullName);
     }
 
     public static TypeInfo of(TypeMirror typeMirror) {
-        return parse(typeMirror.toString());
+        return of(typeMirror.toString());
     }
 
     public static TypeInfo of(Type type) {

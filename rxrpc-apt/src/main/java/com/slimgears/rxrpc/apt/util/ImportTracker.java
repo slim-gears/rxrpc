@@ -5,14 +5,11 @@ package com.slimgears.rxrpc.apt.util;
 
 import com.slimgears.rxrpc.apt.data.TypeInfo;
 import com.slimgears.rxrpc.apt.data.TypeParameterInfo;
-import org.apache.commons.text.StringSubstitutor;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.TreeSet;
-import java.util.function.Function;
 
 public class ImportTracker {
     private final static String importsMagicWord = "`imports`";
@@ -47,7 +44,7 @@ public class ImportTracker {
     }
 
     public String use(String cls) {
-        TypeInfo typeInfo = TypeInfoParser.parse(cls);
+        TypeInfo typeInfo = TypeInfo.of(cls);
         return use(typeInfo);
     }
 
