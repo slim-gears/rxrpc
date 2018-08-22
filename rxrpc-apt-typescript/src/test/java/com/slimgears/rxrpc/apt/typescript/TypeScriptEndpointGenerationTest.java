@@ -48,7 +48,7 @@ public class TypeScriptEndpointGenerationTest {
 
     private AnnotationProcessingTester typeScriptOptions(AnnotationProcessingTester tester) {
         return tester.options(
-                        "-Arxrpc.ts.ngmodule=true",
-                        "-Arxrpc.ts.npm=true");
+                        "-Arxrpc.ts.ngmodule",
+                        "-Arxrpc.ts.npm");
     }
 }

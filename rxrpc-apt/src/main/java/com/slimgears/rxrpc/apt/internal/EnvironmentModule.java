@@ -34,7 +34,7 @@ public class EnvironmentModule extends AbstractModule {
                 ConfigProviders.loadFromResource("/config.properties"),
                 ConfigProviders.fromServiceLoader(),
                 loadFromExternalConfig(),
-                ConfigProviders.loadFromMap(processingEnvironment.getOptions())));
+                loadFromOptions()));
 
         install(new TypeConversionModule());
         install(new ProcessingModule());
@@ -45,5 +45,14 @@ public class EnvironmentModule extends AbstractModule {
                 .ofNullable(processingEnvironment.getOptions().get(configOptionName))
                 .map(ConfigProviders::loadFromFile)
                 .orElse(ConfigProviders.empty);
+    }
+
+    private ConfigProvider loadFromOptions() {
+        return props -> processingEnvironment
+                .getOptions()
+                .forEach((key, value) -> props.put(key, Optional
+                        .ofNullable(value)
+                        .map(Object::toString)
+                        .orElse("true")));
     }
 }

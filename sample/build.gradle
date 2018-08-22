@@ -2,9 +2,9 @@ apply from: "$rootProject.javaGradle"
 
 tasks.withType(JavaCompile) {
     options.compilerArgs = [
-            "-Arxrpc.java.client=true",
-            "-Arxrpc.java.server=true",
-            "-Arxrpc.java.autoservice=true"]
+            "-Arxrpc.java.client",
+            "-Arxrpc.java.server",
+            "-Arxrpc.java.autoservice"]
 }
 
 dependencies {

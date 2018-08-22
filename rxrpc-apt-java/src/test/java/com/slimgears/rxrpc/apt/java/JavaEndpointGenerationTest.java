@@ -12,7 +12,7 @@ public class JavaEndpointGenerationTest {
     public void testEndpointClientServerGeneration() {
         TestBundles.sampleEndpointTester()
                 .apply(this::javaOptions)
-                .options("-Arxrpc.java.autoservice=true")
+                .options("-Arxrpc.java.autoservice")
                 .expectedSources(
                         "SampleEndpoint_RxClient.java",
                         "SampleEndpoint_RxModule.java")
@@ -41,7 +41,7 @@ public class JavaEndpointGenerationTest {
 
     private AnnotationProcessingTester javaOptions(AnnotationProcessingTester tester) {
         return tester.options(
-                        "-Arxrpc.java.client=true",
-                        "-Arxrpc.java.server=true");
+                        "-Arxrpc.java.client",
+                        "-Arxrpc.java.server");
     }
 }
