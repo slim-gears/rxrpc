@@ -12,7 +12,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.ServiceLoader;
 import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 
@@ -32,7 +31,7 @@ public class ConfigProviders {
     }
 
     public static ConfigProvider fromServiceLoader() {
-        return props -> ServiceLoader.load(ConfigProvider.class).forEach(cp -> cp.apply(props));
+        return props -> ServiceProviders.loadServices(ConfigProvider.class).forEach(cp -> cp.apply(props));
     }
 
     public static ConfigProvider loadFromFile(Path path) {

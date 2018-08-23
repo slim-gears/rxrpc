@@ -1,6 +1,6 @@
 package com.slimgears.rxrpc.sample;
 
-import com.slimgears.rxrpc.core.EndpointResolvers;
+import com.slimgears.rxrpc.core.util.ServiceResolvers;
 import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketRxTransport;
 import com.slimgears.rxrpc.server.RxServer;
 import org.eclipse.jetty.server.Server;
@@ -17,7 +17,7 @@ public class SampleServer {
         this.rxServer = RxServer.configBuilder()
                 .server(transportServer) // Use jetty WebSocket-servlet based transport
                 .discoverModules() // Discover auto-generated endpoint modules
-                .resolver(EndpointResolvers
+                .resolver(ServiceResolvers
                         .builder()
                         .bind(SampleEndpoint.class).to(SampleEndpointImpl.class)
                         .build())

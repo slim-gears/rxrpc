@@ -37,11 +37,27 @@ public class TestBundles {
                         "SampleOptionalDataEndpoint.java");
     }
 
-    public static AnnotationProcessingTester sampleMetaEndpointTester() {
+    public static AnnotationProcessingTester sampleGenericMetaEndpointTester() {
         return rxRpcEndpointProcessingTester()
                 .inputFiles(
                         "SampleGenericMetaEndpoint.java",
                         "SampleGenericData.java")
                 .processedWith(new RxRpcGenerateAnnotationProcessor());
+    }
+
+    public static AnnotationProcessingTester sampleMetaEndpointTester() {
+        return rxRpcEndpointProcessingTester()
+                .inputFiles(
+                        "SampleMetaEndpoint.java",
+                        "SampleMetaEndpointInput.java")
+                .processedWith(
+                        new RxRpcGenerateAnnotationProcessor(),
+                        new RxRpcEndpointAnnotationProcessor());
+    }
+
+    public static AnnotationProcessingTester sampleNestedDataEndpointTester() {
+        return rxRpcEndpointProcessingTester()
+                .inputFiles("SampleNestedDataEndpoint.java")
+                .processedWith(new RxRpcEndpointAnnotationProcessor());
     }
 }

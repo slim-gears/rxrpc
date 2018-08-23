@@ -10,7 +10,13 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
 import com.slimgears.rxrpc.apt.data.TypeParameterInfo;
-import com.slimgears.rxrpc.apt.util.*;
+import com.slimgears.rxrpc.apt.util.ImportTracker;
+import com.slimgears.rxrpc.apt.util.LogUtils;
+import com.slimgears.rxrpc.apt.util.Safe;
+import com.slimgears.rxrpc.apt.util.TemplateEvaluator;
+import com.slimgears.rxrpc.apt.util.TemplateUtils;
+import com.slimgears.rxrpc.apt.util.TypeConverter;
+import com.slimgears.rxrpc.apt.util.TypeConverters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +47,10 @@ public class TypeScriptUtils extends TemplateUtils {
             TypeConverters.fromEnvironment("rxrpc.ts.typemaps"));
     private final TypeConverter typeConverter = TypeConverters.ofMultiple(
             configuredTypeConverter,
+            TypeConverters.create(generatedClasses::containsKey, (up, type) -> generatedClasses.get(type)
+                    .stream()
+                    .findFirst()
+                    .orElseGet(() -> convertRecursively(up, type))),
             TypeConverters.create(type -> true, TypeScriptUtils::convertRecursively));
 
     public static void addGeneratedClass(TypeInfo source, TypeInfo generated) {

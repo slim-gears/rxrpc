@@ -1,11 +1,14 @@
 package com.slimgears.rxrpc.apt;
 
 import com.google.auto.service.AutoService;
+import com.slimgears.rxrpc.apt.data.Environment;
 import com.slimgears.rxrpc.apt.data.MethodInfo;
 import com.slimgears.rxrpc.apt.data.PropertyInfo;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
 import com.slimgears.rxrpc.apt.internal.AbstractAnnotationProcessor;
 import com.slimgears.rxrpc.apt.util.ElementUtils;
+import com.slimgears.rxrpc.apt.util.ServiceProviders;
+import com.slimgears.rxrpc.apt.util.StreamUtils;
 import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import com.slimgears.rxrpc.core.RxRpcEndpoint;
 
@@ -15,21 +18,25 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
-import java.util.*;
+import javax.lang.model.type.ExecutableType;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @AutoService(Processor.class)
 @SupportedAnnotationTypes("com.slimgears.rxrpc.core.RxRpcEndpoint")
 public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcessor {
-    private final Collection<EndpointGenerator> endpointGenerators = new ArrayList<>();
-    private final Collection<CodeGenerationFinalizer> finalizers = new ArrayList<>();
-    private final Collection<DataClassGenerator> dataClassGenerators = new ArrayList<>();
+    private final Collection<EndpointGenerator> endpointGenerators;
+    private final Collection<CodeGenerationFinalizer> finalizers;
+    private final Collection<DataClassGenerator> dataClassGenerators;
     private final Collection<Name> processedClasses = new HashSet<>();
 
     public RxRpcEndpointAnnotationProcessor() {
-        ServiceLoader.load(EndpointGenerator.class, getClass().getClassLoader()).forEach(endpointGenerators::add);
-        ServiceLoader.load(CodeGenerationFinalizer.class, getClass().getClassLoader()).forEach(finalizers::add);
-        ServiceLoader.load(DataClassGenerator.class, getClass().getClassLoader()).forEach(dataClassGenerators::add);
+        endpointGenerators = ServiceProviders.loadServices(EndpointGenerator.class);
+        finalizers = ServiceProviders.loadServices(CodeGenerationFinalizer.class);
+        dataClassGenerators = ServiceProviders.loadServices(DataClassGenerator.class);
     }
 
     protected boolean processType(TypeElement annotationType, TypeElement typeElement) {
@@ -40,7 +47,10 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
     }
 
     private void generateDataType(TypeElement typeElement) {
-        if (processedClasses.contains(typeElement.getQualifiedName()) || TemplateUtils.isKnownAsyncType(TypeInfo.of(typeElement))) {
+        TypeInfo typeInfo = TypeInfo.of(typeElement);
+        if (processedClasses.contains(typeElement.getQualifiedName()) ||
+                TemplateUtils.isKnownAsyncType(typeInfo) ||
+                Environment.instance().isIgnoredType(typeInfo)) {
             return;
         }
         processedClasses.add(typeElement.getQualifiedName());
@@ -80,10 +90,11 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
 
     protected EndpointGenerator.Context createContext(TypeElement annotationType, TypeElement typeElement) {
         DeclaredType declaredType = (DeclaredType)typeElement.asType();
+
         Collection<MethodInfo> methods = ElementUtils.toDeclaredTypeStream(typeElement)
                 .flatMap(ElementUtils::getHierarchy)
                 .flatMap(ElementUtils::getMethods)
-                .map(this::ensureReferencedTypesGenerated)
+                .map(method -> ensureReferencedTypesGenerated(method, declaredType))
                 .map(methodElement -> MethodInfo.create(methodElement, declaredType))
                 .collect(Collectors.toList());
 
@@ -96,9 +107,20 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
                 .build();
     }
 
-    private ExecutableElement ensureReferencedTypesGenerated(ExecutableElement element) {
-        ElementUtils
-                .getReferencedTypes(element)
+    private ExecutableElement ensureReferencedTypesGenerated(ExecutableElement element, DeclaredType declaredType) {
+        ExecutableType executableType = (ExecutableType) Environment.instance().types().asMemberOf(declaredType, element);
+
+        Stream.of(
+                ElementUtils.getReferencedTypes(element),
+                executableType.getParameterTypes()
+                        .stream()
+                        .flatMap(ElementUtils::getReferencedTypeParams)
+                        .flatMap(ElementUtils::toTypeElement),
+                Stream.of(executableType.getReturnType())
+                        .flatMap(ElementUtils::getReferencedTypeParams)
+                        .flatMap(ElementUtils::toTypeElement))
+                .flatMap(StreamUtils.self())
+                .peek(type -> log.debug("Found referenced type: {}", type.getQualifiedName()))
                 .filter(ElementUtils::isUnknownType)
                 .forEach(this::generateDataType);
         return element;

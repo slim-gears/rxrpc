@@ -2,13 +2,12 @@ package com.slimgears.rxrpc;
 
 import com.slimgears.rxrpc.client.AbstractClient;
 import com.slimgears.rxrpc.client.RxClient;
-import com.slimgears.rxrpc.core.EndpointResolver;
+import com.slimgears.rxrpc.core.ServiceResolver;
 import com.slimgears.rxrpc.server.EndpointDispatcher;
 import com.slimgears.rxrpc.server.EndpointDispatchers;
 import com.slimgears.rxrpc.server.RxServer;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
-import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subjects.ReplaySubject;
@@ -118,7 +117,7 @@ public class ClientServerTest {
 
     @Test
     public void testEndpointResolverClosesConnection() {
-        try (EndpointResolver resolver = rxClient.connect(URI.create(""))) {
+        try (ServiceResolver resolver = rxClient.connect(URI.create(""))) {
             resolver
                     .resolve(EndpointClient.class)
                     .invokeObservable(String.class, "testMethod", args -> args.put("prefix", "[S]"))

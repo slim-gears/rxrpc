@@ -5,20 +5,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import com.slimgears.rxrpc.core.EndpointResolver;
 import com.slimgears.rxrpc.core.RxTransport;
+import com.slimgears.rxrpc.core.ServiceResolver;
 import com.slimgears.rxrpc.core.data.Invocation;
 import com.slimgears.rxrpc.core.data.Response;
 import com.slimgears.rxrpc.core.data.Result;
 import com.slimgears.rxrpc.core.util.HasObjectMapper;
 import com.slimgears.rxrpc.core.util.MoreDisposables;
 import io.reactivex.BackpressureStrategy;
-import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.internal.functions.Functions;
 import io.reactivex.subjects.CompletableSubject;
 import io.reactivex.subjects.ReplaySubject;
 import io.reactivex.subjects.Subject;
@@ -98,12 +96,12 @@ public class RxClient {
         this.config = config;
     }
 
-    public EndpointResolver connect(URI uri) {
+    public ServiceResolver connect(URI uri) {
         Single<RxTransport> transport = this.config.client().connect(uri);
         return new InternalEndpointResolver(new DeferredSession(transport));
     }
 
-    private class InternalEndpointResolver implements EndpointResolver {
+    private class InternalEndpointResolver implements ServiceResolver {
         private final Session session;
 
         private InternalEndpointResolver(Session session) {

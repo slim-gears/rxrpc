@@ -1,6 +1,6 @@
 package com.slimgears.rxrpc.server;
 
-import com.slimgears.rxrpc.core.EndpointResolver;
+import com.slimgears.rxrpc.core.ServiceResolver;
 import com.slimgears.rxrpc.server.internal.CompositeEndpointDispatcher;
 import com.slimgears.rxrpc.server.internal.InvocationArguments;
 import com.slimgears.rxrpc.server.internal.MethodDispatcher;
@@ -80,7 +80,7 @@ public class EndpointDispatchers {
             return this;
         }
 
-        public EndpointDispatcher build(EndpointResolver resolver) {
+        public EndpointDispatcher build(ServiceResolver resolver) {
             return new CompositeEndpointDispatcher(resolver, dispatcherMap);
         }
 

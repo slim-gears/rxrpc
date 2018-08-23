@@ -4,7 +4,6 @@ package com.slimgears.rxrpc.apt.typescript; /**
 
 import com.slimgears.rxrpc.apt.AnnotationProcessingTester;
 import com.slimgears.rxrpc.apt.TestBundles;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class TypeScriptEndpointGenerationTest {
@@ -44,6 +43,18 @@ public class TypeScriptEndpointGenerationTest {
         TestBundles.sampleOptionalDataTester()
                 .apply(this::typeScriptOptions)
                 .expectedFiles("sample-optional-data.ts")
+                .test();
+    }
+
+    @Test
+    public void testNestedDataGeneration() {
+        TestBundles.sampleNestedDataEndpointTester()
+                .apply(this::typeScriptOptions)
+                .expectedFiles(
+                        "sample-nested-data-endpoint.ts",
+                        "sample-nested-data-endpoint-data.ts",
+                        "sample-nested-data-endpoint-data-type.ts",
+                        "sample-nested-data-endpoint-client.ts")
                 .test();
     }
 

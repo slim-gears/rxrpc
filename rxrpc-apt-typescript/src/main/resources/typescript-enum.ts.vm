@@ -1,4 +1,7 @@
-export enum $sourceClass.simpleName() {
+/**
+ * Generated from $sourceClass.name()
+ */
+export enum $targetClass.simpleName() {
 #foreach($e in $enum.constants())
     $e.name()##
 #if ($foreach.hasNext),##

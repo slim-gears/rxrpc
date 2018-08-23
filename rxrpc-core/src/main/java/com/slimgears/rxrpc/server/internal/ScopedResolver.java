@@ -1,15 +1,15 @@
 package com.slimgears.rxrpc.server.internal;
 
-import com.slimgears.rxrpc.core.EndpointResolver;
+import com.slimgears.rxrpc.core.ServiceResolver;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class ScopedResolver implements EndpointResolver {
+public class ScopedResolver implements ServiceResolver {
     private final ConcurrentMap<Class<?>, Object> instances = new ConcurrentHashMap<>();
-    private final EndpointResolver sourceResolver;
+    private final ServiceResolver sourceResolver;
 
-    private ScopedResolver(EndpointResolver sourceResolver) {
+    private ScopedResolver(ServiceResolver sourceResolver) {
         this.sourceResolver = sourceResolver;
     }
 
@@ -34,7 +34,7 @@ public class ScopedResolver implements EndpointResolver {
         sourceResolver.close();
     }
 
-    public static EndpointResolver of(EndpointResolver resolver) {
+    public static ServiceResolver of(ServiceResolver resolver) {
         return new ScopedResolver(resolver);
     }
 }

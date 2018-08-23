@@ -8,6 +8,7 @@ import com.slimgears.rxrpc.apt.data.MetaEndpointInfo;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
 import com.slimgears.rxrpc.apt.internal.AbstractAnnotationProcessor;
 import com.slimgears.rxrpc.apt.util.ElementUtils;
+import com.slimgears.rxrpc.apt.util.ServiceProviders;
 import com.slimgears.rxrpc.core.RxRpcGenerate;
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.commons.text.lookup.StringLookup;
@@ -15,7 +16,13 @@ import org.apache.commons.text.lookup.StringLookup;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.TypeElement;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -23,14 +30,14 @@ import java.util.stream.Stream;
 @AutoService(Processor.class)
 @SupportedAnnotationTypes("com.slimgears.rxrpc.core.RxRpcGenerate")
 public class RxRpcGenerateAnnotationProcessor extends AbstractAnnotationProcessor {
-    private final Collection<MetaEndpointGenerator> metaEndpointGenerators = new ArrayList<>();
+    private final Collection<MetaEndpointGenerator> metaEndpointGenerators;
 
     public RxRpcGenerateAnnotationProcessor() {
-        ServiceLoader.load(MetaEndpointGenerator.class).forEach(metaEndpointGenerators::add);
+        metaEndpointGenerators = ServiceProviders.loadServices(MetaEndpointGenerator.class);
     }
 
     protected boolean processType(TypeElement annotationType, TypeElement typeElement) {
-        log.info("Processing type: {}", typeElement.getQualifiedName());
+        log.info("Processing type: {} ({} generators)", typeElement.getQualifiedName(), metaEndpointGenerators.size());
         MetaEndpointGenerator.Context context = createContext(annotationType, typeElement);
         metaEndpointGenerators.forEach(cg -> cg.generate(context));
         return true;

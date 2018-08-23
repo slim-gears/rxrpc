@@ -3,6 +3,9 @@ import { Injectable } from '@angular/core';
 import { RxRpcClient } from 'ng-rxrpc';
 import { Observable } from 'rxjs';
 
+/**
+ * Generated from com.slimgears.rxrpc.sample.SampleSpecializedEndpoint
+ */
 @Injectable()
 export class SampleSpecializedEndpointClient implements SampleSpecializedEndpoint {
     constructor(private client: RxRpcClient) {

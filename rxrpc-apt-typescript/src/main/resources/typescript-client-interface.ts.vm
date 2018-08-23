@@ -11,6 +11,9 @@ $tp.name()##
 #end##
 #end##
 ##
+/**
+ * Generated from $sourceClass.name()
+ */
 export interface $targetClass.simpleName()#typeParams($sourceClass)
 #if (!$interfaces.isEmpty())##
  extends ##

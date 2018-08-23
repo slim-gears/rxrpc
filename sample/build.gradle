@@ -2,6 +2,7 @@ apply from: "$rootProject.javaGradle"
 
 tasks.withType(JavaCompile) {
     options.compilerArgs = [
+            "-Averbosity=ALL",
             "-Arxrpc.java.client",
             "-Arxrpc.java.server",
             "-Arxrpc.java.autoservice"]
@@ -24,5 +25,9 @@ dependencies {
     implementation "ch.qos.logback:logback-classic:$logbackVer"
     implementation "ch.qos.logback:logback-core:$logbackVer"
 
-    //implementation "com.github.slim-gears.rxrpc:rxrpc-core:0.3.5"
+    implementation"com.google.auto.value:auto-value-annotations:$autoValueVer"
+    implementation "com.google.auto.value:auto-value:$autoValueVer"
+    annotationProcessor "com.google.auto.value:auto-value:$autoValueVer"
+
+    //implementation "com.github.slim-gears.rxrpc:rxrpc-core:0.3.8"
 }

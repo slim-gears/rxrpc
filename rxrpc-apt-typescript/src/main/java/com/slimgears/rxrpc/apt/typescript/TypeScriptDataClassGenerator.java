@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Name;
+import javax.lang.model.element.TypeElement;
 
 @AutoService(DataClassGenerator.class)
 public class TypeScriptDataClassGenerator implements DataClassGenerator {
@@ -23,8 +24,8 @@ public class TypeScriptDataClassGenerator implements DataClassGenerator {
 
     @Override
     public void generate(Context context) {
-        String className = context.sourceTypeElement().getQualifiedName().toString();
-        ImportTracker importTracker = ImportTracker.create(TypeInfo.packageName(className));
+        String className = getTargetTypeName(context.sourceTypeElement());
+        ImportTracker importTracker = ImportTracker.create();
         context.sourceTypeElement()
                 .getTypeParameters()
                 .stream()
@@ -35,7 +36,7 @@ public class TypeScriptDataClassGenerator implements DataClassGenerator {
 
         log.debug("Generating code for source type: {}", context.sourceTypeElement().getQualifiedName());
         log.debug("Target class name: {}", className);
-        TypeInfo targetClass = TypeInfo.of(TypeInfo.of(className).simpleName());
+        TypeInfo targetClass = TypeInfo.of(className);
 
         String filename = TemplateUtils.camelCaseToDash(targetClass.name()) + ".ts";
         log.debug("Target file name: {}", filename);
@@ -46,10 +47,20 @@ public class TypeScriptDataClassGenerator implements DataClassGenerator {
 
         TypeScriptUtils typeScriptUtils = new TypeScriptUtils();
         evaluator(context)
+                .variable("targetClass", targetClass)
                 .variable("tsUtils", typeScriptUtils)
                 .variables(context)
                 .apply(typeScriptUtils.imports(importTracker))
                 .write(TypeScriptUtils.fileWriter(context.environment(), filename));
+    }
+
+    private String getTargetTypeName(Element element) {
+        String name = "";
+        while (element instanceof TypeElement) {
+            name = element.getSimpleName().toString() + name;
+            element = element.getEnclosingElement();
+        }
+        return name;
     }
 
     private TemplateEvaluator evaluator(Context context) {

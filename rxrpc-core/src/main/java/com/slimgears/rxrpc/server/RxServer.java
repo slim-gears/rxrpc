@@ -5,13 +5,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import com.slimgears.rxrpc.core.EndpointResolver;
-import com.slimgears.rxrpc.core.EndpointResolvers;
 import com.slimgears.rxrpc.core.RxTransport;
+import com.slimgears.rxrpc.core.ServiceResolver;
 import com.slimgears.rxrpc.core.data.Invocation;
 import com.slimgears.rxrpc.core.data.Response;
 import com.slimgears.rxrpc.core.util.HasObjectMapper;
 import com.slimgears.rxrpc.core.util.MoreDisposables;
+import com.slimgears.rxrpc.core.util.ServiceResolvers;
 import com.slimgears.rxrpc.server.internal.InvocationArguments;
 import com.slimgears.rxrpc.server.internal.ScopedResolver;
 import io.reactivex.Observable;
@@ -31,8 +31,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static java.util.Objects.requireNonNull;
-
 public class RxServer implements AutoCloseable {
     private final static Logger log = LoggerFactory.getLogger(RxServer.class);
     private final Set<Session> sessions = new HashSet<>();
@@ -42,19 +40,19 @@ public class RxServer implements AutoCloseable {
     @AutoValue
     public static abstract class Config implements HasObjectMapper {
         public abstract RxTransport.Server server();
-        public abstract EndpointResolver resolver();
+        public abstract ServiceResolver resolver();
         public abstract EndpointDispatcher.Factory dispatcherFactory();
 
         public static Builder builder() {
             return new AutoValue_RxServer_Config.Builder()
                     .objectMapper(ObjectMapper::new)
-                    .resolver(EndpointResolvers.defaultConstructorResolver());
+                    .resolver(ServiceResolvers.defaultConstructorResolver());
         }
 
         @AutoValue.Builder
         public interface Builder extends HasObjectMapper.Builder<Builder> {
             Builder server(RxTransport.Server server);
-            Builder resolver(EndpointResolver resolver);
+            Builder resolver(ServiceResolver resolver);
             Builder dispatcherFactory(EndpointDispatcher.Factory factory);
             Config build();
 
@@ -121,7 +119,7 @@ public class RxServer implements AutoCloseable {
 
     class Session implements AutoCloseable {
         private final ConcurrentMap<Long, Disposable> activeInvocations = new ConcurrentHashMap<>();
-        private final EndpointResolver resolver = ScopedResolver.of(config.resolver());
+        private final ServiceResolver resolver = ScopedResolver.of(config.resolver());
         private final Disposable disposable;
         private final RxTransport transport;
 

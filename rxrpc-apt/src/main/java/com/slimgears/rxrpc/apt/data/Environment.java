@@ -4,23 +4,22 @@ import com.google.auto.value.AutoValue;
 import com.slimgears.rxrpc.apt.util.ConfigProvider;
 import com.slimgears.rxrpc.apt.util.ConfigProviders;
 import com.slimgears.rxrpc.apt.util.Safe;
+import com.slimgears.rxrpc.apt.util.TypeFilters;
 
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 @AutoValue
 public abstract class Environment {
     private final static String configOptionName = "rxrpc.config";
-    private final static String ignoredTypesOptionName = "rxrpc.ignoredTypes";
+    private final static String excludedTypesOptionName = "rxrpc.excludeTypes";
+    private final static String includeTypesOptionName = "rxrpc.includeTypes";
     private final static ThreadLocal<Environment> instance = new ThreadLocal<>();
 
     public abstract ProcessingEnvironment processingEnvironment();
@@ -51,10 +50,11 @@ public abstract class Environment {
                 loadFromExternalConfig(processingEnvironment),
                 loadFromOptions(processingEnvironment));
 
-        Predicate<TypeInfo> ignoredTypesFilter = Optional
-                .ofNullable(properties.getProperty(ignoredTypesOptionName))
-                .map(Environment::typeFilterFromWildcards)
-                .orElse(t -> false);
+        Predicate<TypeInfo> ignoredTypesFilter = TypeFilters
+                .fromIncludedExcludedWildcard(
+                        properties.getProperty(includeTypesOptionName),
+                        properties.getProperty(excludedTypesOptionName))
+                .negate();
 
         return new AutoValue_Environment(
                 processingEnvironment,
@@ -88,31 +88,5 @@ public abstract class Environment {
                         .ofNullable(value)
                         .map(Object::toString)
                         .orElse("true")));
-    }
-
-    private static Predicate<TypeInfo> typeFilterFromWildcards(String wildcards) {
-        return Optional
-                .ofNullable(wildcards)
-                .map(w -> w.split(","))
-                .map(Stream::of)
-                .orElseGet(Stream::empty)
-                .map(String::trim)
-                .map(Environment::fromWildcard)
-                .map(Pattern::asPredicate)
-                .map(Environment::fromStringPredicate)
-                .reduce(Predicate::or)
-                .orElse(t -> false);
-    }
-
-    private static Predicate<TypeInfo> fromStringPredicate(Predicate<String> predicate) {
-        return type -> predicate.test(type.name());
-    }
-
-    private static Pattern fromWildcard(String wildcard) {
-        String regex = "^" + wildcard
-                .replace(".", "\\.")
-                .replace("?", ".")
-                .replace("*", ".*") + "$";
-        return Pattern.compile(regex);
     }
 }
