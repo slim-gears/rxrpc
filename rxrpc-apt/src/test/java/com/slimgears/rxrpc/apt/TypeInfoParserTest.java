@@ -18,6 +18,12 @@ public class TypeInfoParserTest {
     }
 
     @Test
+    public void testTypeInfoParserForConstrainedArgs() {
+        TypeInfo typeInfo = TypeInfoParser.parse("class<? extends java.lang.Object>");
+        Assert.assertEquals(1, typeInfo.typeParams().size());
+    }
+
+    @Test
     public void testImportTracker() {
         ImportTracker importTracker = ImportTracker.create("");
         String simplified = importTracker.use("java.util.List<java.util.Map<java.lang.String, java.util.List<java.lang.String>>>");

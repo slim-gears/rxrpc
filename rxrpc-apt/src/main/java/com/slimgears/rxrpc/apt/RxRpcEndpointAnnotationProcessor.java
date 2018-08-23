@@ -1,5 +1,6 @@
 package com.slimgears.rxrpc.apt;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.auto.service.AutoService;
 import com.slimgears.rxrpc.apt.data.Environment;
 import com.slimgears.rxrpc.apt.data.MethodInfo;
@@ -68,6 +69,8 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
 
         typeElement.getEnclosedElements()
                 .stream()
+                .filter(element -> !ElementUtils.hasAnnotation(element, JsonIgnore.class))
+                .filter(element -> !ElementUtils.hasAnnotation(element, Override.class))
                 .map(PropertyInfo::of)
                 .filter(Optional::isPresent)
                 .map(Optional::get)

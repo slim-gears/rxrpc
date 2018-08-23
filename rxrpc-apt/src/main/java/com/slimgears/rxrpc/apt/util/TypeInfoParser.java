@@ -13,7 +13,8 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class TypeInfoParser {
-    private static final String nameChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._0123456789[]@";
+    private static final String nameChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._0123456789[]@?";
+    private static final String whitespaceChars = " \n\r\t";
     private static final char beginParamsChar = '<';
     private static final char endParamsChar = '>';
     private static final char nextParamChar = ',';
@@ -23,6 +24,8 @@ public class TypeInfoParser {
         void visitBeginParams();
         void visitEndParams();
         void visitNextParam();
+        void visitExtends();
+        void visitSuper();
     }
 
     public static TypeInfo parse(String str) {
@@ -82,6 +85,14 @@ public class TypeInfoParser {
         public void visitNextParam() {
 
         }
+
+        @Override
+        public void visitExtends() {
+        }
+
+        @Override
+        public void visitSuper() {
+        }
     }
 
     private static void parse(String str, TypeVisitor visitor) {
@@ -90,6 +101,14 @@ public class TypeInfoParser {
             char curChar = str.charAt(i);
             if (isNameChar(curChar)) {
                 nameBuilder.append(curChar);
+            } else if (isWhitespace(curChar)) {
+                String id = nameBuilder.toString();
+                nameBuilder.delete(0, id.length());
+                if (id.equals("extends")) {
+                    visitor.visitExtends();
+                } else if (id.equals("super")) {
+                    visitor.visitSuper();
+                }
             } else if (nameBuilder.length() > 0) {
                 visitor.visitIdentifier(nameBuilder.toString());
                 nameBuilder.delete(0, nameBuilder.length());
@@ -121,5 +140,9 @@ public class TypeInfoParser {
 
     private static boolean isNextParam(char c) {
         return c == nextParamChar;
+    }
+
+    private static boolean isWhitespace(char c) {
+        return whitespaceChars.indexOf(c) >= 0;
     }
 }
