@@ -6,6 +6,7 @@ package com.slimgears.rxrpc.apt.typescript;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
@@ -47,10 +48,6 @@ public class TypeScriptUtils extends TemplateUtils {
             TypeConverters.fromEnvironment("rxrpc.ts.typemaps"));
     private final TypeConverter typeConverter = TypeConverters.ofMultiple(
             configuredTypeConverter,
-            TypeConverters.create(generatedClasses::containsKey, (up, type) -> generatedClasses.get(type)
-                    .stream()
-                    .findFirst()
-                    .orElseGet(() -> convertRecursively(up, type))),
             TypeConverters.create(type -> true, TypeScriptUtils::convertRecursively));
 
     public static void addGeneratedClass(TypeInfo source, TypeInfo generated) {
@@ -180,11 +177,20 @@ public class TypeScriptUtils extends TemplateUtils {
 
     private static TypeInfo convertRecursively(TypeConverter typeConverter, TypeInfo typeInfo) {
         if (typeInfo.typeParams().isEmpty()) {
-            return TypeInfo.of(typeInfo.simpleName());
+            return TypeInfo.of(toSimpleName(typeInfo));
         }
 
-        TypeInfo.Builder builder = TypeInfo.builder().name(typeInfo.simpleName());
+        TypeInfo.Builder builder = TypeInfo.builder().name(toSimpleName(typeInfo));
         typeInfo.typeParams().forEach(tp -> builder.typeParam(tp.name(), typeConverter.convert(tp.type())));
         return builder.build();
+    }
+
+    private static String toSimpleName(TypeInfo typeInfo) {
+        return Optional
+                .ofNullable(generatedClasses.get(typeInfo))
+                .filter(c -> !c.isEmpty())
+                .map(c -> Iterables.getFirst(c, null))
+                .orElse(typeInfo)
+                .simpleName();
     }
 }

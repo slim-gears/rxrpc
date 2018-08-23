@@ -20,8 +20,8 @@ public class TypeScriptEndpointGenerationTest {
                         "sample-data.ts",
                         "sample-enum.ts",
                         "sample-array.ts",
-                        "index.ts",
-                        "module.ts",
+//                        "index.ts",
+//                        "module.ts",
                         "tsconfig.json")
                 .test();
     }
