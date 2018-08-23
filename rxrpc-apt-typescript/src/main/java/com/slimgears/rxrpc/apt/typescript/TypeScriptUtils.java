@@ -188,8 +188,7 @@ public class TypeScriptUtils extends TemplateUtils {
     private static String toSimpleName(TypeInfo typeInfo) {
         return Optional
                 .ofNullable(generatedClasses.get(typeInfo))
-                .filter(c -> !c.isEmpty())
-                .map(c -> Iterables.getFirst(c, null))
+                .map(c -> Iterables.getFirst(c, typeInfo))
                 .orElse(typeInfo)
                 .simpleName();
     }
