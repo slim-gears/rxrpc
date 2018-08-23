@@ -17,6 +17,9 @@ import org.slf4j.LoggerFactory;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
+import java.util.Collection;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @AutoService(DataClassGenerator.class)
 public class TypeScriptDataClassGenerator implements DataClassGenerator {
@@ -46,9 +49,19 @@ public class TypeScriptDataClassGenerator implements DataClassGenerator {
                 targetClass);
 
         TypeScriptUtils typeScriptUtils = new TypeScriptUtils();
+        Collection<TypeInfo> interfaces = Stream.concat(
+                Stream.of(context.sourceTypeElement().getSuperclass()),
+                context.sourceTypeElement().getInterfaces().stream())
+                .flatMap(ElementUtils::toTypeElement)
+                .filter(ElementUtils::isUnknownType)
+                .map(TypeInfo::of)
+                .map(typeScriptUtils::toTypeScriptType)
+                .collect(Collectors.toList());
+
         evaluator(context)
                 .variable("targetClass", targetClass)
                 .variable("tsUtils", typeScriptUtils)
+                .variable("interfaces", interfaces)
                 .variables(context)
                 .apply(typeScriptUtils.imports(importTracker))
                 .write(TypeScriptUtils.fileWriter(context.environment(), filename));

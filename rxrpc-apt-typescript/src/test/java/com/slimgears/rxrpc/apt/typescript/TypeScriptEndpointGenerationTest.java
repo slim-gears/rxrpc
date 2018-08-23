@@ -58,6 +58,16 @@ public class TypeScriptEndpointGenerationTest {
                 .test();
     }
 
+    @Test
+    public void testDerivedAndBaseDataGeneration() {
+        TestBundles.sampleDerivedDataEndpointTester()
+                .apply(this::typeScriptOptions)
+                .expectedFiles(
+                        "sample-base-data.ts",
+                        "sample-derived-data.ts")
+                .test();
+    }
+
     private AnnotationProcessingTester typeScriptOptions(AnnotationProcessingTester tester) {
         return tester.options(
                         "-Arxrpc.ts.ngmodule",

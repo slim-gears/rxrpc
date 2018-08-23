@@ -11,15 +11,18 @@ $tp.name()##
 #end##
 #end##
 ##
-/**
- * Generated from $sourceClass.name()
- */
-export interface $targetClass.simpleName()#typeParams($sourceClass)
+##
+#macro (interfaces $interfaces)##
 #if (!$interfaces.isEmpty())##
  extends ##
 #foreach ($iface in $interfaces)$[$iface]#if($foreach.hasNext), #end##
 #end##
 #end##
+#end##
+/**
+ * Generated from $sourceClass.name()
+ */
+export interface $targetClass.simpleName()#typeParams($sourceClass)#interfaces($interfaces)
  {
 #foreach ($m in $sourceClass.methods())
     $m.name()(##

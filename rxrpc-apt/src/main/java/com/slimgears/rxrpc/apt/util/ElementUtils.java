@@ -80,7 +80,7 @@ public class ElementUtils {
     }
 
     public static Stream<TypeElement> getReferencedTypes(TypeElement typeElement) {
-        return typeElement
+        Stream<TypeElement> enclosedElements = typeElement
                 .getEnclosedElements()
                 .stream()
                 .filter(ElementUtils::isPublic)
@@ -97,6 +97,7 @@ public class ElementUtils {
                                 .flatMap(ElementUtils::toTypeElement)))
                 .filter(ElementUtils::isUnknownType)
                 .distinct();
+        return Stream.concat(getHierarchy(typeElement), enclosedElements);
     }
 
     public static Stream<TypeElement> getReferencedTypes(ExecutableElement executableElement) {

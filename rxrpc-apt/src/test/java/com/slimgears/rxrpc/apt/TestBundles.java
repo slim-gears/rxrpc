@@ -50,14 +50,19 @@ public class TestBundles {
                 .inputFiles(
                         "SampleMetaEndpoint.java",
                         "SampleMetaEndpointInput.java")
-                .processedWith(
-                        new RxRpcGenerateAnnotationProcessor(),
-                        new RxRpcEndpointAnnotationProcessor());
+                .processedWith(new RxRpcGenerateAnnotationProcessor());
     }
 
     public static AnnotationProcessingTester sampleNestedDataEndpointTester() {
         return rxRpcEndpointProcessingTester()
-                .inputFiles("SampleNestedDataEndpoint.java")
-                .processedWith(new RxRpcEndpointAnnotationProcessor());
+                .inputFiles("SampleNestedDataEndpoint.java");
+    }
+
+    public static AnnotationProcessingTester sampleDerivedDataEndpointTester() {
+        return rxRpcEndpointProcessingTester()
+                .inputFiles(
+                        "SampleBaseData.java",
+                        "SampleDerivedData.java",
+                        "SampleDerivedDataEndpoint.java");
     }
 }
