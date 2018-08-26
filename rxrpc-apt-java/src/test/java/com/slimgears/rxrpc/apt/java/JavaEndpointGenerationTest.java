@@ -50,6 +50,14 @@ public class JavaEndpointGenerationTest {
     }
 
     @Test
+    public void testGenericMetaDefaultNameEndpointGeneration() {
+        TestBundles.sampleMetaDefaultNameEndpointTester()
+                .apply(this::javaOptions)
+                .expectedSources("SampleGenericMetaDefaultNameEndpoint_Of_String.java")
+                .test();
+    }
+
+    @Test
     public void testMetaEndpointReferencedTypeParamsGeneration() {
         DataClassGenerator dataClassGenerator = Mockito.mock(DataClassGenerator.class);
 

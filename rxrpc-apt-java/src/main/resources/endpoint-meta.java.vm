@@ -6,6 +6,6 @@ $imports
  * Generated from $sourceClass.name()
  */
 @$[javax.annotation.Generated]("$processorClass.name()")
-@$[com.slimgears.rxrpc.core.RxRpcEndpoint]("$endpointName")
+@$[com.slimgears.rxrpc.core.RxRpcEndpoint](#if (!$endpointName.empty)"$endpointName"#end)
 public interface $targetType.simpleName() extends $[$superType] {
 }
