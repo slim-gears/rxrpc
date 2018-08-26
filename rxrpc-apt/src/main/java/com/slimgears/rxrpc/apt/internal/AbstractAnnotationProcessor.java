@@ -4,7 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.slimgears.rxrpc.apt.data.Environment;
 import com.slimgears.rxrpc.apt.util.LogUtils;
-import com.slimgears.rxrpc.apt.util.Safe;
+import com.slimgears.util.stream.Safe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +17,7 @@ import javax.lang.model.element.VariableElement;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static com.slimgears.rxrpc.apt.util.StreamUtils.ofType;
+import static com.slimgears.util.stream.Streams.ofType;
 
 public abstract class AbstractAnnotationProcessor extends AbstractProcessor {
     protected final Logger log = LoggerFactory.getLogger(getClass());
@@ -28,7 +28,7 @@ public abstract class AbstractAnnotationProcessor extends AbstractProcessor {
         injector.injectMembers(this);
 
         try (LogUtils.SelfClosable ignored1 = LogUtils.applyLogging(processingEnv);
-             Safe.SafeClosable ignored2 = Environment.withEnvironment(processingEnv, roundEnv)) {
+             Safe.Closable ignored2 = Environment.withEnvironment(processingEnv, roundEnv)) {
             onStart();
 
             return annotations

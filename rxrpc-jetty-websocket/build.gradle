@@ -1,5 +1,5 @@
-apply from: "$rootProject.javaGradle"
-apply from: "$rootProject.mavenPublishGradle"
+apply from: "$scriptsDir/java.gradle"
+apply from: "$scriptsDir/maven-publish.gradle"
 
 dependencies {
     implementation project(':rxrpc-core')

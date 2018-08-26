@@ -8,6 +8,7 @@ buildscript {
     dependencies {
         classpath "net.ltgt.gradle:gradle-apt-plugin:0.18"
         classpath "com.moowork.gradle:gradle-node-plugin:1.2.0"
+        //classpath 'me.champeau.gradle:antlr4-gradle-plugin:0.1.1-SNAPSHOT'
     }
 }
 
@@ -33,11 +34,11 @@ project.ext {
     mockitoVer = "1.10.19"
     javaPoetVer = "1.11.1"
     guiceVer = "4.2.0"
+    antlr4Ver = "4.7.1"
+    slimGearsUtilsVer = "0.1-SNAPSHOT"
 
     sourceCompatibility = 1.8
-    javaGradle = "$projectDir/gradle/java.gradle"
-    nodejsGradle = "$projectDir/gradle/nodejs.gradle"
-    mavenPublishGradle = "$projectDir/gradle/maven-publish.gradle"
+    scriptsDir = "$rootProject.projectDir/gradle"
 }
 
 subprojects {
@@ -46,5 +47,7 @@ subprojects {
 
     repositories {
         mavenCentral()
+        mavenLocal()
+        maven { url 'https://jitpack.io' }
     }
 }

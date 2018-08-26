@@ -1,4 +1,4 @@
-apply from: "$rootProject.javaGradle"
+apply from: "$scriptsDir/java.gradle"
 
 tasks.withType(JavaCompile) {
     options.compilerArgs = [
@@ -8,7 +8,7 @@ tasks.withType(JavaCompile) {
 }
 
 dependencies {
-    annotationProcessor project(':rxrpc-apt')
+    annotationProcessor project(':rxrpc-apt-typescript')
     annotationProcessor project(':rxrpc-apt-java')
     implementation project(':rxrpc-core')
     implementation project(':rxrpc-jetty-websocket')

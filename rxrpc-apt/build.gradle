@@ -1,5 +1,6 @@
-apply from: "$rootProject.javaGradle"
-apply from: "$rootProject.mavenPublishGradle"
+apply from: "$scriptsDir/java.gradle"
+apply from: "$scriptsDir/maven-publish.gradle"
+apply from: "$scriptsDir/antlr.gradle"
 
 import org.gradle.internal.jvm.Jvm
 
@@ -32,7 +33,6 @@ dependencies {
     implementation "com.google.guava:guava:$guavaVer"
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVer"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVer"
-    implementation "org.slf4j:slf4j-api:$slf4jVer"
     implementation "ch.qos.logback:logback-classic:$logbackVer"
     implementation "ch.qos.logback:logback-core:$logbackVer"
     implementation "javax.annotation:javax.annotation-api:$annotationApiVer"
@@ -41,6 +41,9 @@ dependencies {
     implementation "com.google.inject:guice:$guiceVer"
     implementation "com.google.inject.extensions:guice-multibindings:$guiceVer"
     implementation "com.google.inject.extensions:guice-assistedinject:$guiceVer"
+
+    implementation "com.github.slim-gears.utils:stream-utils:$slimGearsUtilsVer"
+    implementation "com.github.slim-gears.utils:guice-utils:$slimGearsUtilsVer"
 
     testImplementation files(Jvm.current().getToolsJar())
 }

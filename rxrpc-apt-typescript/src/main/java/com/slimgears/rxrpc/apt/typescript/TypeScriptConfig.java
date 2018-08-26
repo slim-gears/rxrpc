@@ -1,11 +1,9 @@
 /**
- * Copyright (c) 2017 Dell Inc. or its subsidiaries.  All Rights Reserved
+ *
  */
 package com.slimgears.rxrpc.apt.typescript;
 
 import com.google.auto.service.AutoService;
-import com.slimgears.rxrpc.apt.util.ConfigProvider;
-import com.slimgears.rxrpc.apt.util.ConfigProviders;
 
 import javax.inject.Inject;
 import javax.inject.Named;

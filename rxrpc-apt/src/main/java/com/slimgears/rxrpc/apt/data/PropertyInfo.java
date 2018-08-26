@@ -6,21 +6,17 @@ package com.slimgears.rxrpc.apt.data;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.slimgears.rxrpc.apt.util.ElementUtils;
-import com.slimgears.rxrpc.apt.util.Optionals;
+import com.slimgears.util.stream.Optionals;
 
 import javax.annotation.Nullable;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Elements;
 import java.util.Optional;
 import java.util.stream.Stream;
-
-import static com.slimgears.rxrpc.apt.util.StreamUtils.ofType;
 
 @AutoValue
 public abstract class PropertyInfo implements HasName, HasType {

@@ -24,8 +24,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static com.slimgears.rxrpc.apt.util.StreamUtils.ofType;
-import static com.slimgears.rxrpc.apt.util.StreamUtils.self;
+import static com.slimgears.util.stream.Streams.ofType;
+import static com.slimgears.util.stream.Streams.self;
 
 public class ElementUtils {
     public static boolean isPublic(Element element) {

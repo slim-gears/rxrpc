@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.slimgears.rxrpc.apt.util.StreamUtils.ofType;
+import static com.slimgears.util.stream.Streams.ofType;
 
 @AutoValue
 public abstract class TypeInfo implements HasName, HasMethods, HasAnnotations, HasTypeParameters {

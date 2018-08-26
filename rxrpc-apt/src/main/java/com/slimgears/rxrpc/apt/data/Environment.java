@@ -1,7 +1,7 @@
 package com.slimgears.rxrpc.apt.data;
 
 import com.google.auto.value.AutoValue;
-import com.slimgears.rxrpc.apt.util.Safe;
+import com.slimgears.util.stream.Safe;
 
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -37,7 +37,7 @@ public abstract class Environment {
         return Optional.ofNullable(instance.get()).orElseThrow(() -> new RuntimeException("Environment was not set"));
     }
 
-    public static Safe.SafeClosable withEnvironment(ProcessingEnvironment processingEnvironment, RoundEnvironment roundEnvironment) {
+    public static Safe.Closable withEnvironment(ProcessingEnvironment processingEnvironment, RoundEnvironment roundEnvironment) {
         Environment prev = instance.get();
         instance.set(create(processingEnvironment, roundEnvironment));
         return () -> instance.set(prev);

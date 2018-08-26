@@ -11,7 +11,6 @@ import com.google.inject.Inject;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
 import com.slimgears.rxrpc.apt.util.ImportTracker;
 import com.slimgears.rxrpc.apt.util.LogUtils;
-import com.slimgears.rxrpc.apt.util.Safe;
 import com.slimgears.rxrpc.apt.util.TemplateEvaluator;
 import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import com.slimgears.rxrpc.apt.util.TypeConverter;

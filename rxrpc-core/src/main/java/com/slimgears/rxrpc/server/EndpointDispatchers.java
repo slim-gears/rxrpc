@@ -25,7 +25,7 @@ public class EndpointDispatchers {
     }
 
     public static EndpointDispatcher.Module discover() {
-        ServiceLoader<EndpointDispatcher.Module> serviceLoader = ServiceLoader.load(EndpointDispatcher.Module.class);
+        ServiceLoader<EndpointDispatcher.Module> serviceLoader = ServiceLoader.load(EndpointDispatcher.Module.class, EndpointDispatchers.class.getClassLoader());
         return config -> serviceLoader.forEach(module -> module.configure(config));
     }
 

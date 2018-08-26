@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2017 Dell Inc. or its subsidiaries.  All Rights Reserved
+ *
  */
 package com.slimgears.rxrpc.apt.internal;
 
 import com.google.inject.AbstractModule;
-import com.slimgears.rxrpc.apt.util.ConfigProvider;
-import com.slimgears.rxrpc.apt.util.ConfigProviders;
+import com.google.inject.util.Modules;
+import com.slimgears.rxrpc.apt.data.TypeInfo;
 
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
@@ -13,6 +13,13 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import java.util.Optional;
+import java.util.regex.Pattern;
+
+import com.slimgears.util.guice.ConfigProvider;
+import com.slimgears.util.guice.ConfigProviders;
+import com.slimgears.util.guice.PropertyModules;
+import com.slimgears.util.guice.TypeConversionModule;
+import com.slimgears.util.stream.Patterns;
 
 public class EnvironmentModule extends AbstractModule {
     private final static String configOptionName = "rxrpc.config";
@@ -36,7 +43,12 @@ public class EnvironmentModule extends AbstractModule {
                 loadFromExternalConfig(),
                 loadFromOptions()));
 
-        install(new TypeConversionModule());
+        install(Modules.override(new TypeConversionModule())
+                        .with(TypeConversionModule.builder()
+                                .isExactly(TypeInfo.class).convert(TypeInfo::of)
+                                .isExactly(Pattern.class).convert(Patterns::fromWildcard)
+                                .build()));
+
         install(new ProcessingModule());
     }
 

@@ -1,0 +1,23 @@
+apply plugin: 'antlr'
+
+dependencies {
+    antlr "org.antlr:antlr4:$antlr4Ver"
+    implementation "org.antlr:antlr4-runtime:$antlr4Ver"
+}
+
+generateGrammarSource {
+    maxHeapSize = "64m"
+    arguments += ['-package', 'com.slimgears.rxrpc.apt']
+}
+
+sourceSets {
+    generated {
+        java.srcDir 'generated-src/antlr/main/'
+    }
+}
+
+//idea {
+//    module {
+//        sourceDirs += file("$buildDir/generated-src/antlr/main")
+//    }
+//}
