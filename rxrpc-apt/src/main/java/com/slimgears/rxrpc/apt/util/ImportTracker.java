@@ -48,7 +48,7 @@ public class ImportTracker {
     }
 
     public String use(String cls) {
-        TypeInfo typeInfo = TypeInfoParser.parse(cls);
+        TypeInfo typeInfo = TypeInfo.of(cls);
         return use(typeInfo);
     }
 

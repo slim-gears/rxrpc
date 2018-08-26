@@ -9,9 +9,9 @@ import com.slimgears.rxrpc.apt.data.TypeInfo;
 import com.slimgears.rxrpc.apt.internal.AbstractAnnotationProcessor;
 import com.slimgears.rxrpc.apt.util.ElementUtils;
 import com.slimgears.rxrpc.apt.util.ServiceProviders;
-import com.slimgears.rxrpc.apt.util.StreamUtils;
 import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import com.slimgears.rxrpc.core.RxRpcEndpoint;
+import com.slimgears.util.stream.Streams;
 
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -122,7 +122,7 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
                 Stream.of(executableType.getReturnType())
                         .flatMap(ElementUtils::getReferencedTypeParams)
                         .flatMap(ElementUtils::toTypeElement))
-                .flatMap(StreamUtils.self())
+                .flatMap(Streams.self())
                 .peek(type -> log.debug("Found referenced type: {}", type.getQualifiedName()))
                 .filter(ElementUtils::isUnknownType)
                 .forEach(this::generateDataType);

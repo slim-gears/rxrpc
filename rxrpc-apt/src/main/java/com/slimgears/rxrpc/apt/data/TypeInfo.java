@@ -3,7 +3,7 @@ package com.slimgears.rxrpc.apt.data;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import com.slimgears.rxrpc.apt.util.ElementUtils;
-import com.slimgears.rxrpc.apt.util.TypeInfoParser;
+import com.slimgears.rxrpc.apt.util.TypeInfoParserAdapter;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
@@ -14,9 +14,10 @@ import java.lang.reflect.Type;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static com.slimgears.rxrpc.apt.util.StreamUtils.ofType;
+import static com.slimgears.util.stream.Streams.ofType;
 
 @AutoValue
 public abstract class TypeInfo implements HasName, HasMethods, HasAnnotations, HasTypeParameters {
@@ -41,7 +42,7 @@ public abstract class TypeInfo implements HasName, HasMethods, HasAnnotations, H
                 ? name()
                 : name() + typeParams()
                 .stream()
-                .map(param -> param.type().fullName())
+                .map(TypeParameterInfo::typeName)
                 .collect(Collectors.joining(", ", "<", ">"));
     }
 
@@ -83,12 +84,31 @@ public abstract class TypeInfo implements HasName, HasMethods, HasAnnotations, H
         return Stream.of(cls).anyMatch(this::is);
     }
 
+    public boolean isWildcard() {
+        return "?".equals(name());
+    }
+
     public static Builder builder() {
         return new AutoValue_TypeInfo.Builder();
     }
 
+    public static TypeInfo ofWildcard() {
+        return TypeInfo.builder().name("?").build();
+    }
+
+    public static TypeInfo ofPrimitive(String name) {
+        return TypeInfo.builder().name(name).build();
+    }
+
     public static TypeInfo arrayOf(TypeInfo typeInfo) {
-        return builder().name(typeInfo.elementTypeOrSelf().name() + "[]").build();
+        return arrayOf(typeInfo, 1);
+    }
+
+    public static TypeInfo arrayOf(TypeInfo typeInfo, int dimensions) {
+        return builder().name(typeInfo
+                .elementTypeOrSelf()
+                .name() + IntStream.range(0, dimensions).mapToObj(i -> "[]").collect(Collectors.joining()))
+                .build();
     }
 
     public static TypeInfo of(String name, TypeInfo param, TypeInfo... otherParams) {
@@ -98,7 +118,7 @@ public abstract class TypeInfo implements HasName, HasMethods, HasAnnotations, H
     }
 
     public static TypeInfo of(String fullName) {
-        return TypeInfoParser.parse(fullName);
+        return TypeInfoParserAdapter.toTypeInfo(fullName);
     }
 
     public static TypeInfo of(TypeMirror typeMirror) {

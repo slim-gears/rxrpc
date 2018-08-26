@@ -29,6 +29,12 @@ public interface HasTypeParameters {
             return (B)this;
         }
 
+        default B typeParams(TypeParameterInfo... params) {
+            Stream.of(params).forEach(this::typeParam);
+            //noinspection unchecked
+            return (B)this;
+        }
+
         default B typeParams(Collection<? extends TypeParameterElement> params) {
             params.stream().map(TypeParameterInfo::of).forEach(this::typeParam);
             //noinspection unchecked

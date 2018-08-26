@@ -4,6 +4,7 @@
 package com.slimgears.rxrpc.core.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.slimgears.util.stream.Lazy;
 
 import java.util.function.Supplier;
 

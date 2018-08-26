@@ -2,8 +2,8 @@ package com.slimgears.rxrpc.apt.typescript;
 
 
 import com.google.auto.service.AutoService;
-import com.slimgears.rxrpc.apt.util.ConfigProvider;
-import com.slimgears.rxrpc.apt.util.ConfigProviders;
+import com.slimgears.util.guice.ConfigProvider;
+import com.slimgears.util.guice.ConfigProviders;
 
 import java.util.Properties;
 

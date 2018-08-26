@@ -2,7 +2,7 @@ package com.slimgears.rxrpc.apt.internal;
 
 import com.slimgears.rxrpc.apt.data.Environment;
 import com.slimgears.rxrpc.apt.util.LogUtils;
-import com.slimgears.rxrpc.apt.util.Safe;
+import com.slimgears.util.stream.Safe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,10 +12,10 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import java.util.*;
+import java.util.Set;
 import java.util.stream.Stream;
 
-import static com.slimgears.rxrpc.apt.util.StreamUtils.ofType;
+import static com.slimgears.util.stream.Streams.ofType;
 
 public abstract class AbstractAnnotationProcessor extends AbstractProcessor {
     protected final Logger log = LoggerFactory.getLogger(getClass());
@@ -23,7 +23,7 @@ public abstract class AbstractAnnotationProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         try (LogUtils.SelfClosable ignored = LogUtils.applyLogging(processingEnv);
-             Safe.SafeClosable envClosable = Environment.withEnvironment(processingEnv, roundEnv)) {
+             Safe.Closable envClosable = Environment.withEnvironment(processingEnv, roundEnv)) {
             boolean res = annotations
                     .stream()
                     .map(a -> processAnnotation(a, roundEnv))

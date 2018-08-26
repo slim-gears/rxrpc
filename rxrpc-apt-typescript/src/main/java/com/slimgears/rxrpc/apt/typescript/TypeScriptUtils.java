@@ -13,11 +13,11 @@ import com.slimgears.rxrpc.apt.data.TypeInfo;
 import com.slimgears.rxrpc.apt.data.TypeParameterInfo;
 import com.slimgears.rxrpc.apt.util.ImportTracker;
 import com.slimgears.rxrpc.apt.util.LogUtils;
-import com.slimgears.rxrpc.apt.util.Safe;
 import com.slimgears.rxrpc.apt.util.TemplateEvaluator;
 import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import com.slimgears.rxrpc.apt.util.TypeConverter;
 import com.slimgears.rxrpc.apt.util.TypeConverters;
+import com.slimgears.util.stream.Safe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,8 +134,8 @@ public class TypeScriptUtils extends TemplateUtils {
         FileObject fileObject = Optional
                 .ofNullable(environment.getOptions().get("tsOutDir"))
                 .map(dir -> Paths.get(dir, filename))
-                .map(Safe.of(path -> filer.createResource(StandardLocation.SOURCE_OUTPUT, path.toString(), filename)))
-                .orElseGet(Safe.of(() -> filer.createResource(StandardLocation.SOURCE_OUTPUT, "typescript", filename)));
+                .map(Safe.ofFunction(path -> filer.createResource(StandardLocation.SOURCE_OUTPUT, path.toString(), filename)))
+                .orElseGet(Safe.ofSupplier(() -> filer.createResource(StandardLocation.SOURCE_OUTPUT, "typescript", filename)));
         try (Writer writer = fileObject.openWriter();
              BufferedWriter bufWriter = new BufferedWriter(writer)) {
             for (String line: content.split("\n")) {

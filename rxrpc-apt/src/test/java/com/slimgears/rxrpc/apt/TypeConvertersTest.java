@@ -4,9 +4,9 @@
 package com.slimgears.rxrpc.apt;
 
 import com.slimgears.rxrpc.apt.data.TypeInfo;
-import com.slimgears.rxrpc.apt.util.ConfigProviders;
 import com.slimgears.rxrpc.apt.util.TypeConverter;
 import com.slimgears.rxrpc.apt.util.TypeConverters;
+import com.slimgears.util.guice.ConfigProviders;
 import org.junit.Assert;
 import org.junit.Test;
 

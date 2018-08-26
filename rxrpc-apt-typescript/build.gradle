@@ -1,5 +1,5 @@
-apply from: "$rootProject.javaGradle"
-apply from: "$rootProject.mavenPublishGradle"
+apply from: "$scriptsDir/java.gradle"
+apply from: "$scriptsDir/maven-publish.gradle"
 
 dependencies {
     implementation project(':rxrpc-apt')
@@ -9,4 +9,5 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVer"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVer"
     implementation "com.google.guava:guava:$guavaVer"
+    implementation "com.github.slim-gears.utils:guice-utils:$slimGearsUtilsVer"
 }

@@ -26,7 +26,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.slimgears.rxrpc.apt.util.StreamUtils.ofType;
+import static com.slimgears.util.stream.Streams.ofType;
 
 @AutoService(EndpointGenerator.class)
 public class TypeScriptEndpointGenerator implements EndpointGenerator {

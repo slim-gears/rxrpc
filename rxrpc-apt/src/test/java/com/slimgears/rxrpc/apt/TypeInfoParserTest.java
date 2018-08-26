@@ -2,7 +2,7 @@ package com.slimgears.rxrpc.apt;
 
 import com.slimgears.rxrpc.apt.data.TypeInfo;
 import com.slimgears.rxrpc.apt.util.ImportTracker;
-import com.slimgears.rxrpc.apt.util.TypeInfoParser;
+import com.slimgears.rxrpc.apt.util.TypeInfoParserAdapter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -10,7 +10,7 @@ import org.junit.Test;
 public class TypeInfoParserTest {
     @Test
     public void testTypeInfoParser() {
-        TypeInfo typeInfo = TypeInfoParser.parse("java.util.List<java.util.Map<java.lang.String, java.util.List<java.lang.String>>>");
+        TypeInfo typeInfo = TypeInfoParserAdapter.toTypeInfo("java.util.List<java.util.Map<java.lang.String, java.util.List<java.lang.String>>>");
         Assert.assertEquals("java.util.List", typeInfo.name());
         Assert.assertEquals("List", typeInfo.simpleName());
         Assert.assertEquals("java.util", typeInfo.packageName());
@@ -19,7 +19,7 @@ public class TypeInfoParserTest {
 
     @Test
     public void testTypeInfoParserForConstrainedArgs() {
-        TypeInfo typeInfo = TypeInfoParser.parse("class<? extends java.lang.Object>");
+        TypeInfo typeInfo = TypeInfoParserAdapter.toTypeInfo("class<? extends java.lang.Object>");
         Assert.assertEquals(1, typeInfo.typeParams().size());
     }
 

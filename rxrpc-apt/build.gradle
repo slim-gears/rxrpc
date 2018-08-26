@@ -1,7 +1,12 @@
-apply from: "$rootProject.javaGradle"
-apply from: "$rootProject.mavenPublishGradle"
+apply from: "$scriptsDir/java.gradle"
+apply from: "$scriptsDir/maven-publish.gradle"
+apply from: "$scriptsDir/antlr.gradle"
 
 import org.gradle.internal.jvm.Jvm
+
+generateGrammarSource {
+    arguments += ['-package', 'com.slimgears.rxrpc.apt.typeinfo']
+}
 
 configurations {
     testOutput.extendsFrom (testImplementation)
@@ -37,6 +42,9 @@ dependencies {
     implementation "ch.qos.logback:logback-core:$logbackVer"
     implementation "javax.annotation:javax.annotation-api:$annotationApiVer"
     implementation "com.squareup:javapoet:$javaPoetVer"
+
+    implementation "com.github.slim-gears.utils:stream-utils:$slimGearsUtilsVer"
+    implementation "com.github.slim-gears.utils:guice-utils:$slimGearsUtilsVer"
 
     testImplementation files(Jvm.current().getToolsJar())
 }

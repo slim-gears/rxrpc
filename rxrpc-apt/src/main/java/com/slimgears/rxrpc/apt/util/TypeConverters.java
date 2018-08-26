@@ -4,18 +4,23 @@ package com.slimgears.rxrpc.apt.util;
 
 import com.slimgears.rxrpc.apt.data.Environment;
 import com.slimgears.rxrpc.apt.data.TypeInfo;
+import com.slimgears.util.guice.ConfigProviders;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static com.slimgears.rxrpc.apt.util.ConfigProviders.loadFromFile;
-import static com.slimgears.rxrpc.apt.util.ConfigProviders.loadFromResource;
+import static com.slimgears.util.guice.ConfigProviders.loadFromFile;
+import static com.slimgears.util.guice.ConfigProviders.loadFromResource;
 
 public class TypeConverters {
     public static TypeConverter empty = create(t -> false, (u, t) -> t);
