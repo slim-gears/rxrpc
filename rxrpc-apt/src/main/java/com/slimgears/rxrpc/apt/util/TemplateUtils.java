@@ -33,10 +33,14 @@ public class TemplateUtils {
     }
 
     public static Function<String, String> postProcessImports(ImportTracker importTracker) {
-        return code -> substituteImports(importTracker, code);
+        return postProcessImports(importTracker, type -> type);
     }
 
-    private static String substituteImports(ImportTracker importTracker, String code) {
+    public static Function<String, String> postProcessImports(ImportTracker importTracker, Function<String, String> typeMapper) {
+        return code -> substituteImports(importTracker, code, typeMapper);
+    }
+
+    private static String substituteImports(ImportTracker importTracker, String code, Function<String, String> typeMapper) {
         StringBuilder builder = new StringBuilder();
         int len = code.length();
         int prevPos = 0;
@@ -50,7 +54,7 @@ public class TemplateUtils {
                 ++endPos;
             }
 
-            String type = code.substring(pos + 2, endPos - 1);
+            String type = typeMapper.apply(code.substring(pos + 2, endPos - 1));
             builder.append(code, prevPos, pos);
             builder.append(importTracker.use(type));
             prevPos = pos = endPos;

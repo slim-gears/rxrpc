@@ -1,5 +1,5 @@
 import { SampleNestedDataEndpoint, SampleNestedDataEndpointData } from './index';
-import { Injectable } from 'angular/core';
+import { Injectable } from '@angular/core';
 import { RxRpcClient } from 'ng-rxrpc';
 import { Observable } from 'rxjs';
 

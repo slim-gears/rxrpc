@@ -91,7 +91,7 @@ public class TypeScriptUtils extends TemplateUtils {
     public Function<TemplateEvaluator, TemplateEvaluator> imports(ImportTracker importTracker) {
         return evaluator -> evaluator
                 .variable("imports", importTracker)
-                .postProcess(TemplateUtils.postProcessImports(importTracker))
+                .postProcess(TemplateUtils.postProcessImports(importTracker, name -> name.replace('@', '$')))
                 .postProcess(code -> addImports(importTracker, code));
     }
 
@@ -120,7 +120,7 @@ public class TypeScriptUtils extends TemplateUtils {
                             .collect(Collectors.joining(
                                     ", ",
                                     "import { ",
-                                    " } from '" + packagePath + "';"));
+                                    " } from '" + packagePath.replace('$', '@') + "';"));
                 })
                 .collect(Collectors.joining("\n"));
         return code.replace(importTracker.toString(), importsStr);
