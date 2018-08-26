@@ -105,9 +105,21 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
                 .processorClass(getClass())
                 .sourceTypeElement(typeElement)
                 .environment(processingEnv)
-                .meta(typeElement.getAnnotation(RxRpcEndpoint.class))
+                .endpointName(getEndpointName(typeElement))
                 .addMethods(methods)
                 .build();
+    }
+
+    private String getEndpointName(TypeElement typeElement) {
+        return Optional
+                .ofNullable(typeElement.getAnnotation(RxRpcEndpoint.class))
+                .map(RxRpcEndpoint::value)
+                .filter(n -> !n.isEmpty())
+                .orElseGet(() -> endpointNameFromClass(typeElement));
+    }
+
+    private String endpointNameFromClass(TypeElement typeElement) {
+        return TemplateUtils.camelCaseToDash(typeElement.getSimpleName().toString());
     }
 
     private ExecutableElement ensureReferencedTypesGenerated(ExecutableElement element, DeclaredType declaredType) {

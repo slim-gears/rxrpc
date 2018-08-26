@@ -65,4 +65,9 @@ public class TestBundles {
                         "SampleDerivedData.java",
                         "SampleDerivedDataEndpoint.java");
     }
+
+    public static AnnotationProcessingTester sampleDefaultNameEndpointTester() {
+        return rxRpcEndpointProcessingTester()
+                .inputFiles("SampleDefaultNameEndpoint.java");
+    }
 }

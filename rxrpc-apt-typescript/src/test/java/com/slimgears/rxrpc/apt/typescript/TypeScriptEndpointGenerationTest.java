@@ -68,6 +68,14 @@ public class TypeScriptEndpointGenerationTest {
                 .test();
     }
 
+    @Test
+    public void testDefaultNameEndpointGeneration() {
+        TestBundles.sampleDefaultNameEndpointTester()
+                .apply(this::typeScriptOptions)
+                .expectedFiles("sample-default-name-endpoint-client.ts")
+                .test();
+    }
+
     private AnnotationProcessingTester typeScriptOptions(AnnotationProcessingTester tester) {
         return tester.options(
                         "-Arxrpc.ts.ngmodule",

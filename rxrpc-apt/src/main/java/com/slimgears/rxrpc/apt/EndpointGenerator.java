@@ -7,12 +7,11 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.slimgears.rxrpc.apt.data.MethodInfo;
 import com.slimgears.rxrpc.apt.internal.CodeGenerator;
-import com.slimgears.rxrpc.core.RxRpcEndpoint;
 
 public interface EndpointGenerator extends CodeGenerator<EndpointGenerator.Context> {
     @AutoValue
     abstract class Context extends CodeGenerator.Context {
-        public abstract RxRpcEndpoint meta();
+        public abstract String endpointName();
         public abstract ImmutableList<MethodInfo> methods();
         public abstract Builder toBuilder();
 
@@ -22,7 +21,7 @@ public interface EndpointGenerator extends CodeGenerator<EndpointGenerator.Conte
 
         @AutoValue.Builder
         public interface Builder extends CodeGenerator.Context.Builder<Context, Builder> {
-            Builder meta(RxRpcEndpoint value);
+            Builder endpointName(String value);
             ImmutableList.Builder<MethodInfo> methodsBuilder();
 
             default Builder addMethod(MethodInfo method) {

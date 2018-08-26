@@ -71,6 +71,16 @@ public class JavaEndpointGenerationTest {
         }
     }
 
+    @Test
+    public void testDefaultEndpointName() {
+        TestBundles.sampleDefaultNameEndpointTester()
+                .apply(this::javaOptions)
+                .expectedSources(
+                        "SampleDefaultNameEndpoint_RxClient.java",
+                        "SampleDefaultNameEndpoint_RxModule.java")
+                .test();
+    }
+
     private AnnotationProcessingTester javaOptions(AnnotationProcessingTester tester) {
         return tester.options(
                         "-Arxrpc.java.client",

@@ -113,8 +113,7 @@ public class RxRpcGenerateAnnotationProcessor extends AbstractAnnotationProcesso
             validateNameTemplate(meta.className(), typeElement);
         }
 
-        if (endpointMeta.endpointName().isEmpty()) {
-            require(!meta.endpointName().isEmpty(), "Endpoint name/template is not defined for some endpoint instantiations");
+        if (endpointMeta.endpointName().isEmpty() && !meta.endpointName().isEmpty()) {
             validateNameTemplate(meta.endpointName(), typeElement);
         }
 

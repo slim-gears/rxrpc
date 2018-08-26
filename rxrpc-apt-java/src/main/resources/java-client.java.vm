@@ -16,12 +16,12 @@ $[$type.asBoxed()].class##
 #if ($utils.isKnownAsyncType($type))##
 invoke${type.simpleName()}(
            #classLiteral($type.elementTypeOrVoid()),
-           "$meta.value()/$method.name()",
+           "$endpointName/$method.name()",
            arguments()##
 #else##
 invokeBlocking(
            #classLiteral($type),
-           "$meta.value()/$method.name()",
+           "$endpointName/$method.name()",
            arguments()##
 #end##
 
