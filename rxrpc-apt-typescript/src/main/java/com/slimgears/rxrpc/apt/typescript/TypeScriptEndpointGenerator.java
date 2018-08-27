@@ -4,11 +4,11 @@
 package com.slimgears.rxrpc.apt.typescript;
 
 import com.google.auto.service.AutoService;
+import com.slimgears.apt.data.TypeInfo;
+import com.slimgears.apt.util.ElementUtils;
+import com.slimgears.apt.util.ImportTracker;
+import com.slimgears.apt.util.TemplateEvaluator;
 import com.slimgears.rxrpc.apt.EndpointGenerator;
-import com.slimgears.rxrpc.apt.data.TypeInfo;
-import com.slimgears.rxrpc.apt.util.ElementUtils;
-import com.slimgears.rxrpc.apt.util.ImportTracker;
-import com.slimgears.rxrpc.apt.util.TemplateEvaluator;
 import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

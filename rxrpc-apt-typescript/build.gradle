@@ -10,4 +10,6 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVer"
     implementation "com.google.guava:guava:$guavaVer"
     implementation "com.github.slim-gears.utils:guice-utils:$slimGearsUtilsVer"
+    implementation "com.github.slim-gears.utils:apt-utils:$slimGearsUtilsVer"
+    testImplementation "com.github.slim-gears.utils:apt-utils:$slimGearsUtilsVer:tests"
 }

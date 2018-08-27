@@ -3,11 +3,10 @@
  */
 package com.slimgears.rxrpc.apt.internal;
 
-import com.slimgears.rxrpc.apt.data.Environment;
-import com.slimgears.rxrpc.apt.data.TypeInfo;
-import com.slimgears.rxrpc.apt.util.ElementUtils;
+import com.slimgears.apt.data.Environment;
+import com.slimgears.apt.data.TypeInfo;
+import com.slimgears.apt.util.ElementUtils;
 import com.slimgears.rxrpc.apt.util.TemplateUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,12 +14,8 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
-import java.util.stream.Stream;
 
 public interface CodeGenerator<C extends CodeGenerator.Context> {
     void generate(C context);

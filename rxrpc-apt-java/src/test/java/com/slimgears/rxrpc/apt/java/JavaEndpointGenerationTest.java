@@ -3,7 +3,7 @@
  */
 package com.slimgears.rxrpc.apt.java;
 
-import com.slimgears.rxrpc.apt.AnnotationProcessingTester;
+import com.slimgears.apt.util.AnnotationProcessingTester;
 import com.slimgears.rxrpc.apt.DataClassGenerator;
 import com.slimgears.rxrpc.apt.TestBundles;
 import com.slimgears.rxrpc.apt.util.ServiceProvider;

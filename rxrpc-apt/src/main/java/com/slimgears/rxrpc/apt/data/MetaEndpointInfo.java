@@ -4,6 +4,9 @@
 package com.slimgears.rxrpc.apt.data;
 
 import com.google.auto.value.AutoValue;
+import com.slimgears.apt.data.HasName;
+import com.slimgears.apt.data.InfoBuilder;
+import com.slimgears.apt.data.TypeInfo;
 import com.slimgears.rxrpc.core.RxRpcGenerate;
 
 @AutoValue

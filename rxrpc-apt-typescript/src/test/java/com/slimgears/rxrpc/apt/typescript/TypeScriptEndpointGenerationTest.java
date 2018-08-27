@@ -2,7 +2,7 @@ package com.slimgears.rxrpc.apt.typescript; /**
  *
  */
 
-import com.slimgears.rxrpc.apt.AnnotationProcessingTester;
+import com.slimgears.apt.util.AnnotationProcessingTester;
 import com.slimgears.rxrpc.apt.TestBundles;
 import org.junit.Test;
 

@@ -2,12 +2,12 @@ package com.slimgears.rxrpc.apt;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.auto.service.AutoService;
-import com.slimgears.rxrpc.apt.data.Environment;
-import com.slimgears.rxrpc.apt.data.MethodInfo;
+import com.slimgears.apt.AbstractAnnotationProcessor;
+import com.slimgears.apt.data.Environment;
+import com.slimgears.apt.data.MethodInfo;
+import com.slimgears.apt.data.TypeInfo;
+import com.slimgears.apt.util.ElementUtils;
 import com.slimgears.rxrpc.apt.data.PropertyInfo;
-import com.slimgears.rxrpc.apt.data.TypeInfo;
-import com.slimgears.rxrpc.apt.internal.AbstractAnnotationProcessor;
-import com.slimgears.rxrpc.apt.util.ElementUtils;
 import com.slimgears.rxrpc.apt.util.ServiceProviders;
 import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import com.slimgears.rxrpc.core.RxRpcEndpoint;

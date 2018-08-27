@@ -9,7 +9,6 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-core/rxrpc-core.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-core/rxrpc-core.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-jetty-websocket/rxrpc-jetty-websocket.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-jetty-websocket/rxrpc-jetty-websocket.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-ng/rxrpc-ng.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-ng/rxrpc-ng.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-ng/rxrpc-ng.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-ng/rxrpc-ng.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/sample/sample.iml" filepath="$PROJECT_DIR$/.idea/modules/sample/sample.iml" />
     </modules>
   </component>

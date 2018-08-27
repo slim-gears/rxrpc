@@ -1,12 +1,7 @@
 apply from: "$scriptsDir/java.gradle"
 apply from: "$scriptsDir/maven-publish.gradle"
-apply from: "$scriptsDir/antlr.gradle"
 
 import org.gradle.internal.jvm.Jvm
-
-generateGrammarSource {
-    arguments += ['-package', 'com.slimgears.rxrpc.apt.typeinfo']
-}
 
 configurations {
     testOutput.extendsFrom (testImplementation)
@@ -45,6 +40,8 @@ dependencies {
 
     implementation "com.github.slim-gears.utils:stream-utils:$slimGearsUtilsVer"
     implementation "com.github.slim-gears.utils:guice-utils:$slimGearsUtilsVer"
+    implementation "com.github.slim-gears.utils:apt-utils:$slimGearsUtilsVer"
+    testImplementation "com.github.slim-gears.utils:apt-utils:$slimGearsUtilsVer:tests"
 
     testImplementation files(Jvm.current().getToolsJar())
 }

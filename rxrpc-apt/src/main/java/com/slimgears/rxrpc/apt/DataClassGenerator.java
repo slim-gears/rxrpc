@@ -5,8 +5,8 @@ package com.slimgears.rxrpc.apt;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import com.slimgears.apt.data.TypeInfo;
 import com.slimgears.rxrpc.apt.data.PropertyInfo;
-import com.slimgears.rxrpc.apt.data.TypeInfo;
 import com.slimgears.rxrpc.apt.internal.CodeGenerator;
 
 public interface DataClassGenerator extends CodeGenerator<DataClassGenerator.Context> {

@@ -5,7 +5,11 @@ package com.slimgears.rxrpc.apt.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
-import com.slimgears.rxrpc.apt.util.ElementUtils;
+import com.slimgears.apt.data.HasName;
+import com.slimgears.apt.data.HasType;
+import com.slimgears.apt.data.InfoBuilder;
+import com.slimgears.apt.data.TypeInfo;
+import com.slimgears.apt.util.ElementUtils;
 import com.slimgears.util.stream.Optionals;
 
 import javax.annotation.Nullable;

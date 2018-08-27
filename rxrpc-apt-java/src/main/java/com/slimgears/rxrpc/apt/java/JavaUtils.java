@@ -3,10 +3,10 @@
  */
 package com.slimgears.rxrpc.apt.java;
 
-import com.slimgears.rxrpc.apt.data.TypeInfo;
-import com.slimgears.rxrpc.apt.util.ImportTracker;
-import com.slimgears.rxrpc.apt.util.LogUtils;
-import com.slimgears.rxrpc.apt.util.TemplateEvaluator;
+import com.slimgears.apt.data.TypeInfo;
+import com.slimgears.apt.util.ImportTracker;
+import com.slimgears.apt.util.LogUtils;
+import com.slimgears.apt.util.TemplateEvaluator;
 import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -4,8 +4,8 @@
 package com.slimgears.rxrpc.apt.typescript;
 
 import com.google.auto.service.AutoService;
+import com.slimgears.apt.util.TemplateEvaluator;
 import com.slimgears.rxrpc.apt.CodeGenerationFinalizer;
-import com.slimgears.rxrpc.apt.util.TemplateEvaluator;
 
 @AutoService(CodeGenerationFinalizer.class)
 public class TypeScriptIndexGenerator implements CodeGenerationFinalizer {

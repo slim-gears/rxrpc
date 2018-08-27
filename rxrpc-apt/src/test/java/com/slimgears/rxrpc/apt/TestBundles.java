@@ -1,5 +1,6 @@
 package com.slimgears.rxrpc.apt;
 
+import com.slimgears.apt.util.AnnotationProcessingTester;
 import org.slf4j.event.Level;
 
 public class TestBundles {

@@ -4,10 +4,10 @@
 package com.slimgears.rxrpc.apt;
 
 import com.google.auto.service.AutoService;
+import com.slimgears.apt.AbstractAnnotationProcessor;
+import com.slimgears.apt.data.TypeInfo;
+import com.slimgears.apt.util.ElementUtils;
 import com.slimgears.rxrpc.apt.data.MetaEndpointInfo;
-import com.slimgears.rxrpc.apt.data.TypeInfo;
-import com.slimgears.rxrpc.apt.internal.AbstractAnnotationProcessor;
-import com.slimgears.rxrpc.apt.util.ElementUtils;
 import com.slimgears.rxrpc.apt.util.ServiceProviders;
 import com.slimgears.rxrpc.core.RxRpcGenerate;
 import org.apache.commons.text.StringSubstitutor;
