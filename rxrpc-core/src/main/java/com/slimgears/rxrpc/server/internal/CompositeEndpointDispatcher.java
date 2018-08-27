@@ -4,7 +4,7 @@
 package com.slimgears.rxrpc.server.internal;
 
 import com.slimgears.rxrpc.core.ServiceResolver;
-import com.slimgears.rxrpc.core.data.Path;
+import com.slimgears.rxrpc.core.data.EndpointPath;
 import com.slimgears.rxrpc.server.EndpointDispatcher;
 import org.reactivestreams.Publisher;
 
@@ -24,7 +24,7 @@ public class CompositeEndpointDispatcher implements EndpointDispatcher {
 
     @Override
     public Publisher<?> dispatch(String path, InvocationArguments args) {
-        Path p = Path.of(path);
+        EndpointPath p = EndpointPath.of(path);
         return Optional
                 .ofNullable(dispatcherMap.get(p.head()))
                 .map(factory -> factory.create(resolver))

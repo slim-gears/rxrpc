@@ -21,6 +21,10 @@ public abstract class ErrorInfo {
         return new AutoValue_ErrorInfo(type, message, Arrays.asList(stackTrace), null);
     }
 
+    public Throwable toException() {
+        return new RuntimeException(message() + "\n" + String.join("\n", stackTrace()));
+    }
+
     @JsonCreator
     public static ErrorInfo create(
             @JsonProperty("type") String type,

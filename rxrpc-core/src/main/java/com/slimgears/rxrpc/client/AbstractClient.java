@@ -4,7 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.slimgears.rxrpc.core.data.Result;
-import io.reactivex.*;
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableTransformer;
+import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 
 import java.util.HashMap;
@@ -66,7 +71,7 @@ public abstract class AbstractClient implements AutoCloseable {
                 if (res.type() == Result.Type.Data) {
                     handleDataResult(res.data(), emitter, valueType);
                 } else {
-                    emitter.onError(new RuntimeException(requireNonNull(res.error()).message()));
+                    emitter.onError(requireNonNull(res.error()).toException());
                 }
             }, emitter::onError, emitter::onComplete);
             emitter.setDisposable(disposable);
