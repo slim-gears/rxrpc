@@ -9,10 +9,12 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVer"
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVer"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVer"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-guava:$jacksonVer"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jacksonVer"
+//    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr353:$jacksonVer"
     implementation "com.google.auto.service:auto-service:$autoServiceVer"
     annotationProcessor "com.google.auto.service:auto-service:$autoServiceVer"
     implementation "com.github.slim-gears.utils:stream-utils:$slimGearsUtilsVer"
-
     testImplementation "ch.qos.logback:logback-classic:$logbackVer"
     testImplementation "ch.qos.logback:logback-core:$logbackVer"
 }

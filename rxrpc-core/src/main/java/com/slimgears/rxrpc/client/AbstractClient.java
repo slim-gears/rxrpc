@@ -2,7 +2,6 @@ package com.slimgears.rxrpc.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.slimgears.rxrpc.core.data.Result;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
@@ -21,7 +20,6 @@ import static java.util.Objects.requireNonNull;
 
 public abstract class AbstractClient implements AutoCloseable {
     private final RxClient.Session session;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     protected interface InvocationArguments {
         InvocationArguments put(String name, Object arg);
@@ -83,7 +81,7 @@ public abstract class AbstractClient implements AutoCloseable {
             emitter.onComplete();
             return;
         }
-        T data = objectMapper.treeToValue(json, valueType);
+        T data = session.clientConfig().objectMapper().treeToValue(json, valueType);
         emitter.onNext(data);
     }
 

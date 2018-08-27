@@ -4,7 +4,6 @@
 package com.slimgears.rxrpc.core.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.slimgears.util.stream.Lazy;
 
 import java.util.function.Supplier;
 
@@ -19,7 +18,7 @@ public interface HasObjectMapper {
         B objectMapperProvider(Supplier<ObjectMapper> mapperSupplier);
 
         default B objectMapper(Supplier<ObjectMapper> supplier) {
-            return objectMapperProvider(Lazy.of(supplier));
+            return objectMapperProvider(ObjectMappers.fromSupplier(supplier));
         }
 
         default B objectMapper(ObjectMapper mapper) {

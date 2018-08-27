@@ -2,7 +2,6 @@ package com.slimgears.rxrpc.server;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.slimgears.rxrpc.core.RxTransport;
@@ -11,6 +10,7 @@ import com.slimgears.rxrpc.core.data.Invocation;
 import com.slimgears.rxrpc.core.data.Response;
 import com.slimgears.rxrpc.core.util.HasObjectMapper;
 import com.slimgears.rxrpc.core.util.MoreDisposables;
+import com.slimgears.rxrpc.core.util.ObjectMappers;
 import com.slimgears.rxrpc.core.util.ServiceResolvers;
 import com.slimgears.rxrpc.server.internal.InvocationArguments;
 import com.slimgears.rxrpc.server.internal.ScopedResolver;
@@ -45,7 +45,7 @@ public class RxServer implements AutoCloseable {
 
         public static Builder builder() {
             return new AutoValue_RxServer_Config.Builder()
-                    .objectMapper(ObjectMapper::new)
+                    .objectMapper(ObjectMappers::create)
                     .resolver(ServiceResolvers.defaultConstructorResolver());
         }
 

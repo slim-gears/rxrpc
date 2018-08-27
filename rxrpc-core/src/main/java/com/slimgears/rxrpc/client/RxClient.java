@@ -79,6 +79,7 @@ public class RxClient {
 
     public interface Session extends AutoCloseable {
         Publisher<Result> invoke(String method, Map<String, Object> args);
+        Config clientConfig();
     }
 
     public static RxClient forClient(RxTransport.Client client) {
@@ -139,6 +140,11 @@ public class RxClient {
         }
 
         @Override
+        public Config clientConfig() {
+            return config;
+        }
+
+        @Override
         public void close() {
             cancellation.onComplete();
             this.session.subscribe(AutoCloseable::close);
@@ -169,6 +175,11 @@ public class RxClient {
             return Observable
                     .defer(() -> beginInvocation(method, args))
                     .toFlowable(BackpressureStrategy.BUFFER);
+        }
+
+        @Override
+        public Config clientConfig() {
+            return config;
         }
 
         private void onResponse(Response response) {
