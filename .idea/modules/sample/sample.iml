@@ -65,9 +65,9 @@
     <orderEntry type="library" name="Gradle: com.google.errorprone:error_prone_annotations:2.0.18" level="project" />
     <orderEntry type="library" name="Gradle: com.google.j2objc:j2objc-annotations:1.1" level="project" />
     <orderEntry type="library" name="Gradle: org.codehaus.mojo:animal-sniffer-annotations:1.14" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: com.github.slim-gears.utils:apt-utils:0.1.6" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: com.github.slim-gears.utils:guice-utils:0.1.6" level="project" />
-    <orderEntry type="library" name="Gradle: com.github.slim-gears.utils:stream-utils:0.1.6" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: com.github.slim-gears.utils:apt-utils:0.1.7" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: com.github.slim-gears.utils:guice-utils:0.1.7" level="project" />
+    <orderEntry type="library" name="Gradle: com.github.slim-gears.utils:stream-utils:0.1.7" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.datatype:jackson-datatype-guava:2.9.6" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.9.6" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: com.google.escapevelocity:escapevelocity:0.9" level="project" />

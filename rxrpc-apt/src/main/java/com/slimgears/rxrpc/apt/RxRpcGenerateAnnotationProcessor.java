@@ -7,25 +7,24 @@ import com.google.auto.service.AutoService;
 import com.slimgears.apt.AbstractAnnotationProcessor;
 import com.slimgears.apt.data.TypeInfo;
 import com.slimgears.apt.util.ElementUtils;
+import com.slimgears.apt.util.NameTemplateUtils;
 import com.slimgears.rxrpc.apt.data.MetaEndpointInfo;
 import com.slimgears.rxrpc.apt.util.ServiceProviders;
 import com.slimgears.rxrpc.core.RxRpcGenerate;
 import org.apache.commons.text.StringSubstitutor;
-import org.apache.commons.text.lookup.StringLookup;
 
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.TypeElement;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 @AutoService(Processor.class)
 @SupportedAnnotationTypes("com.slimgears.rxrpc.core.RxRpcGenerate")
@@ -100,52 +99,24 @@ public class RxRpcGenerateAnnotationProcessor extends AbstractAnnotationProcesso
     }
 
     private void validateType(TypeElement typeElement) {
-        require(ElementUtils.isInterface(typeElement), "Annotated type should be interface");
-        require(!typeElement.getTypeParameters().isEmpty(), "Annotated type should have one or more type parameters");
+        checkArgument(ElementUtils.isInterface(typeElement), "Annotated type should be interface");
+        checkArgument(!typeElement.getTypeParameters().isEmpty(), "Annotated type should have one or more type parameters");
         RxRpcGenerate meta = typeElement.getAnnotation(RxRpcGenerate.class);
-        require(meta.value().length > 0, "Meta endpoint instantiations are not defined");
+        checkArgument(meta.value().length > 0, "Meta endpoint instantiations are not defined");
         Stream.of(meta.value()).forEach(epm -> validateEndpoint(typeElement, meta, epm));
     }
 
     private void validateEndpoint(TypeElement typeElement, RxRpcGenerate meta, RxRpcGenerate.Endpoint endpointMeta) {
         if (endpointMeta.className().isEmpty()) {
-            require(!meta.className().isEmpty(), "Class name/template is not defined for some endpoint instantiations");
-            validateNameTemplate(meta.className(), typeElement);
+            checkArgument(!meta.className().isEmpty(), "Class name/template is not defined for some endpoint instantiations");
+            NameTemplateUtils.validateNameTemplate(meta.className(), typeElement);
         }
 
         if (endpointMeta.endpointName().isEmpty() && !meta.endpointName().isEmpty()) {
-            validateNameTemplate(meta.endpointName(), typeElement);
+            NameTemplateUtils.validateNameTemplate(meta.endpointName(), typeElement);
         }
 
-        require(ElementUtils.typesFromAnnotation(endpointMeta, RxRpcGenerate.Endpoint::params).length == typeElement.getTypeParameters().size(), "Parameter number mismatch");
+        checkArgument(ElementUtils.typesFromAnnotation(endpointMeta, RxRpcGenerate.Endpoint::params).length == typeElement.getTypeParameters().size(), "Parameter number mismatch");
     }
 
-    private void validateNameTemplate(String template, TypeElement typeElement) {
-        Set<String> namesFromTypeParams = typeElement.getTypeParameters()
-                .stream()
-                .map(tp -> tp.getSimpleName().toString())
-                .collect(Collectors.toSet());
-
-        Set<String> varNames = getVarNames(template);
-
-        require(varNames.size() == typeElement.getTypeParameters().size(), "Template variable names number mismatch");
-        varNames.forEach(n -> require(namesFromTypeParams.contains(n), "Template variable name " + n + " does not correspond to type parameter"));
-    }
-
-    private static void require(boolean condition, String errorMsg) {
-        if (!condition) {
-            throw new RuntimeException("Incorrent @" + RxRpcGenerate.class.getSimpleName() + " usage: " + errorMsg);
-        }
-    }
-
-    private Set<String> getVarNames(String template) {
-        Set<String> names = new HashSet<>();
-        StringSubstitutor substitutor = createSubstitutor(name -> { names.add(name); return name; });
-        substitutor.replace(template);
-        return names;
-    }
-
-    private static StringSubstitutor createSubstitutor(StringLookup lookup) {
-        return new StringSubstitutor(lookup, "${", "}", StringSubstitutor.DEFAULT_ESCAPE);
-    }
 }

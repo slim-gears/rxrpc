@@ -41,7 +41,7 @@
     <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-util:9.4.11.v20180605" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty.websocket:websocket-api:9.4.11.v20180605" level="project" />
     <orderEntry type="library" name="Gradle: javax.servlet:javax.servlet-api:3.1.0" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Gradle: com.github.slim-gears.utils:stream-utils:0.1.6" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: com.github.slim-gears.utils:stream-utils:0.1.7" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: com.google.auto.value:auto-value-annotations:1.6.2" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: com.fasterxml.jackson.datatype:jackson-datatype-guava:2.9.6" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: com.google.auto.service:auto-service:1.0-rc4" level="project" />
@@ -63,7 +63,7 @@
     <orderEntry type="library" scope="TEST" name="Gradle: net.bytebuddy:byte-buddy:1.8.15" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: net.bytebuddy:byte-buddy-agent:1.8.15" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.objenesis:objenesis:2.6" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.github.slim-gears.utils:stream-utils:0.1.6" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.github.slim-gears.utils:stream-utils:0.1.7" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.google.auto.value:auto-value-annotations:1.6.2" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.fasterxml.jackson.datatype:jackson-datatype-guava:2.9.6" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.google.auto.service:auto-service:1.0-rc4" level="project" />

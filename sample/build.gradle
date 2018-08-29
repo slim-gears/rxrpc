@@ -29,5 +29,5 @@ dependencies {
     implementation "com.google.auto.value:auto-value:$autoValueVer"
     annotationProcessor "com.google.auto.value:auto-value:$autoValueVer"
 
-    //implementation "com.github.slim-gears.rxrpc:rxrpc-core:0.3.10"
+    //implementation "com.github.slim-gears.rxrpc:rxrpc-core:0.3.18"
 }
