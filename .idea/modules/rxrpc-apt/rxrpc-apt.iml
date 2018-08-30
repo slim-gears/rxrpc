@@ -31,10 +31,10 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="rxrpc-core" />
-    <orderEntry type="library" name="Gradle: com.github.slim-gears.utils:apt-utils:0.1.7" level="project" />
+    <orderEntry type="library" name="Gradle: com.github.slim-gears.utils:apt-utils:0.2.0" level="project" />
     <orderEntry type="library" name="Gradle: ch.qos.logback:logback-classic:1.2.3" level="project" />
-    <orderEntry type="library" name="Gradle: com.github.slim-gears.utils:guice-utils:0.1.7" level="project" />
-    <orderEntry type="library" name="Gradle: com.github.slim-gears.utils:stream-utils:0.1.7" level="project" />
+    <orderEntry type="library" name="Gradle: com.github.slim-gears.utils:guice-utils:0.2.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.github.slim-gears.utils:stream-utils:0.2.0" level="project" />
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.7.25" level="project" />
     <orderEntry type="library" name="Gradle: com.google.auto.service:auto-service:1.0-rc4" level="project" />
     <orderEntry type="library" name="Gradle: com.google.auto.value:auto-value-annotations:1.6.2" level="project" />
@@ -76,7 +76,7 @@
     <orderEntry type="library" scope="RUNTIME" name="Gradle: com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.9.6" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: io.reactivex.rxjava2:rxjava:2.2.0" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.reactivestreams:reactive-streams:1.0.2" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.github.slim-gears.utils:apt-utils:0.1.7:tests" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.github.slim-gears.utils:apt-utils:0.2.0:tests" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.google.testing.compile:compile-testing:0.15" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.google.truth.extensions:truth-java8-extension:0.37" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.google.truth:truth:0.42" level="project" />
