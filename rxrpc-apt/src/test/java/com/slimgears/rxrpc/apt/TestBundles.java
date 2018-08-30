@@ -7,7 +7,7 @@ public class TestBundles {
     static AnnotationProcessingTester rxRpcEndpointProcessingTester() {
         return AnnotationProcessingTester.create()
                 .processedWith(new RxRpcEndpointAnnotationProcessor())
-                .verbosity(Level.TRACE);
+                .verbosity(Level.INFO);
     }
 
     public static AnnotationProcessingTester sampleEndpointTester() {

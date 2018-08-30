@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
+import javax.annotation.processing.SupportedOptions;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import java.util.Map;
@@ -19,6 +20,13 @@ import java.util.Optional;
 
 public interface CodeGenerator<C extends CodeGenerator.Context> {
     void generate(C context);
+
+    default String[] getSupportedOptions() {
+        return Optional
+                .ofNullable(this.getClass().getAnnotation(SupportedOptions.class))
+                .map(SupportedOptions::value)
+                .orElseGet(() -> new String[0]);
+    }
 
     abstract class Context {
         private final Logger log = LoggerFactory.getLogger(getClass());

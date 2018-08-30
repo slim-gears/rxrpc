@@ -9,16 +9,26 @@ import com.slimgears.apt.util.ImportTracker;
 import com.slimgears.apt.util.TemplateEvaluator;
 import com.slimgears.rxrpc.apt.EndpointGenerator;
 
+import javax.annotation.processing.SupportedOptions;
 import javax.lang.model.element.ElementKind;
 
 @AutoService(EndpointGenerator.class)
+@SupportedOptions({
+        JavaEndpointGenerator.generateClientOption,
+        JavaEndpointGenerator.generateServerOption,
+        JavaEndpointGenerator.useAutoServiceOption
+})
 public class JavaEndpointGenerator implements EndpointGenerator {
+    static final String generateClientOption = "rxrpc.java.client";
+    static final String generateServerOption = "rxrpc.java.server";
+    static final String useAutoServiceOption = "rxrpc.java.autoservice";
+
     @Override
     public void generate(Context context) {
-        if (context.hasOption("rxrpc.java.client")) {
+        if (context.hasOption(generateClientOption)) {
             generateClass(context, "_RxClient", "/java-client.java.vm");
         }
-        if (context.hasOption("rxrpc.java.server")) {
+        if (context.hasOption(generateServerOption)) {
             generateClass(context, "_RxModule", "/java-server.java.vm");
         }
     }
@@ -35,7 +45,7 @@ public class JavaEndpointGenerator implements EndpointGenerator {
                 .variables(context)
                 .variable("isInterface", context.sourceTypeElement().getKind() == ElementKind.INTERFACE)
                 .variable("javaUtils", new JavaUtils())
-                .variable("autoService", context.hasOption("rxrpc.java.autoservice"))
+                .variable("autoService", context.hasOption(useAutoServiceOption))
                 .variable("targetClass", targetClass)
                 .apply(JavaUtils.imports(importTracker))
                 //.postProcess(JavaUtils.formatter())

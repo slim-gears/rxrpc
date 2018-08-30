@@ -119,4 +119,8 @@ public class RxRpcGenerateAnnotationProcessor extends AbstractAnnotationProcesso
         checkArgument(ElementUtils.typesFromAnnotation(endpointMeta, RxRpcGenerate.Endpoint::params).length == typeElement.getTypeParameters().size(), "Parameter number mismatch");
     }
 
+    @Override
+    protected Stream<String> getAdditionalSupportedOptions() {
+        return metaEndpointGenerators.stream().flatMap(c -> Stream.of(c.getSupportedOptions()));
+    }
 }

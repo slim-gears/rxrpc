@@ -8,6 +8,7 @@ import com.slimgears.apt.data.MethodInfo;
 import com.slimgears.apt.data.TypeInfo;
 import com.slimgears.apt.util.ElementUtils;
 import com.slimgears.rxrpc.apt.data.PropertyInfo;
+import com.slimgears.rxrpc.apt.internal.CodeGenerator;
 import com.slimgears.rxrpc.apt.util.ServiceProviders;
 import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import com.slimgears.rxrpc.core.RxRpcEndpoint;
@@ -20,8 +21,10 @@ import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -139,5 +142,14 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
                 .filter(ElementUtils::isUnknownType)
                 .forEach(this::generateDataType);
         return element;
+    }
+
+    @Override
+    protected Stream<String> getAdditionalSupportedOptions() {
+        return Stream.of(endpointGenerators, finalizers, dataClassGenerators)
+                .flatMap(Collection::stream)
+                .map(CodeGenerator::getSupportedOptions)
+                .filter(Objects::nonNull)
+                .flatMap(Arrays::stream);
     }
 }

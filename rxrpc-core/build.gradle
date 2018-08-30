@@ -2,19 +2,19 @@ apply from: "$scriptsDir/java.gradle"
 apply from: "$scriptsDir/maven-publish.gradle"
 
 dependencies {
-    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVer"
-    implementation"com.google.auto.value:auto-value-annotations:$autoValueVer"
-    annotationProcessor "com.google.auto.value:auto-value:$autoValueVer"
-    implementation "com.google.code.findbugs:jsr305:$jsr305Ver"
-    implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVer"
-    implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVer"
-    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVer"
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-guava:$jacksonVer"
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jacksonVer"
-//    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr353:$jacksonVer"
-    implementation "com.google.auto.service:auto-service:$autoServiceVer"
-    annotationProcessor "com.google.auto.service:auto-service:$autoServiceVer"
-    implementation "com.github.slim-gears.utils:stream-utils:$slimGearsUtilsVer"
-    testImplementation "ch.qos.logback:logback-classic:$logbackVer"
-    testImplementation "ch.qos.logback:logback-core:$logbackVer"
+    implementation libs.rxJava
+    implementation libs.slf4j
+    compileOnly libs.autoValueAnnotations
+    annotationProcessor libs.autoValue
+    implementation libs.jsr305
+    implementation libs.jacksonCore
+    implementation libs.jacksonAnnotations
+    implementation libs.jacksonDataBind
+    implementation libs.jacksonGuava
+    implementation libs.jacksonJdk8
+    compileOnly libs.autoService
+    annotationProcessor libs.autoService
+    implementation libs.slimGearsStreamUtils
+    testImplementation libs.logbackClassic
+    testImplementation libs.logbackCore
 }

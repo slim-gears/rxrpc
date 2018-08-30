@@ -13,6 +13,7 @@ import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.processing.SupportedOptions;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Name;
@@ -29,7 +30,10 @@ import java.util.stream.Stream;
 import static com.slimgears.util.stream.Streams.ofType;
 
 @AutoService(EndpointGenerator.class)
+@SupportedOptions(TypeScriptEndpointGenerator.generateNgModuleOption)
 public class TypeScriptEndpointGenerator implements EndpointGenerator {
+    static final String generateNgModuleOption = "rxrpc.ts.ngmodule";
+
     private final static Logger log = LoggerFactory.getLogger(TypeScriptEndpointGenerator.class);
     private final Collection<TypeElement> generatedInterfaces = new HashSet<>();
 
@@ -74,7 +78,7 @@ public class TypeScriptEndpointGenerator implements EndpointGenerator {
         TypeScriptUtils typeScriptUtils = new TypeScriptUtils();
         TemplateEvaluator.forResource(templateName)
                 .variable("targetClass", targetClass)
-                .variable("generateNgModule", context.hasOption("rxrpc.ts.ngmodule"))
+                .variable("generateNgModule", context.hasOption(generateNgModuleOption))
                 .variable("tsUtils", typeScriptUtils)
                 .variable("interfaces", interfaceProvider.apply(typeScriptUtils))
                 .variables(context)

@@ -3,7 +3,8 @@ apply from: "$scriptsDir/maven-publish.gradle"
 
 dependencies {
     implementation project(':rxrpc-core')
-    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVer"
-    implementation "org.eclipse.jetty.websocket:websocket-server:$jettyVer"
-    implementation "org.eclipse.jetty.websocket:websocket-client:$jettyVer"
+    implementation libs.slf4j
+    implementation libs.rxJava
+    implementation libs.jettyWebSocketServer
+    implementation libs.jettyWebSocketClient
 }

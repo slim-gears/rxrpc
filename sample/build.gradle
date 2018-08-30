@@ -13,21 +13,19 @@ dependencies {
     annotationProcessor project(':rxrpc-apt-java')
     implementation project(':rxrpc-core')
     implementation project(':rxrpc-jetty-websocket')
-    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVer"
-    implementation "org.eclipse.jetty:jetty-server:$jettyVer"
-    implementation "org.eclipse.jetty:jetty-servlet:$jettyVer"
-    implementation "org.eclipse.jetty.websocket:websocket-server:$jettyVer"
-    implementation "com.google.auto.service:auto-service:$autoServiceVer"
-    annotationProcessor "com.google.auto.service:auto-service:$autoServiceVer"
-    implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVer"
-    implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVer"
-    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVer"
-    implementation "ch.qos.logback:logback-classic:$logbackVer"
-    implementation "ch.qos.logback:logback-core:$logbackVer"
 
-    implementation"com.google.auto.value:auto-value-annotations:$autoValueVer"
-    implementation "com.google.auto.value:auto-value:$autoValueVer"
-    annotationProcessor "com.google.auto.value:auto-value:$autoValueVer"
+    implementation libs.rxJava
+    implementation libs.jettyServer
+    implementation libs.jettyServlet
+    implementation libs.jettyWebSocketServer
+    compileOnly libs.autoService
+    annotationProcessor libs.autoService
+    implementation libs.jacksonCore
+    implementation libs.jacksonAnnotations
+    implementation libs.jacksonDataBind
+    implementation libs.logbackClassic
+    implementation libs.logbackCore
 
-    //implementation "com.github.slim-gears.rxrpc:rxrpc-core:0.3.18"
+    compileOnly libs.autoValueAnnotations
+    annotationProcessor libs.autoValue
 }
