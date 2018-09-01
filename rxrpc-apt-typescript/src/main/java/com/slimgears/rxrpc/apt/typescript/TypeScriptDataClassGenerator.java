@@ -78,10 +78,10 @@ public class TypeScriptDataClassGenerator implements DataClassGenerator {
 
     private TemplateEvaluator evaluator(Context context) {
         if (ElementUtils.isEnum(context.sourceTypeElement())) {
-            return TemplateEvaluator.forResource("/typescript-enum.ts.vm")
+            return TemplateEvaluator.forResource("typescript-enum.ts.vm")
                     .variable("enum", EnumInfo.of(context.sourceTypeElement()));
         } else {
-            return TemplateEvaluator.forResource("/typescript-data-class.ts.vm");
+            return TemplateEvaluator.forResource("typescript-data-class.ts.vm");
         }
     }
 }

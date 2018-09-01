@@ -13,7 +13,7 @@
     "typescript": "^3.0.1"
   },
   "dependencies": {
-#if ($generateNgModule)##
+#if ($generateNgModule)
     "@angular/core": "^6.0.3",
 #end
     "rxjs": "^6.0.0",

@@ -51,7 +51,7 @@ public class TypeScriptEndpointGenerator implements EndpointGenerator {
                         return getInterfaces(context, typeScriptUtils);
                     }
                 },
-                "/typescript-client-class.ts.vm");
+                "typescript-client-class.ts.vm");
         TypeScriptUtils.addGeneratedEndpoint(targetClass);
     }
 
@@ -107,7 +107,7 @@ public class TypeScriptEndpointGenerator implements EndpointGenerator {
                 context,
                 TypeInfo.of(context.sourceTypeElement().getSimpleName().toString()),
                 typeScriptUtils -> getInterfaces(context, typeScriptUtils),
-                "/typescript-client-interface.ts.vm");
+                "typescript-client-interface.ts.vm");
     }
 
     private DeclaredType ensureInterfaceGenerated(DeclaredType typeMirror, Context context) {

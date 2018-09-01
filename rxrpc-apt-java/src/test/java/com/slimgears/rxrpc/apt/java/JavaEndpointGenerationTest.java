@@ -11,6 +11,7 @@ import com.slimgears.rxrpc.apt.util.ServiceProviders;
 import com.slimgears.rxrpc.core.util.Scope;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.slf4j.event.Level;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -90,7 +91,9 @@ public class JavaEndpointGenerationTest {
     }
 
     private AnnotationProcessingTester javaOptions(AnnotationProcessingTester tester) {
-        return tester.options(
+        return tester
+                //.verbosity(Level.TRACE)
+                .options(
                         "-Arxrpc.java.client",
                         "-Arxrpc.java.server");
     }

@@ -1,0 +1,19 @@
+#macro (typeParams $type)##
+    #if (!$type.typeParams().isEmpty())##
+    <##
+    #foreach($tp in $type.typeParams())##
+        $tp.name()##
+        #if($foreach.hasNext), #end##
+        #end##
+    >##
+    #end##
+#end##
+##
+##
+#macro (interfaces $interfaces)##
+    #if (!$interfaces.isEmpty()) ##
+     extends ##
+        #foreach ($iface in $interfaces)$[$iface]#if($foreach.hasNext), #end##
+        #end##
+    #end##
+#end##

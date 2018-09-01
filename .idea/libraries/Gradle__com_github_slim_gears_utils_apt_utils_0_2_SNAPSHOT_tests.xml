@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.github.slim-gears.utils:apt-utils:0.2-SNAPSHOT:tests">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/slim-gears/utils/apt-utils/0.2-SNAPSHOT/apt-utils-0.2-SNAPSHOT-tests.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/slim-gears/utils/apt-utils/0.2-SNAPSHOT/apt-utils-0.2-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

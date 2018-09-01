@@ -4,8 +4,8 @@
 export enum $targetClass.simpleName() {
 #foreach($e in $enum.constants())
     $e.name()##
-#if ($foreach.hasNext),##
-#end##
+    #if ($foreach.hasNext),##
+    #end##
 
 #end
 }

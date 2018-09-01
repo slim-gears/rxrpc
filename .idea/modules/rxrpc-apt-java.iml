@@ -31,10 +31,10 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="rxrpc-apt" />
     <orderEntry type="library" name="Gradle: com.google.auto.service:auto-service:1.0-rc4" level="project" />
-    <orderEntry type="library" name="Gradle: com.github.slim-gears.utils:apt-utils:0.2.2" level="project" />
+    <orderEntry type="library" name="Gradle: com.github.slim-gears.utils:apt-utils:0.2-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Gradle: com.google.auto:auto-common:0.8" level="project" />
     <orderEntry type="library" name="Gradle: com.google.escapevelocity:escapevelocity:0.9" level="project" />
-    <orderEntry type="library" name="Gradle: com.github.slim-gears.utils:guice-utils:0.2.2" level="project" />
+    <orderEntry type="library" name="Gradle: com.github.slim-gears.utils:guice-utils:0.2-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Gradle: com.google.inject.extensions:guice-multibindings:4.2.0" level="project" />
     <orderEntry type="library" name="Gradle: com.google.inject.extensions:guice-assistedinject:4.2.0" level="project" />
     <orderEntry type="library" name="Gradle: com.google.inject:guice:4.2.0" level="project" />
@@ -46,7 +46,7 @@
     <orderEntry type="library" name="Gradle: org.codehaus.mojo:animal-sniffer-annotations:1.14" level="project" />
     <orderEntry type="library" name="Gradle: org.antlr:antlr4:4.7.1" level="project" />
     <orderEntry type="library" name="Gradle: org.antlr:antlr4-runtime:4.7.1" level="project" />
-    <orderEntry type="library" name="Gradle: com.github.slim-gears.utils:stream-utils:0.2.2" level="project" />
+    <orderEntry type="library" name="Gradle: com.github.slim-gears.utils:stream-utils:0.2-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-text:1.4" level="project" />
     <orderEntry type="library" name="Gradle: commons-io:commons-io:2.6" level="project" />
     <orderEntry type="library" name="Gradle: ch.qos.logback:logback-classic:1.2.3" level="project" />
@@ -75,7 +75,7 @@
     <orderEntry type="library" scope="RUNTIME" name="Gradle: com.fasterxml.jackson.core:jackson-core:2.9.6" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.reactivestreams:reactive-streams:1.0.2" level="project" />
     <orderEntry type="module" module-name="rxrpc-core" scope="TEST" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.github.slim-gears.utils:apt-utils:0.2.2:tests" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.github.slim-gears.utils:apt-utils:0.2-SNAPSHOT:tests" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.google.testing.compile:compile-testing:0.15" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.google.truth.extensions:truth-java8-extension:0.37" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.google.truth:truth:0.42" level="project" />

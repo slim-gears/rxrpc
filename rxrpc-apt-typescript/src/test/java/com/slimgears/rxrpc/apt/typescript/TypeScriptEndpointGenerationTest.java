@@ -5,6 +5,7 @@ package com.slimgears.rxrpc.apt.typescript; /**
 import com.slimgears.apt.util.AnnotationProcessingTester;
 import com.slimgears.rxrpc.apt.TestBundles;
 import org.junit.Test;
+import org.slf4j.event.Level;
 
 public class TypeScriptEndpointGenerationTest {
     @Test
@@ -77,7 +78,9 @@ public class TypeScriptEndpointGenerationTest {
     }
 
     private AnnotationProcessingTester typeScriptOptions(AnnotationProcessingTester tester) {
-        return tester.options(
+        return tester
+                //.verbosity(Level.TRACE)
+                .options(
                         "-Arxrpc.ts.ngmodule",
                         "-Arxrpc.ts.npm");
     }

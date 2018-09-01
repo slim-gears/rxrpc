@@ -1,0 +1,7 @@
+#macro (classLiteral $type)##
+    #if ($type.hasTypeParams())##
+        (Class<$[$type]>)(Class)${type.simpleName()}.class##
+    #else##
+        $[$type.asBoxed()].class##
+    #end##
+#end##

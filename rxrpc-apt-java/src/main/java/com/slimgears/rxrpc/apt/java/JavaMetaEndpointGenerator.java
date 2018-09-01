@@ -21,7 +21,7 @@ public class JavaMetaEndpointGenerator implements MetaEndpointGenerator {
         context.log().info("Generating class: {}", metaEndpoint.targetType().fullName());
 
         TemplateEvaluator
-                .forResource("/endpoint-meta.java.vm")
+                .forResource("endpoint-meta.java.vm")
                 .variables(context)
                 .variables(metaEndpoint)
                 .variable("javaUtils", new JavaUtils())

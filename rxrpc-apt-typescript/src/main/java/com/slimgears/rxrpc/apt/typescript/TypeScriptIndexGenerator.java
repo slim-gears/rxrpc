@@ -36,7 +36,7 @@ public class TypeScriptIndexGenerator implements CodeGenerationFinalizer {
         StringBuilder index = new StringBuilder(TypeScriptUtils.generateIndex());
         if (generateNgModule) {
             TemplateEvaluator
-                    .forResource("/typescript-ngmodule.ts.vm")
+                    .forResource("typescript-ngmodule.ts.vm")
                     .variables(context)
                     .variable("classes", TypeScriptUtils.getGeneratedEndpoints())
                     .variable("ngModuleName", context.option(ngModuleNameOption))
@@ -47,7 +47,7 @@ public class TypeScriptIndexGenerator implements CodeGenerationFinalizer {
 
         if (context.hasOption(generateNpmOption)) {
             TemplateEvaluator
-                    .forResource("/package.json.vm")
+                    .forResource("package.json.vm")
                     .variable("generateNgModule", generateNgModule)
                     .variable("npmModuleVersion", context.option(npmVersionOption))
                     .variable("npmModuleDescription", context.option(npmDescriptionOption))
@@ -56,7 +56,7 @@ public class TypeScriptIndexGenerator implements CodeGenerationFinalizer {
                     .variable("ngRxRpcVersion", context.option(ngRxRpcVersionOption))
                     .write(TypeScriptUtils.fileWriter(context.environment(), "package.json"));
             TemplateEvaluator
-                    .forResource("/tsconfig.json.vm")
+                    .forResource("tsconfig.json.vm")
                     .write(TypeScriptUtils.fileWriter(context.environment(), "tsconfig.json"));
         }
 
