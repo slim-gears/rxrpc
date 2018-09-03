@@ -11,7 +11,11 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
 import com.slimgears.apt.data.TypeInfo;
 import com.slimgears.apt.data.TypeParameterInfo;
-import com.slimgears.apt.util.*;
+import com.slimgears.apt.util.ImportTracker;
+import com.slimgears.apt.util.LogUtils;
+import com.slimgears.apt.util.TemplateEvaluator;
+import com.slimgears.apt.util.TypeConverter;
+import com.slimgears.apt.util.TypeConverters;
 import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import com.slimgears.util.stream.Safe;
 import org.slf4j.Logger;
@@ -41,7 +45,7 @@ public class TypeScriptUtils extends TemplateUtils {
     private final static Set<TypeInfo> generatedEndpoints = new TreeSet<>(TypeInfo.comparator);
     private final TypeConverter configuredTypeConverter = TypeConverters.ofMultiple(
             TypeConverters.fromPropertiesResource("/types.properties"),
-            TypeConverters.fromEnvironment("rxrpc.ts.typemaps"));
+            TypeConverters.fromEnvironmentMaps("rxrpc.ts.typemaps"));
     private final TypeConverter typeConverter = TypeConverters.ofMultiple(
             configuredTypeConverter,
             TypeConverters.create(type -> true, TypeScriptUtils::convertRecursively));
