@@ -3,14 +3,12 @@
  */
 package com.slimgears.rxrpc.apt.typescript;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
 import com.slimgears.apt.data.TypeInfo;
-import com.slimgears.apt.data.TypeParameterInfo;
 import com.slimgears.apt.util.ImportTracker;
 import com.slimgears.apt.util.LogUtils;
 import com.slimgears.apt.util.TemplateEvaluator;
@@ -46,9 +44,13 @@ public class TypeScriptUtils extends TemplateUtils {
     private final TypeConverter configuredTypeConverter = TypeConverters.ofMultiple(
             TypeConverters.fromPropertiesResource("/types.properties"),
             TypeConverters.fromEnvironmentMaps("rxrpc.ts.typemaps"));
-    private final TypeConverter typeConverter = TypeConverters.ofMultiple(
-            configuredTypeConverter,
-            TypeConverters.create(type -> true, TypeScriptUtils::convertRecursively));
+    private final TypeConverter typeConverter;
+
+    public TypeScriptUtils(ImportTracker importTracker) {
+        this.typeConverter = toImportTrackedConverter(TypeConverters.ofMultiple(
+                configuredTypeConverter,
+                TypeConverters.create(type -> true, TypeScriptUtils::convertRecursively)), importTracker);
+    }
 
     public static void addGeneratedClass(TypeInfo source, TypeInfo generated) {
         generatedClasses.put(source, generated);
@@ -147,26 +149,6 @@ public class TypeScriptUtils extends TemplateUtils {
         }
     }
 
-    private TypeInfo convertType(TypeInfo type) {
-        return typeConverter.convert(type);
-    }
-
-    private TypeInfo convertArray(TypeInfo arrayType) {
-        Preconditions.checkArgument(arrayType.isArray());
-        return TypeInfo.of(convertType(arrayType.elementTypeOrSelf()).name() + "[]");
-    }
-
-    private TypeInfo convertTypeParams(TypeInfo typeInfo, String newName) {
-        return TypeInfo.builder()
-                .name(newName)
-                .typeParams(typeInfo.typeParams()
-                        .stream()
-                        .map(TypeParameterInfo::type)
-                        .map(this::convertType)
-                        .toArray(TypeInfo[]::new))
-                .build();
-    }
-
     public static String generateIndex() {
         return getGeneratedClasses()
                 .values()
@@ -191,5 +173,23 @@ public class TypeScriptUtils extends TemplateUtils {
                 .map(c -> Iterables.getFirst(c, typeInfo))
                 .orElse(typeInfo)
                 .simpleName();
+    }
+
+    private static TypeConverter toImportTrackedConverter(TypeConverter converter, ImportTracker importTracker) {
+        return new TypeConverter() {
+            @Override
+            public boolean canConvert(TypeInfo typeInfo) {
+                return converter.canConvert(typeInfo);
+            }
+
+            @Override
+            public TypeInfo convert(TypeConverter upstream, TypeInfo typeInfo) {
+                TypeInfo converted = converter.convert(this, typeInfo);
+                if (!converted.name().startsWith("{")) {
+                    importTracker.use(converted);
+                }
+                return converted;
+            }
+        };
     }
 }

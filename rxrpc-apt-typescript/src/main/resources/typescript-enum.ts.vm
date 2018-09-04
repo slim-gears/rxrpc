@@ -3,7 +3,7 @@
  */
 export enum $targetClass.simpleName() {
 #foreach($e in $enum.constants())
-    $e.name()##
+    $e.name() = '$e.name()'##
     #if ($foreach.hasNext),##
     #end##
 

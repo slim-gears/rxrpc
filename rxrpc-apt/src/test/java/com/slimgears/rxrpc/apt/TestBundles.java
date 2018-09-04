@@ -77,4 +77,13 @@ public class TestBundles {
         return rxRpcEndpointProcessingTester()
                 .inputFiles("SampleDefaultNameEndpoint.java");
     }
+
+    public static AnnotationProcessingTester sampleMapEndpointDataTester() {
+        return rxRpcEndpointProcessingTester()
+                .inputFiles(
+                        "SampleEnum.java",
+                        "SampleData.java",
+                        "SampleMapData.java",
+                        "SampleMapEndpoint.java");
+    }
 }

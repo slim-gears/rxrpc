@@ -9,7 +9,6 @@ dependencies {
     implementation libs.jacksonAnnotations
     implementation libs.jacksonDataBind
     implementation libs.guava
-    //implementation libs.slimGearsGuiceUtils"
     implementation libs.slimGearsAptUtils
     testImplementation libs.slimGearsAptTestUtils
 }

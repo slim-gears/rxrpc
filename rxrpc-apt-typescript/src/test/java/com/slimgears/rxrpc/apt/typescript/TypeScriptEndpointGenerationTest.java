@@ -77,9 +77,20 @@ public class TypeScriptEndpointGenerationTest {
                 .test();
     }
 
+    @Test
+    public void testMapDataEndpointGeneration() {
+        TestBundles.sampleMapEndpointDataTester()
+                .apply(this::typeScriptOptions)
+                .expectedFiles(
+                        "sample-map-data.ts",
+                        "sample-map-endpoint.ts",
+                        "sample-map-endpoint-client.ts")
+                .test();
+    }
+
     private AnnotationProcessingTester typeScriptOptions(AnnotationProcessingTester tester) {
         return tester
-                //.verbosity(Level.TRACE)
+                .verbosity(Level.TRACE)
                 .options(
                         "-Arxrpc.ts.ngmodule",
                         "-Arxrpc.ts.npm");

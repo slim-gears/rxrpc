@@ -48,7 +48,7 @@ public class TypeScriptDataClassGenerator implements DataClassGenerator {
                 TypeInfo.of(context.sourceTypeElement()),
                 targetClass);
 
-        TypeScriptUtils typeScriptUtils = new TypeScriptUtils();
+        TypeScriptUtils typeScriptUtils = new TypeScriptUtils(importTracker);
         Collection<TypeInfo> interfaces = Stream.concat(
                 Stream.of(context.sourceTypeElement().getSuperclass()),
                 context.sourceTypeElement().getInterfaces().stream())
