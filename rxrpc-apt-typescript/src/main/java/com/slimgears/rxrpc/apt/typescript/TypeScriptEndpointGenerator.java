@@ -75,7 +75,7 @@ public class TypeScriptEndpointGenerator implements EndpointGenerator {
 
         log.debug("Target file name: {}", filename);
 
-        TypeScriptUtils typeScriptUtils = new TypeScriptUtils(importTracker);
+        TypeScriptUtils typeScriptUtils = TypeScriptUtils.create();
         TemplateEvaluator.forResource(templateName)
                 .variable("targetClass", targetClass)
                 .variable("generateNgModule", context.hasOption(generateNgModuleOption))

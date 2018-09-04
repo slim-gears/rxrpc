@@ -46,10 +46,14 @@ public class TypeScriptUtils extends TemplateUtils {
             TypeConverters.fromEnvironmentMaps("rxrpc.ts.typemaps"));
     private final TypeConverter typeConverter;
 
-    public TypeScriptUtils(ImportTracker importTracker) {
-        this.typeConverter = toImportTrackedConverter(TypeConverters.ofMultiple(
+    private TypeScriptUtils() {
+        this.typeConverter =TypeConverters.ofMultiple(
                 configuredTypeConverter,
-                TypeConverters.create(type -> true, TypeScriptUtils::convertRecursively)), importTracker);
+                TypeConverters.create(type -> true, TypeScriptUtils::convertRecursively));
+    }
+
+    public static TypeScriptUtils create() {
+        return new TypeScriptUtils();
     }
 
     public static void addGeneratedClass(TypeInfo source, TypeInfo generated) {
