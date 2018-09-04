@@ -1,5 +1,5 @@
 import { SampleData } from './index';
-import { StringKeyMap } from 'rxrpc';
+import { StringKeyMap } from 'ng-rxrpc';
 
 /**
  * Generated from com.slimgears.rxrpc.sample.SampleRequest

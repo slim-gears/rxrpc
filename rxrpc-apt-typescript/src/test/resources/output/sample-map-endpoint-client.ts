@@ -1,8 +1,7 @@
 import { SampleMapData, SampleMapEndpoint } from './index';
 import { Injectable } from '@angular/core';
-import { RxRpcClient } from 'ng-rxrpc';
+import { RxRpcClient, StringKeyMap } from 'ng-rxrpc';
 import { Observable } from 'rxjs';
-import { StringKeyMap } from 'rxrpc';
 
 /**
  * Generated from com.slimgears.rxrpc.sample.SampleMapEndpoint
