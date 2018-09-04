@@ -109,6 +109,7 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
                 .sourceTypeElement(typeElement)
                 .environment(processingEnv)
                 .endpointName(getEndpointName(typeElement))
+                .moduleName(getModuleName(typeElement))
                 .addMethods(methods)
                 .build();
     }
@@ -119,6 +120,14 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
                 .map(RxRpcEndpoint::value)
                 .filter(n -> !n.isEmpty())
                 .orElseGet(() -> endpointNameFromClass(typeElement));
+    }
+
+    private String getModuleName(TypeElement typeElement) {
+        return Optional
+                .ofNullable(typeElement.getAnnotation(RxRpcEndpoint.class))
+                .map(RxRpcEndpoint::module)
+                .filter(n -> !n.isEmpty())
+                .orElse(null);
     }
 
     private String endpointNameFromClass(TypeElement typeElement) {

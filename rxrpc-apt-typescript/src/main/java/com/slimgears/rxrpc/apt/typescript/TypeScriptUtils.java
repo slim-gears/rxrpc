@@ -3,11 +3,6 @@
  */
 package com.slimgears.rxrpc.apt.typescript;
 
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.TreeMultimap;
 import com.slimgears.apt.data.TypeInfo;
 import com.slimgears.apt.util.ImportTracker;
 import com.slimgears.apt.util.LogUtils;
@@ -28,9 +23,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Paths;
 import java.util.Optional;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -39,8 +32,6 @@ import java.util.stream.Stream;
 public class TypeScriptUtils extends TemplateUtils {
     private final static Logger log = LoggerFactory.getLogger(TypeScriptUtils.class);
 
-    private final static Multimap<TypeInfo, TypeInfo> generatedClasses = TreeMultimap.create(TypeInfo.comparator, TypeInfo.comparator);
-    private final static Set<TypeInfo> generatedEndpoints = new TreeSet<>(TypeInfo.comparator);
     private final TypeConverter configuredTypeConverter = TypeConverters.ofMultiple(
             TypeConverters.fromPropertiesResource("/types.properties"),
             TypeConverters.fromEnvironmentMaps("rxrpc.ts.typemaps"));
@@ -54,22 +45,6 @@ public class TypeScriptUtils extends TemplateUtils {
 
     public static TypeScriptUtils create() {
         return new TypeScriptUtils();
-    }
-
-    public static void addGeneratedClass(TypeInfo source, TypeInfo generated) {
-        generatedClasses.put(source, generated);
-    }
-
-    public static void addGeneratedEndpoint(TypeInfo generated) {
-        generatedEndpoints.add(generated);
-    }
-
-    public static ImmutableMultimap<TypeInfo, TypeInfo> getGeneratedClasses() {
-        return ImmutableMultimap.copyOf(generatedClasses);
-    }
-
-    public static ImmutableSet<TypeInfo> getGeneratedEndpoints() {
-        return ImmutableSet.copyOf(generatedEndpoints);
     }
 
     public boolean isSupportedType(Class cls) {
@@ -88,10 +63,6 @@ public class TypeScriptUtils extends TemplateUtils {
         return content -> {
             writeFile(environment, filename, content.trim() + "\n");
         };
-    }
-
-    public static void writeIndex(ProcessingEnvironment environment) {
-        writeFile(environment, "index.ts", generateIndex());
     }
 
     public Function<TemplateEvaluator, TemplateEvaluator> imports(ImportTracker importTracker) {
@@ -153,14 +124,6 @@ public class TypeScriptUtils extends TemplateUtils {
         }
     }
 
-    public static String generateIndex() {
-        return getGeneratedClasses()
-                .values()
-                .stream()
-                .map(type -> "export * from './" + TemplateUtils.camelCaseToDash(type.simpleName()) + "';")
-                .collect(Collectors.joining("\n"));
-    }
-
     private static TypeInfo convertRecursively(TypeConverter typeConverter, TypeInfo typeInfo) {
         if (typeInfo.typeParams().isEmpty()) {
             return TypeInfo.of(toSimpleName(typeInfo));
@@ -172,28 +135,9 @@ public class TypeScriptUtils extends TemplateUtils {
     }
 
     private static String toSimpleName(TypeInfo typeInfo) {
-        return Optional
-                .ofNullable(generatedClasses.get(typeInfo))
-                .map(c -> Iterables.getFirst(c, typeInfo))
-                .orElse(typeInfo)
+        return GeneratedClassTracker
+                .current()
+                .resolveGeneratedClass(typeInfo)
                 .simpleName();
-    }
-
-    private static TypeConverter toImportTrackedConverter(TypeConverter converter, ImportTracker importTracker) {
-        return new TypeConverter() {
-            @Override
-            public boolean canConvert(TypeInfo typeInfo) {
-                return converter.canConvert(typeInfo);
-            }
-
-            @Override
-            public TypeInfo convert(TypeConverter upstream, TypeInfo typeInfo) {
-                TypeInfo converted = converter.convert(this, typeInfo);
-                if (!converted.name().startsWith("{")) {
-                    importTracker.use(converted);
-                }
-                return converted;
-            }
-        };
     }
 }

@@ -4,10 +4,24 @@ package com.slimgears.rxrpc.apt.typescript; /**
 
 import com.slimgears.apt.util.AnnotationProcessingTester;
 import com.slimgears.rxrpc.apt.TestBundles;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.event.Level;
 
 public class TypeScriptEndpointGenerationTest {
+    private GeneratedClassTracker.Disposable classTrackerDisposable;
+
+    @Before
+    public void setUp() {
+        classTrackerDisposable = GeneratedClassTracker.trackFiles();
+    }
+
+    @After
+    public void tearDown() {
+        classTrackerDisposable.close();
+    }
+
     @Test
     public void testEndpointClientGeneration() {
         TestBundles.sampleEndpointTester()
@@ -21,8 +35,8 @@ public class TypeScriptEndpointGenerationTest {
                         "sample-data.ts",
                         "sample-enum.ts",
                         "sample-array.ts",
-//                        "index.ts",
-//                        "module.ts",
+                        "index.ts",
+                        "module.ts",
                         "tsconfig.json")
                 .test();
     }
@@ -85,6 +99,14 @@ public class TypeScriptEndpointGenerationTest {
                         "sample-map-data.ts",
                         "sample-map-endpoint.ts",
                         "sample-map-endpoint-client.ts")
+                .test();
+    }
+
+    @Test
+    public void testEndpointPointModuleGeneration() {
+        TestBundles.sampleEndpointModuleTester()
+                .apply(this::typeScriptOptions)
+                .expectedFiles("sample-module.ts")
                 .test();
     }
 

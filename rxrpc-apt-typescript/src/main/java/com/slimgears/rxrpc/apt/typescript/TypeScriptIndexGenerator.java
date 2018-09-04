@@ -33,16 +33,12 @@ public class TypeScriptIndexGenerator implements CodeGenerationFinalizer {
     @Override
     public void generate(Context context) {
         boolean generateNgModule = context.hasOption(generateNgModuleOption);
-        StringBuilder index = new StringBuilder(TypeScriptUtils.generateIndex());
         if (generateNgModule) {
-            TemplateEvaluator
-                    .forResource("typescript-ngmodule.ts.vm")
-                    .variables(context)
-                    .variable("classes", TypeScriptUtils.getGeneratedEndpoints())
-                    .variable("ngModuleName", context.option(ngModuleNameOption))
-                    .write(TypeScriptUtils.fileWriter(context.environment(), "module.ts"));
-            index.append("\n");
-            index.append("export * from './module';\n");
+            NgModuleGenerator
+                    .create(context)
+                    .name(context.option(ngModuleNameOption))
+                    .addEndpoints(GeneratedClassTracker.current().generatedEndpoints())
+                    .write();
         }
 
         if (context.hasOption(generateNpmOption)) {
@@ -60,6 +56,6 @@ public class TypeScriptIndexGenerator implements CodeGenerationFinalizer {
                     .write(TypeScriptUtils.fileWriter(context.environment(), "tsconfig.json"));
         }
 
-        TypeScriptUtils.writeFile(context.environment(), "index.ts", index.toString());
+        TypeScriptUtils.writeFile(context.environment(), "index.ts", GeneratedClassTracker.current().generateIndex());
     }
 }

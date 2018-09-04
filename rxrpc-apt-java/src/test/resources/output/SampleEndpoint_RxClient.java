@@ -8,6 +8,9 @@ import java.lang.String;
 import java.util.concurrent.Future;
 import javax.annotation.Generated;
 
+/**
+ * Generated from com.slimgears.rxrpc.sample.SampleEndpoint
+ */
 @Generated("com.slimgears.rxrpc.apt.RxRpcEndpointAnnotationProcessor")
 public class SampleEndpoint_RxClient extends AbstractClient implements SampleEndpoint {
     public SampleEndpoint_RxClient(Session session) {
@@ -18,7 +21,7 @@ public class SampleEndpoint_RxClient extends AbstractClient implements SampleEnd
     public Future<String> futureStringMethod(String msg, SampleRequest request) {
         return invokeFuture(
                 String.class,
-                "sampleEndpoint/futureStringMethod",
+                "sample-endpoint/futureStringMethod",
                 arguments()
                         .put("msg", msg)
                         .put("request", request));
@@ -28,7 +31,7 @@ public class SampleEndpoint_RxClient extends AbstractClient implements SampleEnd
     public Observable<SampleData> observableDataMethod(SampleRequest request) {
         return invokeObservable(
                 SampleData.class,
-                "sampleEndpoint/observableDataMethod",
+                "sample-endpoint/observableDataMethod",
                 arguments()
                         .put("request", request));
     }
@@ -37,7 +40,7 @@ public class SampleEndpoint_RxClient extends AbstractClient implements SampleEnd
     public int intMethod(SampleRequest request) {
         return invokeBlocking(
                 Integer.class,
-                "sampleEndpoint/intMethod",
+                "sample-endpoint/intMethod",
                 arguments()
                         .put("request", request));
     }
@@ -46,8 +49,9 @@ public class SampleEndpoint_RxClient extends AbstractClient implements SampleEnd
     public Observable<SampleArray[]> arrayObservableMethod(SampleData sampleData) {
         return invokeObservable(
                 SampleArray[].class,
-                "sampleEndpoint/arrayObservableMethod",
+                "sample-endpoint/arrayObservableMethod",
                 arguments()
                         .put("sampleData", sampleData));
     }
+
 }

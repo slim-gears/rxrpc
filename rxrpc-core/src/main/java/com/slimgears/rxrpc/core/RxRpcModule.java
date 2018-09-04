@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
-public @interface RxRpcEndpoint {
-    String value() default "";
-    String module() default "";
+public @interface RxRpcModule {
+    String name();
+    Class endpointClass();
 }

@@ -4,17 +4,33 @@ import com.slimgears.rxrpc.core.ServiceResolver;
 import com.slimgears.rxrpc.server.internal.CompositeEndpointDispatcher;
 import com.slimgears.rxrpc.server.internal.InvocationArguments;
 import com.slimgears.rxrpc.server.internal.MethodDispatcher;
+import com.slimgears.util.stream.Safe;
+import com.slimgears.util.stream.Streams;
 import org.reactivestreams.Publisher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
+
+import static com.slimgears.util.stream.Streams.ofType;
 
 public class EndpointDispatchers {
+    private final static Logger log = LoggerFactory.getLogger(EndpointDispatchers.class);
     public final static EndpointDispatcher EMPTY = (path, args) -> { throw new NoSuchMethodError(path); };
+    public final static EndpointDispatcher.Module EMPTY_MODULE = config -> {};
 
     public static <T> Builder<T> builder(Class<T> cls) {
         return Builder.create(cls);
@@ -24,8 +40,40 @@ public class EndpointDispatchers {
         return config -> Arrays.asList(modules).forEach(m -> m.configure(config));
     }
 
+    public static EndpointDispatcher.Module moduleByName(String moduleName) {
+        ClassLoader classLoader = EndpointDispatchers.class.getClassLoader();
+        String resourcePath = "META-INF/rxrpc-modules/" + moduleName;
+        try {
+            EndpointDispatcher.Module[] modules = Streams.fromEnumeration(classLoader.getResources(resourcePath))
+                    .flatMap(EndpointDispatchers::readClassNames)
+                    .map(Safe.ofFunction(Class::forName))
+                    .map(Safe.ofFunction(Class::newInstance))
+                    .flatMap(ofType(EndpointDispatcher.Module.class))
+                    .toArray(EndpointDispatcher.Module[]::new);
+            return modules(modules);
+        } catch (IOException e) {
+            log.warn("Could not read modules from {}: {}", resourcePath, e);
+            return EMPTY_MODULE;
+        }
+    }
+
+    private static Stream<String> readClassNames(URL url) {
+        try {
+            InputStream stream = url.openStream();
+            Reader reader = new InputStreamReader(stream);
+            BufferedReader bufferedReader = new BufferedReader(reader);
+            return Streams
+                    .takeWhile(Stream.generate(Safe.ofSupplier(bufferedReader::readLine)), Objects::nonNull)
+                    .onClose(Safe.ofRunnable(stream::close));
+        } catch (IOException e) {
+            return Stream.empty();
+        }
+    }
+
     public static EndpointDispatcher.Module discover() {
-        ServiceLoader<EndpointDispatcher.Module> serviceLoader = ServiceLoader.load(EndpointDispatcher.Module.class);
+        ServiceLoader<EndpointDispatcher.Module> serviceLoader = ServiceLoader.load(
+                EndpointDispatcher.Module.class, EndpointDispatchers.class.getClassLoader());
+
         return config -> serviceLoader.forEach(module -> module.configure(config));
     }
 

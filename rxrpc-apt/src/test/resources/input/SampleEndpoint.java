@@ -6,7 +6,7 @@ import io.reactivex.Observable;
 
 import java.util.concurrent.Future;
 
-@RxRpcEndpoint("sampleEndpoint")
+@RxRpcEndpoint(module = "test")
 public interface SampleEndpoint extends SampleBaseEndpoint, SampleArrayEndpoint {
     @RxRpcMethod
     public Future<String> futureStringMethod(String msg, SampleRequest request);

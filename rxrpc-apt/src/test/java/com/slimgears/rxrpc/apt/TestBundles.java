@@ -86,4 +86,10 @@ public class TestBundles {
                         "SampleMapData.java",
                         "SampleMapEndpoint.java");
     }
+
+    public static AnnotationProcessingTester sampleEndpointModuleTester() {
+        return sampleEndpointTester()
+                .inputFiles("SampleEndpointModule.java")
+                .processedWith(new RxRpcModuleAnnotationProcessor());
+    }
 }

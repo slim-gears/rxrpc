@@ -1,6 +1,7 @@
 package com.slimgears.rxrpc.sample;
 
 import com.google.auto.service.AutoService;
+import com.slimgears.rxrpc.core.RxRpcModule;
 import com.slimgears.rxrpc.server.EndpointDispatcher.Configuration;
 import com.slimgears.rxrpc.server.EndpointDispatcher.Factory;
 import com.slimgears.rxrpc.server.EndpointDispatcher.Module;
@@ -11,7 +12,11 @@ import java.lang.Integer;
 import java.lang.String;
 import javax.annotation.Generated;
 
+/**
+ * Generated from com.slimgears.rxrpc.sample.SampleEndpoint
+ */
 @Generated("com.slimgears.rxrpc.apt.RxRpcEndpointAnnotationProcessor")
+@RxRpcModule(name = "test", endpointClass = SampleEndpoint.class)
 @AutoService(Module.class)
 public class SampleEndpoint_RxModule implements Module {
     private final static MethodDispatcher<SampleEndpoint, String> futureStringMethod = (target, args) ->
@@ -31,7 +36,6 @@ public class SampleEndpoint_RxModule implements Module {
             Publishers.toPublisher(target.arrayObservableMethod(
                     args.get("sampleData", SampleData.class)));
 
-
     private final static Factory dispatcherFactory = EndpointDispatchers
             .builder(SampleEndpoint.class)
             .method("futureStringMethod", futureStringMethod)
@@ -42,6 +46,6 @@ public class SampleEndpoint_RxModule implements Module {
 
     @Override
     public void configure(Configuration configuration) {
-        configuration.addFactory("sampleEndpoint", dispatcherFactory);
+        configuration.addFactory("sample-endpoint", dispatcherFactory);
     }
 }

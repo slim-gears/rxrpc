@@ -2,7 +2,7 @@ apply from: "$scriptsDir/java.gradle"
 
 tasks.withType(JavaCompile) {
     options.compilerArgs = [
-            //"-Averbosity=ALL",
+            "-Averbosity=ALL",
             "-Arxrpc.java.client",
             "-Arxrpc.java.server",
             "-Arxrpc.java.autoservice"]

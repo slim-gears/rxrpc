@@ -52,7 +52,7 @@ public class TypeScriptEndpointGenerator implements EndpointGenerator {
                     }
                 },
                 "typescript-client-class.ts.vm");
-        TypeScriptUtils.addGeneratedEndpoint(targetClass);
+        GeneratedClassTracker.current().addEndpoint(targetClass);
     }
 
     private void generateCode(Context context,
@@ -85,7 +85,7 @@ public class TypeScriptEndpointGenerator implements EndpointGenerator {
                 .apply(typeScriptUtils.imports(importTracker))
                 .write(TypeScriptUtils.fileWriter(context.environment(), filename));
 
-        TypeScriptUtils.addGeneratedClass(
+        GeneratedClassTracker.current().addClass(
                 TypeInfo.of(context.sourceTypeElement()),
                 targetClass);
     }

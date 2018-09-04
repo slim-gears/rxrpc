@@ -44,7 +44,7 @@ public class TypeScriptDataClassGenerator implements DataClassGenerator {
         String filename = TemplateUtils.camelCaseToDash(targetClass.name()) + ".ts";
         log.debug("Target file name: {}", filename);
 
-        TypeScriptUtils.addGeneratedClass(
+        GeneratedClassTracker.current().addClass(
                 TypeInfo.of(context.sourceTypeElement()),
                 targetClass);
 

@@ -90,9 +90,17 @@ public class JavaEndpointGenerationTest {
                 .test();
     }
 
+    @Test
+    public void testEndpointModule() {
+        TestBundles.sampleEndpointModuleTester()
+                .apply(this::javaOptions)
+                .expectedFiles("test-rxrpc-module.txt")
+                .test();
+    }
+
     private AnnotationProcessingTester javaOptions(AnnotationProcessingTester tester) {
         return tester
-                //.verbosity(Level.TRACE)
+                .verbosity(Level.TRACE)
                 .options(
                         "-Arxrpc.java.client",
                         "-Arxrpc.java.server");

@@ -21,9 +21,6 @@ $imports
     #foreach($p in $method.params())##
 
                 .put("$p.name()", $p.name())##
-        #if ($foreach.hasNext)
-
-        #end##
     #end)##
 #end##
 
@@ -44,7 +41,7 @@ public class $simpleClassName extends $[com.slimgears.rxrpc.client.AbstractClien
 #foreach ($m in $methods)##
     #set ($returnType = $m.returnType())##
     #set ($elementType = $imports.use($returnType.elementTypeOrSelf()))##
-    #if($isInterface)##
+    #if ($isInterface)##
 
     @Override
 ##

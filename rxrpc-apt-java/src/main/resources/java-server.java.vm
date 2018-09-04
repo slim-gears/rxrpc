@@ -11,6 +11,9 @@ $imports
  * Generated from $sourceClass.name()
  */
 @$[javax.annotation.Generated]("$processorClass.name()")
+#if ($hasModuleName)
+@$[com.slimgears.rxrpc.core.RxRpcModule](name = "$moduleName", endpointClass = #classLiteral($sourceClass))
+#end
 #if ($autoService)##
 @$[com.google.auto.service.AutoService]($[com.slimgears.rxrpc.server.EndpointDispatcher.Module].class)
 #end
@@ -24,9 +27,7 @@ public class $simpleClassName implements $[com.slimgears.rxrpc.server.EndpointDi
     #foreach ($p in $m.params())##
 
             args.get("$p.name()", #classLiteral($p.type()))##
-        #if ($foreach.hasNext),
-
-        #end##
+        #if ($foreach.hasNext),#end##
     #end));
 
 #end

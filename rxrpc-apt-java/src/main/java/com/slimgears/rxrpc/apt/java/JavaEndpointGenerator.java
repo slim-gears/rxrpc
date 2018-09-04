@@ -43,6 +43,7 @@ public class JavaEndpointGenerator implements EndpointGenerator {
         TemplateEvaluator
                 .forResource(templatePath)
                 .variables(context)
+                .variable("hasModuleName", context.moduleName() != null)
                 .variable("isInterface", context.sourceTypeElement().getKind() == ElementKind.INTERFACE)
                 .variable("javaUtils", new JavaUtils())
                 .variable("autoService", context.hasOption(useAutoServiceOption))

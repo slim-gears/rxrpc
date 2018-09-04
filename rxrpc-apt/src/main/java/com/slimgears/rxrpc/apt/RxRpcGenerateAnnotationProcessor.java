@@ -29,11 +29,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 @AutoService(Processor.class)
 @SupportedAnnotationTypes("com.slimgears.rxrpc.core.RxRpcGenerate")
 public class RxRpcGenerateAnnotationProcessor extends AbstractAnnotationProcessor {
-    private final Collection<MetaEndpointGenerator> metaEndpointGenerators;
-
-    public RxRpcGenerateAnnotationProcessor() {
-        metaEndpointGenerators = ServiceProviders.loadServices(MetaEndpointGenerator.class);
-    }
+    private final Collection<MetaEndpointGenerator> metaEndpointGenerators =
+            ServiceProviders.loadServices(MetaEndpointGenerator.class);
 
     protected boolean processType(TypeElement annotationType, TypeElement typeElement) {
         log.info("Processing type: {} ({} generators)", typeElement.getQualifiedName(), metaEndpointGenerators.size());
