@@ -1,6 +1,6 @@
 import { SampleMapData } from './index';
 import { Observable } from 'rxjs';
-import { StringKeyMap } from 'rxrpc-types';
+import { StringKeyMap } from 'rxrpc';
 
 /**
  * Generated from com.slimgears.rxrpc.sample.SampleMapEndpoint

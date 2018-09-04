@@ -1,5 +1,5 @@
 import { SampleData } from './index';
-import { StringKeyMap } from 'rxrpc-types';
+import { StringKeyMap } from 'rxrpc';
 
 /**
  * Generated from com.slimgears.rxrpc.sample.SampleMapData
