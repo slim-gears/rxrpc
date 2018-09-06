@@ -1,0 +1,20 @@
+@startuml
+
+!includeurl "https://raw.githubusercontent.com/slim-gears/rxrpc/dev/uml/skin.puml"
+
+box "Client" #ffe8c0
+	participant UserComponent
+	participant SayHelloEndpointClient
+	participant RxClient
+	participant ResponseSubject
+end box
+
+participant RxTransport
+
+box "Server" #e8ffc0
+    participant RxServer
+    participant SayHelloEndpointRouter
+    participant SayHelloEndpoint
+end box
+
+@enduml

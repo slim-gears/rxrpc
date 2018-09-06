@@ -29,61 +29,24 @@ Each *RPC* method is annotated with `@RxRpcMethod`
 Following return types are allowed:
 
 - Asynchronous types
-  - `Future<T>`
   - `Observable<T>`
   - `Single<T>`
   - `Maybe<T>`
   - `Completable`
+  - `Publisher<T>`
+  - `Future<T>`
 - Any other type will be handled as synchronous (from server side) invocation 
  
 ```java
-@RxRpcEndpoint("sampleEndpoint")
-public class SampleEndpoint {
+@RxRpcEndpoint
+public interface SayHelloEndpoint {
     @RxRpcMethod
-    public Future<String> futureStringMethod(String msg, SampleRequest request) {
-        return ImmediateFuture.of(
-                "Server received from client: " + msg + " (id: " + request.id + ", name: " + request.name + ")");
-    }
-
-    @RxRpcMethod
-    public int blockingMethod(SampleRequest request) {
-        return request.id + 1;
-    }
-
-    @RxRpcMethod
-    public Observable<SampleNotification> observableMethod(SampleRequest request) {
-        return Observable
-                .interval(0, 100, TimeUnit.MILLISECONDS)
-                .take(request.id)
-                .map(i -> new SampleNotification(request.name + " " + i, i));
-    }
+    Observable<String> sayHello(String name);
 }
-```
 
-*POJO* classes can be used either as arguments or return values  
-
-```java
-public class SampleRequest {
-    @JsonProperty public final int id;
-    @JsonProperty public final String name;
-
-    @JsonCreator
-    public SampleRequest(@JsonProperty("id") int id, @JsonProperty("name") String name) {
-        this.id = id;
-        this.name = name;
-    }
-}
-```
-
-```java
-public class SampleNotification {
-    @JsonProperty public final String data;
-    @JsonProperty public final long sequenceNum;
-
-    @JsonCreator
-    public SampleNotification(@JsonProperty("data") String data, @JsonProperty("sequenceNum") long sequenceNum) {
-        this.data = data;
-        this.sequenceNum = sequenceNum;
+public class SayHelloEndpointImpl implements SayHelloEndpoint {
+    public Observable<String> sayHello(String name) {
+        Observable.just("Hello, " + name).delay(2, TimeUnit.SECONDS);
     }
 }
 ```
@@ -93,20 +56,17 @@ Jetty-based embedded server example:
 ```java
 public class SampleServer {
     private final Server jetty;
-    private final JettyWebSocketRxTransport.Server transportServer = JettyWebSocketRxTransport
-            .builder()
-            .buildServer();
-    
+    private final JettyWebSocketRxTransport.Server transportServer = JettyWebSocketRxTransport.builder().buildServer();
     private final RxServer rxServer;
 
     public SampleServer(int port) {
         this.jetty = createJetty(port);
         this.rxServer = RxServer.configBuilder()
                 .server(transportServer) // Use jetty WebSocket-servlet based transport
-                .discoverModules() // Discover auto-generated endpoint modules
-                .resolver(EndpointResolvers // dependency injection framework of your choice 
-                        .builder()          // can be used here
-                        .bind(SampleEndpoint.class).to(SampleEndpointImpl.class)
+                .discoverModules()       // Discover auto-generated endpoint modules
+                .resolver(ServiceResolvers
+                        .builder()
+                        .bind(SayHelloEndpoint.class).to(SayHelloEndpointImpl.class)
                         .build())
                 .createServer();
     }
@@ -142,21 +102,14 @@ public class SampleServer {
 #### Java client
 
 ```java
-RxClient rxClient = RxClient.forClient(JettyWebSocketRxTransport
-        .builder()
-        .buildClient());
-
-SampleEndpoint_RxClient sampleEndpointClient = rxClient
-        .connect(uri)
-        .resolve(SampleEndpoint_RxClient.class);
-
-sampleEndpointClient
-        .observableMethod(new SampleRequest(5, "Test"))
-        .map(n -> n.data)
-        .test()
-        .awaitDone(1000, TimeUnit.MILLISECONDS)
-        .assertComplete()
-        .assertValueCount(5);
+    RxClient rxClient = RxClient.forClient(JettyWebSocketRxTransport.builder().buildClient());
+    SayHelloEndpoint sayHelloClient = rxClient.connect(uri).resolve(SayHelloEndpoint_RxClient.class);
+    sayHelloClient
+            .sayHello("Alice")
+            .test()
+            .awaitDone(1000, TimeUnit.MILLISECONDS)
+            .assertValueCount(1)
+            .assertValue("Hello, Alice");
 ```
 
 #### Component diagram

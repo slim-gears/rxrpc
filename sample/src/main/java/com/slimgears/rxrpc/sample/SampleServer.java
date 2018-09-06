@@ -17,10 +17,13 @@ public class SampleServer {
         this.jetty = createJetty(port);
         this.rxServer = RxServer.configBuilder()
                 .server(transportServer) // Use jetty WebSocket-servlet based transport
-                .modules(EndpointDispatchers.moduleByName("sampleModule"))
+                .modules(
+                        EndpointDispatchers.moduleByName("sampleModule"),
+                        new SayHelloEndpoint_RxModule())
                 .resolver(ServiceResolvers
                         .builder()
                         .bind(SampleEndpoint.class).to(SampleEndpointImpl.class)
+                        .bind(SayHelloEndpoint.class).to(SayHelloEndpointImpl.class)
                         .build())
                 .createServer();
     }

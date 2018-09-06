@@ -1,0 +1,24 @@
+@startuml
+
+!includeurl "https://raw.githubusercontent.com/slim-gears/rxrpc/dev/uml/flow-lifelines.puml"
+
+RxClient -> RxTransport: send(msg)
+
+note left
+**msg** = {
+    **subscriptionId**: 1,
+    **path**: "SayHelloEndpointClient/sayHello",
+    **args**: {name: "Alice"}
+}
+end note
+
+RxTransport -> RxServer: onMessage(msg)
+RxServer -> SayHelloEndpointRouter: dispatch(invocation)
+SayHelloEndpointRouter -> SayHelloEndpoint: **sayHello("Alice")**
+SayHelloEndpointRouter <-- SayHelloEndpoint: Observable<String>
+RxServer <-- SayHelloEndpointRouter: Observable<String>
+RxServer -> RxServer: Observable.subscribe()
+
+...
+
+@enduml

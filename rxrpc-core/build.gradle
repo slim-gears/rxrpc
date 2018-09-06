@@ -15,6 +15,7 @@ dependencies {
     compileOnly libs.autoService
     annotationProcessor libs.autoService
     implementation libs.slimGearsStreamUtils
+    compileOnly libs.slimGearsGenericUtilsAnnotations
     testImplementation libs.logbackClassic
     testImplementation libs.logbackCore
 }

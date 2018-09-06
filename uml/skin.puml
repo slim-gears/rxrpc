@@ -1,0 +1,56 @@
+@startuml
+
+skinparam sequenceArrowThickness 1
+skinparam classAttributeIconSize 12
+skinparam roundcorner 6
+skinparam maxmessagesize 60
+skinparam sequenceParticipant underline
+skinparam backgroundColor White
+skinparam textColor Black
+skinparam shadowing true
+skinparam class {
+	backgroundColor<<class>> LightBlue
+	backgroundColor<<interface>> LightGreen
+	backgroundColor<<generated>> LightCyan
+	arrowColor Gray
+	borderColor Black
+}
+
+skinparam note {
+    borderColor Gray
+    backgroundColor #ffff80
+}
+
+skinparam interface {
+  backgroundColor LightGreen
+  borderColor Black
+}
+
+skinparam component {
+  borderColor Black
+  backgroundColor LightYellow
+  arrowColor Gray
+}
+
+/'
+skinparam rectangle {
+  borderStyle Dotted
+}
+'/
+
+skinparam stereotypeCBackgroundColor DodgerBlue
+skinparam stereotypeIBackgroundColor Lime
+skinparam stereotypeABackgroundColor Cyan
+
+
+skinparam sequence {
+    lifeLineBorderColor Gray
+    lifeLineBackgroundColor #A9DCDF
+
+    participantBorderColor LightBlue
+    participantBackgroundColor LightBlue
+    boxBorderColor Gray
+}
+
+
+@enduml

@@ -1,0 +1,35 @@
+
+@startuml
+
+!includeurl "https://raw.githubusercontent.com/slim-gears/rxrpc/dev/uml/skin.puml"
+
+interface EndpointRouter {
+}
+
+interface RxTransport {
+    +outgoing: Emitter<String>
+    +incoming: Observable<String>
+}
+
+class CustomEndpoint1
+class CustomEndpoint1Router
+class CompositeEndpointRouter
+class WebSocketRxTransport
+class RestRxTransport
+
+EndpointRouter <|.. CompositeEndpointRouter: <<implements>>
+CompositeEndpointRouter "1" *-- "*" EndpointRouter: <<contains>>
+
+EndpointRouter <|.. CustomEndpoint1Router: <<implements>>
+CustomEndpoint1Router --> CustomEndpoint1: <<uses>>
+
+EndpointRouter <|.. CustomEndpoint2Router: <<implements>>
+CustomEndpoint2Router --> CustomEndpoint2: <<uses>>
+
+RxServer *- EndpointRouter
+RxServer *-- RxTransport
+
+RxTransport <|.. WebSocketRxTransport: <<implements>>
+RxTransport <|.. RestRxTransport: <<implements>>
+
+@enduml

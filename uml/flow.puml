@@ -1,0 +1,25 @@
+
+@startuml
+
+!includeurl "https://raw.githubusercontent.com/slim-gears/rxrpc/dev/uml/flow-lifelines.puml"
+
+...
+
+SayHelloEndpoint -> RxServer: Observer.onNext("Hello, Alice")
+RxTransport <- RxServer: send(msg)
+
+note right
+**msg** = {
+    **subscriptionId**: 1,
+    **type**: Data,
+    **data**: "Hello, Alice"
+}
+end note
+
+RxClient <- RxTransport: onMessage(msg)
+RxClient -> RxClient: findSubject(subscriptionId=1)
+
+RxClient -> ResponseSubject: onNext("Hello, Alice")
+UserComponent <- ResponseSubject: onNext("Hello, Alice")
+
+@enduml
