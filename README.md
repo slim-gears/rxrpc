@@ -56,7 +56,10 @@ Jetty-based embedded server example:
 ```java
 public class SampleServer {
     private final Server jetty;
-    private final JettyWebSocketRxTransport.Server transportServer = JettyWebSocketRxTransport.builder().buildServer();
+    private final JettyWebSocketRxTransport.Server transportServer = JettyWebSocketRxTransport
+            .builder()
+            .buildServer();
+            
     private final RxServer rxServer;
 
     public SampleServer(int port) {
@@ -114,4 +117,4 @@ public class SampleServer {
 
 #### Component diagram
 
-![Diagram](http://www.plantuml.com/plantuml/png/3OpB3G8n30NlgG8A8BvpsbP2Okr6SXpB7vRoyUdfQKPpc3VrM5IUapl5m51wNEvYRm1jTpsdN_49G-sR7TbhtmkCvdgTsDH0VoeT1duXCv1GDgTcLVAN0tda_W40)
+![Diagram](http://www.plantuml.com/plantuml/png/3Op13G8n30J_LmKKGFpdTQsOd9MBb3ZHsXQKZr-hrOpcD6Tup74ykzOHbmJ6utRVzYO2VqlhViSdJ52NkgYNkYRPwFFLX6647tQboUO2oX8btqlJjBBp7wVebVi7)
