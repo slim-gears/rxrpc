@@ -32,7 +32,7 @@ public class SampleServerTest {
             sayHelloClient
                     .sayHello("Alice")
                     .test()
-                    .awaitDone(1000, TimeUnit.MILLISECONDS)
+                    .awaitDone(5000, TimeUnit.MILLISECONDS)
                     .assertValueCount(1)
                     .assertValue("Hello, Alice");
         } finally {
@@ -57,7 +57,7 @@ public class SampleServerTest {
                     .observableMethod(new SampleRequest(5, "Test"))
                     .map(n -> n.data)
                     .test()
-                    .awaitDone(1000, TimeUnit.MILLISECONDS)
+                    .awaitDone(5000, TimeUnit.MILLISECONDS)
                     .assertComplete()
                     .assertValueCount(5);
         } finally {

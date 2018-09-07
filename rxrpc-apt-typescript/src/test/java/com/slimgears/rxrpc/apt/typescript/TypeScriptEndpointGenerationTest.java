@@ -7,7 +7,6 @@ import com.slimgears.rxrpc.apt.TestBundles;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.event.Level;
 
 public class TypeScriptEndpointGenerationTest {
     private GeneratedClassTracker.Disposable classTrackerDisposable;
@@ -112,7 +111,7 @@ public class TypeScriptEndpointGenerationTest {
 
     private AnnotationProcessingTester typeScriptOptions(AnnotationProcessingTester tester) {
         return tester
-                .verbosity(Level.TRACE)
+                //.verbosity(Level.TRACE)
                 .options(
                         "-Arxrpc.ts.ngmodule",
                         "-Arxrpc.ts.npm");
