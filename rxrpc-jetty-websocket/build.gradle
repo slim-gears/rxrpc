@@ -5,6 +5,6 @@ dependencies {
     implementation project(':rxrpc-core')
     implementation libs.slf4j
     implementation libs.rxJava
-    implementation libs.jettyWebSocketServer
-    implementation libs.jettyWebSocketClient
+    bundledImplementation libs.jettyWebSocketServer
+    bundledImplementation libs.jettyWebSocketClient
 }

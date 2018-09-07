@@ -3,18 +3,16 @@
  */
 package com.slimgears.rxrpc.client;
 
-import java.lang.reflect.InvocationTargetException;
+import com.slimgears.util.reflect.TypeToken;
 
 public class EndpointFactories {
     public static RxClient.EndpointFactory constructorFactory() {
         return EndpointFactories::createEndpoint;
     }
 
-    private static <T> T createEndpoint(Class<T> clientClass, RxClient.Session session) {
-        try {
-            return clientClass.getConstructor(RxClient.Session.class).newInstance(session);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
+    private static <T> T createEndpoint(TypeToken<T> clientToken, RxClient.Session session) {
+        return clientToken
+                .constructor(RxClient.Session.class)
+                .newInstance(session);
     }
 }

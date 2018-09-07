@@ -12,6 +12,7 @@ import com.slimgears.rxrpc.core.data.Response;
 import com.slimgears.rxrpc.core.data.Result;
 import com.slimgears.rxrpc.core.util.HasObjectMapper;
 import com.slimgears.rxrpc.core.util.MoreDisposables;
+import com.slimgears.util.reflect.TypeToken;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -74,7 +75,7 @@ public class RxClient {
     }
 
     public interface EndpointFactory {
-        <T> T create(Class<T> clientClass, Session session);
+        <T> T create(TypeToken<T> clientClass, Session session);
     }
 
     public interface Session extends AutoCloseable {
@@ -110,8 +111,8 @@ public class RxClient {
         }
 
         @Override
-        public <T> T resolve(Class<T> endpointClientClass) {
-            return config.endpointFactory().create(endpointClientClass, session);
+        public <T> T resolve(TypeToken<T> endpointToken) {
+            return config.endpointFactory().create(endpointToken, session);
         }
 
         public void close() {

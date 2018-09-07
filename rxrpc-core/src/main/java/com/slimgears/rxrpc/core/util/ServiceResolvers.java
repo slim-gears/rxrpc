@@ -4,6 +4,7 @@
 package com.slimgears.rxrpc.core.util;
 
 import com.slimgears.rxrpc.core.ServiceResolver;
+import com.slimgears.util.reflect.TypeToken;
 
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -18,15 +19,10 @@ public class ServiceResolvers {
     public static ServiceResolver defaultConstructorResolver() {
         return new ServiceResolver() {
             @Override
-            public <T> T resolve(Class<T> cls) {
-                try {
-                    if (cls.isInterface() || Modifier.isAbstract(cls.getModifiers())) {
-                        return null;
-                    }
-                    return cls.newInstance();
-                } catch (InstantiationException | IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
+            public <T> T resolve(TypeToken<T> token) {
+                return !(token.isInterface() || token.hasModifier(Modifier::isAbstract))
+                        ? token.newInstance()
+                        : null;
             }
         };
     }
@@ -36,7 +32,7 @@ public class ServiceResolvers {
     }
 
     public static class Builder {
-        private final Map<Class, Supplier> bindingMap = new HashMap<>();
+        private final Map<TypeToken, Supplier> bindingMap = new HashMap<>();
         private ServiceResolver upstream = defaultResolver;
 
         public Builder parentResolver(ServiceResolver resolver) {
@@ -50,13 +46,16 @@ public class ServiceResolvers {
         }
 
         public <T> BindingBuilder<T> bind(Class<T> cls) {
-            return new BindingBuilder<>(cls);
+            return bind(TypeToken.of(cls));
+        }
+        public <T> BindingBuilder<T> bind(TypeToken<T> token) {
+            return new BindingBuilder<>(token);
         }
 
         public ServiceResolver build() {
             return new ServiceResolver() {
                 @Override
-                public <T> T resolve(Class<T> cls) {
+                public <T> T resolve(TypeToken<T> cls) {
                     //noinspection unchecked
                     return Optional
                             .ofNullable(bindingMap.get(cls))
@@ -67,10 +66,10 @@ public class ServiceResolvers {
         }
 
         public class BindingBuilder<T> {
-            private final Class<T> cls;
+            private final TypeToken<T> token;
 
-            private BindingBuilder(Class<T> cls) {
-                this.cls = cls;
+            private BindingBuilder(TypeToken<T> token) {
+                this.token = token;
             }
 
             public Builder toInstance(T instance) {
@@ -78,12 +77,16 @@ public class ServiceResolvers {
             }
 
             public Builder toSupplier(Supplier<T> supplier) {
-                bindingMap.put(cls, supplier);
+                bindingMap.put(token, supplier);
                 return Builder.this;
             }
 
+            public Builder to(TypeToken<? extends T> token) {
+                return toSupplier(() -> upstream.resolve(token));
+            }
+
             public Builder to(Class<? extends T> cls) {
-                return toSupplier(() -> upstream.resolve(cls));
+                return to(TypeToken.of(cls));
             }
         }
     }

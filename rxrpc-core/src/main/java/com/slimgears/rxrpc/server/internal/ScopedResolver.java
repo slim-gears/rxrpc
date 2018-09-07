@@ -1,12 +1,13 @@
 package com.slimgears.rxrpc.server.internal;
 
 import com.slimgears.rxrpc.core.ServiceResolver;
+import com.slimgears.util.reflect.TypeToken;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class ScopedResolver implements ServiceResolver {
-    private final ConcurrentMap<Class<?>, Object> instances = new ConcurrentHashMap<>();
+    private final ConcurrentMap<TypeToken<?>, Object> instances = new ConcurrentHashMap<>();
     private final ServiceResolver sourceResolver;
 
     private ScopedResolver(ServiceResolver sourceResolver) {
@@ -15,8 +16,8 @@ public class ScopedResolver implements ServiceResolver {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T resolve(Class<T> cls) {
-        return (T)instances.computeIfAbsent(cls, a -> sourceResolver.resolve(cls));
+    public <T> T resolve(TypeToken<T> token) {
+        return (T)instances.computeIfAbsent(token, a -> sourceResolver.resolve(token));
     }
 
     @Override

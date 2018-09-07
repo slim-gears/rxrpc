@@ -2,19 +2,22 @@ apply from: "$scriptsDir/java.gradle"
 apply from: "$scriptsDir/maven-publish.gradle"
 
 dependencies {
+    bundledImplementation libs.slimGearsStreamUtils
+    bundledImplementation libs.slimGearsReflectUtils
+
     implementation libs.rxJava
+    implementation libs.jacksonCore
+    implementation libs.jacksonAnnotations
+    implementation libs.jacksonDataBind
+
     implementation libs.slf4j
     compileOnly libs.autoValueAnnotations
     annotationProcessor libs.autoValue
     implementation libs.jsr305
-    implementation libs.jacksonCore
-    implementation libs.jacksonAnnotations
-    implementation libs.jacksonDataBind
     implementation libs.jacksonGuava
     implementation libs.jacksonJdk8
     compileOnly libs.autoService
     annotationProcessor libs.autoService
-    implementation libs.slimGearsStreamUtils
     compileOnly libs.slimGearsGenericUtilsAnnotations
     testImplementation libs.logbackClassic
     testImplementation libs.logbackCore

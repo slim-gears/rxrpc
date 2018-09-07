@@ -15,16 +15,14 @@ dependencies {
     implementation project(':rxrpc-jetty-websocket')
 
     implementation libs.rxJava
-    implementation libs.jettyServer
-    implementation libs.jettyServlet
-    implementation libs.jettyWebSocketServer
-    compileOnly libs.autoService
-    annotationProcessor libs.autoService
     implementation libs.jacksonCore
     implementation libs.jacksonAnnotations
-    implementation libs.jacksonDataBind
-    implementation libs.logbackClassic
-    implementation libs.logbackCore
+
+    implementation libs.jettyServer, libs.jettyServlet
+    implementation libs.logbackClassic, libs.logbackCore
+
+    compileOnly libs.autoService
+    annotationProcessor libs.autoService
 
     compileOnly libs.autoValueAnnotations
     annotationProcessor libs.autoValue
