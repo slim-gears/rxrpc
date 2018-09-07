@@ -119,4 +119,4 @@ public class SampleServer {
 
 ### Component diagram
 
-![Diagram](http://www.plantuml.com/plantuml/png/3Op13G8n30J_LmKKGFpdTQsOd9MBb3ZHsXQKZr-hrOpcD6Tup74ykzOHbmJ6utRVzYO2VqlhViSdJ52NkgYNkYRPwFFLX6647tQboUO2oX8btqlJjBBp7wVebVi7)
+![Diagram](http://www.plantuml.com/plantuml/svg/3Op13G8n30J_LmKKGFpdTQsOd9MBb3ZHsXQKZr-hrOpcD6Tup74ykzOHbmJ6utRVzYO2VqlhViSdJ52NkgYNkYRPwFFLX6647tQboUO2oX8btqlJjBBp7wVebVi7)
