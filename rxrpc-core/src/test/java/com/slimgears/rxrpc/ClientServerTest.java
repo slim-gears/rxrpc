@@ -3,8 +3,8 @@ package com.slimgears.rxrpc;
 import com.slimgears.rxrpc.client.AbstractClient;
 import com.slimgears.rxrpc.client.RxClient;
 import com.slimgears.rxrpc.core.ServiceResolver;
-import com.slimgears.rxrpc.server.EndpointDispatcher;
-import com.slimgears.rxrpc.server.EndpointDispatchers;
+import com.slimgears.rxrpc.server.EndpointRouter;
+import com.slimgears.rxrpc.server.EndpointRouters;
 import com.slimgears.rxrpc.server.RxServer;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
@@ -61,7 +61,7 @@ public class ClientServerTest {
     public void setUp() {
         serverSubject = ReplaySubject.create();
 
-        EndpointDispatcher.Factory factory = EndpointDispatchers
+        EndpointRouter.Factory factory = EndpointRouters
                 .builder(Object.class)
                 .method("testMethod", (target, args) -> serverSubject
                         .map(s -> args.get("prefix", String.class) + ":" + s)

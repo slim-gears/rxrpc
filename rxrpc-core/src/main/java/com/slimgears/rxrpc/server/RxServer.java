@@ -41,7 +41,7 @@ public class RxServer implements AutoCloseable {
     public static abstract class Config implements HasObjectMapper {
         public abstract RxTransport.Server server();
         public abstract ServiceResolver resolver();
-        public abstract EndpointDispatcher.Factory dispatcherFactory();
+        public abstract EndpointRouter.Factory dispatcherFactory();
 
         public static Builder builder() {
             return new AutoValue_RxServer_Config.Builder()
@@ -53,7 +53,7 @@ public class RxServer implements AutoCloseable {
         public interface Builder extends HasObjectMapper.Builder<Builder> {
             Builder server(RxTransport.Server server);
             Builder resolver(ServiceResolver resolver);
-            Builder dispatcherFactory(EndpointDispatcher.Factory factory);
+            Builder dispatcherFactory(EndpointRouter.Factory factory);
             Config build();
 
             default RxServer createServer() {
@@ -61,11 +61,11 @@ public class RxServer implements AutoCloseable {
             }
 
             default Builder discoverModules() {
-                return modules(EndpointDispatchers.discover());
+                return modules(EndpointRouters.discover());
             }
 
-            default Builder modules(EndpointDispatcher.Module... modules) {
-                return dispatcherFactory(EndpointDispatchers.factoryFromModules(modules));
+            default Builder modules(EndpointRouter.Module... modules) {
+                return dispatcherFactory(EndpointRouters.factoryFromModules(modules));
             }
         }
     }
@@ -182,7 +182,7 @@ public class RxServer implements AutoCloseable {
 
         private void handleSubscription(Invocation message) {
             try {
-                EndpointDispatcher dispatcher = config.dispatcherFactory().create(resolver);
+                EndpointRouter dispatcher = config.dispatcherFactory().create(resolver);
                 Publisher<?> response = dispatcher
                         .dispatch(message.method(), toArguments(message.arguments()));
 

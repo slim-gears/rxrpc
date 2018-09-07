@@ -15,9 +15,9 @@ $imports
 @$[com.slimgears.rxrpc.core.RxRpcModule](name = "$moduleName", endpointClass = #classLiteral($sourceClass))
 #end
 #if ($autoService)##
-@$[com.google.auto.service.AutoService]($[com.slimgears.rxrpc.server.EndpointDispatcher.Module].class)
+@$[com.google.auto.service.AutoService]($[com.slimgears.rxrpc.server.EndpointRouter.Module].class)
 #end
-public class $simpleClassName implements $[com.slimgears.rxrpc.server.EndpointDispatcher.Module] {
+public class $simpleClassName implements $[com.slimgears.rxrpc.server.EndpointRouter.Module] {
 #foreach ($m in $methods)##
     #set ($methodName = $m.name())##
     #set ($returnType = $m.returnType())##
@@ -32,7 +32,7 @@ public class $simpleClassName implements $[com.slimgears.rxrpc.server.EndpointDi
 
 #end
 
-    private final static $[com.slimgears.rxrpc.server.EndpointDispatcher.Factory] dispatcherFactory = $[com.slimgears.rxrpc.server.EndpointDispatchers]
+    private final static $[com.slimgears.rxrpc.server.EndpointRouter.Factory] dispatcherFactory = $[com.slimgears.rxrpc.server.EndpointRouters]
         .builder($[$sourceClassName].class)
 #foreach($m in $methods)
         .method("$m.name()", $m.name())
@@ -40,7 +40,7 @@ public class $simpleClassName implements $[com.slimgears.rxrpc.server.EndpointDi
         .buildFactory();
 
     @Override
-    public void configure($[com.slimgears.rxrpc.server.EndpointDispatcher.Configuration] configuration) {
+    public void configure($[com.slimgears.rxrpc.server.EndpointRouter.Configuration] configuration) {
         configuration.addFactory("$endpointName", dispatcherFactory);
     }
 }

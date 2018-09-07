@@ -5,19 +5,19 @@ package com.slimgears.rxrpc.server.internal;
 
 import com.slimgears.rxrpc.core.ServiceResolver;
 import com.slimgears.rxrpc.core.data.EndpointPath;
-import com.slimgears.rxrpc.server.EndpointDispatcher;
+import com.slimgears.rxrpc.server.EndpointRouter;
 import org.reactivestreams.Publisher;
 
 import java.util.Map;
 import java.util.Optional;
 
-import static com.slimgears.rxrpc.server.EndpointDispatchers.EMPTY;
+import static com.slimgears.rxrpc.server.EndpointRouters.EMPTY;
 
-public class CompositeEndpointDispatcher implements EndpointDispatcher {
+public class CompositeEndpointRouter implements EndpointRouter {
     private final ServiceResolver resolver;
     private final Map<String, Factory> dispatcherMap;
 
-    public CompositeEndpointDispatcher(ServiceResolver resolver, Map<String, Factory> dispatcherMap) {
+    public CompositeEndpointRouter(ServiceResolver resolver, Map<String, Factory> dispatcherMap) {
         this.resolver = resolver;
         this.dispatcherMap = dispatcherMap;
     }

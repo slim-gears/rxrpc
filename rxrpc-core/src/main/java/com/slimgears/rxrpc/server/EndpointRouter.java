@@ -4,15 +4,15 @@ import com.slimgears.rxrpc.core.ServiceResolver;
 import com.slimgears.rxrpc.server.internal.InvocationArguments;
 import org.reactivestreams.Publisher;
 
-public interface EndpointDispatcher {
+public interface EndpointRouter {
     Publisher<?> dispatch(String path, InvocationArguments args);
 
     interface Factory {
-        EndpointDispatcher create(ServiceResolver resolver);
+        EndpointRouter create(ServiceResolver resolver);
     }
 
     interface Configuration {
-        void addFactory(String path, EndpointDispatcher.Factory factory);
+        void addFactory(String path, EndpointRouter.Factory factory);
     }
 
     interface Module {

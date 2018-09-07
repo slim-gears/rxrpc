@@ -1,7 +1,7 @@
 package com.slimgears.rxrpc.server;
 
 import com.slimgears.rxrpc.core.ServiceResolver;
-import com.slimgears.rxrpc.server.internal.CompositeEndpointDispatcher;
+import com.slimgears.rxrpc.server.internal.CompositeEndpointRouter;
 import com.slimgears.rxrpc.server.internal.InvocationArguments;
 import com.slimgears.rxrpc.server.internal.MethodDispatcher;
 import com.slimgears.util.stream.Safe;
@@ -10,46 +10,37 @@ import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.ServiceLoader;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static com.slimgears.util.stream.Streams.ofType;
 
-public class EndpointDispatchers {
-    private final static Logger log = LoggerFactory.getLogger(EndpointDispatchers.class);
-    public final static EndpointDispatcher EMPTY = (path, args) -> { throw new NoSuchMethodError(path); };
-    public final static EndpointDispatcher.Module EMPTY_MODULE = config -> {};
+public class EndpointRouters {
+    private final static Logger log = LoggerFactory.getLogger(EndpointRouters.class);
+    public final static EndpointRouter EMPTY = (path, args) -> { throw new NoSuchMethodError(path); };
+    public final static EndpointRouter.Module EMPTY_MODULE = config -> {};
 
     public static <T> Builder<T> builder(Class<T> cls) {
         return Builder.create(cls);
     }
 
-    public static EndpointDispatcher.Module modules(EndpointDispatcher.Module... modules) {
+    public static EndpointRouter.Module modules(EndpointRouter.Module... modules) {
         return config -> Arrays.asList(modules).forEach(m -> m.configure(config));
     }
 
-    public static EndpointDispatcher.Module moduleByName(String moduleName) {
-        ClassLoader classLoader = EndpointDispatchers.class.getClassLoader();
+    public static EndpointRouter.Module moduleByName(String moduleName) {
+        ClassLoader classLoader = EndpointRouters.class.getClassLoader();
         String resourcePath = "META-INF/rxrpc-modules/" + moduleName;
         try {
-            EndpointDispatcher.Module[] modules = Streams.fromEnumeration(classLoader.getResources(resourcePath))
-                    .flatMap(EndpointDispatchers::readClassNames)
+            EndpointRouter.Module[] modules = Streams.fromEnumeration(classLoader.getResources(resourcePath))
+                    .flatMap(EndpointRouters::readClassNames)
                     .map(Safe.ofFunction(Class::forName))
                     .map(Safe.ofFunction(Class::newInstance))
-                    .flatMap(ofType(EndpointDispatcher.Module.class))
-                    .toArray(EndpointDispatcher.Module[]::new);
+                    .flatMap(ofType(EndpointRouter.Module.class))
+                    .toArray(EndpointRouter.Module[]::new);
             return modules(modules);
         } catch (IOException e) {
             log.warn("Could not read modules from {}: {}", resourcePath, e);
@@ -70,9 +61,9 @@ public class EndpointDispatchers {
         }
     }
 
-    public static EndpointDispatcher.Module discover() {
-        ServiceLoader<EndpointDispatcher.Module> serviceLoader = ServiceLoader.load(
-                EndpointDispatcher.Module.class, EndpointDispatchers.class.getClassLoader());
+    public static EndpointRouter.Module discover() {
+        ServiceLoader<EndpointRouter.Module> serviceLoader = ServiceLoader.load(
+                EndpointRouter.Module.class, EndpointRouters.class.getClassLoader());
 
         return config -> serviceLoader.forEach(module -> module.configure(config));
     }
@@ -94,11 +85,11 @@ public class EndpointDispatchers {
             return this;
         }
 
-        public EndpointDispatcher.Factory buildFactory() {
-            return resolver -> createEndpointDispatcher(() -> resolver.resolve(endpointClass));
+        public EndpointRouter.Factory buildFactory() {
+            return resolver -> createEndpointRouter(() -> resolver.resolve(endpointClass));
         }
 
-        private EndpointDispatcher createEndpointDispatcher(Supplier<T> targetSupplier) {
+        private EndpointRouter createEndpointRouter(Supplier<T> targetSupplier) {
             return (path, args) -> Builder.this.dispatch(targetSupplier.get(), path, args);
         }
 
@@ -110,7 +101,7 @@ public class EndpointDispatchers {
         }
     }
 
-    public static EndpointDispatcher.Factory factoryFromModules(EndpointDispatcher.Module... modules) {
+    public static EndpointRouter.Factory factoryFromModules(EndpointRouter.Module... modules) {
         CompositeBuilder compositeBuilder = compositeBuilder();
         modules(modules).configure(compositeBuilder);
         return compositeBuilder.build();
@@ -120,24 +111,24 @@ public class EndpointDispatchers {
         return new CompositeBuilder();
     }
 
-    private static class CompositeBuilder implements EndpointDispatcher.Configuration {
-        private final Map<String, EndpointDispatcher.Factory> dispatcherMap = new HashMap<>();
+    private static class CompositeBuilder implements EndpointRouter.Configuration {
+        private final Map<String, EndpointRouter.Factory> dispatcherMap = new HashMap<>();
 
-        public CompositeBuilder add(String path, EndpointDispatcher.Factory dispatcher) {
+        public CompositeBuilder add(String path, EndpointRouter.Factory dispatcher) {
             dispatcherMap.put(path, dispatcher);
             return this;
         }
 
-        public EndpointDispatcher build(ServiceResolver resolver) {
-            return new CompositeEndpointDispatcher(resolver, dispatcherMap);
+        public EndpointRouter build(ServiceResolver resolver) {
+            return new CompositeEndpointRouter(resolver, dispatcherMap);
         }
 
-        public EndpointDispatcher.Factory build() {
+        public EndpointRouter.Factory build() {
             return this::build;
         }
 
         @Override
-        public void addFactory(String path, EndpointDispatcher.Factory factory) {
+        public void addFactory(String path, EndpointRouter.Factory factory) {
             add(path, factory);
         }
     }

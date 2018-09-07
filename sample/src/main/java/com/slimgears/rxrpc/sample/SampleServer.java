@@ -2,7 +2,7 @@ package com.slimgears.rxrpc.sample;
 
 import com.slimgears.rxrpc.core.util.ServiceResolvers;
 import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketRxTransport;
-import com.slimgears.rxrpc.server.EndpointDispatchers;
+import com.slimgears.rxrpc.server.EndpointRouters;
 import com.slimgears.rxrpc.server.RxServer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -18,7 +18,7 @@ public class SampleServer {
         this.rxServer = RxServer.configBuilder()
                 .server(transportServer) // Use jetty WebSocket-servlet based transport
                 .modules(
-                        EndpointDispatchers.moduleByName("sampleModule"),
+                        EndpointRouters.moduleByName("sampleModule"),
                         new SayHelloEndpoint_RxModule())
                 .resolver(ServiceResolvers
                         .builder()
