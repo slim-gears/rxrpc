@@ -36,6 +36,8 @@ Following return types are allowed:
   - `Publisher<T>`
   - `Future<T>`
 - Any other type will be handled as synchronous (from server side) invocation 
+
+ #### Endpoint definition example
  
 ```java
 @RxRpcEndpoint
@@ -51,7 +53,7 @@ public class SayHelloEndpointImpl implements SayHelloEndpoint {
 }
 ```
 
-Jetty-based embedded server example:
+#### Jetty-based embedded server, serving the endpoint, defined above
 
 ```java
 public class SampleServer {
@@ -102,7 +104,7 @@ public class SampleServer {
 
 ### Client side
 
-#### Java client
+#### Java client example
 
 ```java
     RxClient rxClient = RxClient.forClient(JettyWebSocketRxTransport.builder().buildClient());
@@ -115,6 +117,6 @@ public class SampleServer {
             .assertValue("Hello, Alice");
 ```
 
-#### Component diagram
+### Component diagram
 
 ![Diagram](http://www.plantuml.com/plantuml/png/3Op13G8n30J_LmKKGFpdTQsOd9MBb3ZHsXQKZr-hrOpcD6Tup74ykzOHbmJ6utRVzYO2VqlhViSdJ52NkgYNkYRPwFFLX6647tQboUO2oX8btqlJjBBp7wVebVi7)
