@@ -3,9 +3,9 @@
  */
 package com.slimgears.rxrpc.server.internal;
 
-import com.slimgears.rxrpc.core.ServiceResolver;
 import com.slimgears.rxrpc.core.data.EndpointPath;
 import com.slimgears.rxrpc.server.EndpointRouter;
+import com.slimgears.util.generic.ServiceResolver;
 import org.reactivestreams.Publisher;
 
 import java.util.Map;

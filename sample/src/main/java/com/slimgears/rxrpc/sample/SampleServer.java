@@ -1,9 +1,9 @@
 package com.slimgears.rxrpc.sample;
 
-import com.slimgears.rxrpc.core.util.ServiceResolvers;
 import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketRxTransport;
 import com.slimgears.rxrpc.server.EndpointRouters;
 import com.slimgears.rxrpc.server.RxServer;
+import com.slimgears.util.generic.ServiceResolvers;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;

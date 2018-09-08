@@ -1,6 +1,6 @@
 package com.slimgears.rxrpc.server.internal;
 
-import com.slimgears.rxrpc.core.ServiceResolver;
+import com.slimgears.util.generic.ServiceResolver;
 import com.slimgears.util.reflect.TypeToken;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,6 +18,11 @@ public class ScopedResolver implements ServiceResolver {
     @Override
     public <T> T resolve(TypeToken<T> token) {
         return (T)instances.computeIfAbsent(token, a -> sourceResolver.resolve(token));
+    }
+
+    @Override
+    public boolean canResolve(TypeToken<?> typeToken) {
+        return instances.containsKey(typeToken) || sourceResolver.canResolve(typeToken);
     }
 
     @Override

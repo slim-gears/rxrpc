@@ -2,14 +2,28 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-apt/rxrpc-apt.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-apt/rxrpc-apt.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-apt-java.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-apt-java.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-apt-typescript.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-apt-typescript.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-core/rxrpc-core.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-core/rxrpc-core.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-jetty-websocket/rxrpc-jetty-websocket.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-jetty-websocket/rxrpc-jetty-websocket.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-ng/rxrpc-ng.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-ng/rxrpc-ng.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sample/sample.iml" filepath="$PROJECT_DIR$/.idea/modules/sample/sample.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rxrpc.iml" filepath="$PROJECT_DIR$/rxrpc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-apt/rxrpc-apt.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-apt/rxrpc-apt.iml" group="rxrpc-apt" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-apt-java/rxrpc-apt-java.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-apt-java/rxrpc-apt-java.iml" group="rxrpc-apt-java" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-apt-java/rxrpc-apt-java_main.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-apt-java/rxrpc-apt-java_main.iml" group="rxrpc-apt-java" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-apt-java/rxrpc-apt-java_test.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-apt-java/rxrpc-apt-java_test.iml" group="rxrpc-apt-java" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-apt-typescript/rxrpc-apt-typescript.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-apt-typescript/rxrpc-apt-typescript.iml" group="rxrpc-apt-typescript" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-apt-typescript/rxrpc-apt-typescript_main.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-apt-typescript/rxrpc-apt-typescript_main.iml" group="rxrpc-apt-typescript" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-apt-typescript/rxrpc-apt-typescript_test.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-apt-typescript/rxrpc-apt-typescript_test.iml" group="rxrpc-apt-typescript" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-apt/rxrpc-apt_main.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-apt/rxrpc-apt_main.iml" group="rxrpc-apt" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-apt/rxrpc-apt_test.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-apt/rxrpc-apt_test.iml" group="rxrpc-apt" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-core/rxrpc-core.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-core/rxrpc-core.iml" group="rxrpc-core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-core/rxrpc-core_main.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-core/rxrpc-core_main.iml" group="rxrpc-core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-core/rxrpc-core_test.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-core/rxrpc-core_test.iml" group="rxrpc-core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-jetty-websocket/rxrpc-jetty-websocket.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-jetty-websocket/rxrpc-jetty-websocket.iml" group="rxrpc-jetty-websocket" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-jetty-websocket/rxrpc-jetty-websocket_main.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-jetty-websocket/rxrpc-jetty-websocket_main.iml" group="rxrpc-jetty-websocket" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-jetty-websocket/rxrpc-jetty-websocket_test.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-jetty-websocket/rxrpc-jetty-websocket_test.iml" group="rxrpc-jetty-websocket" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-ng/rxrpc-ng.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-ng/rxrpc-ng.iml" group="rxrpc-ng" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-ng/rxrpc-ng_main.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-ng/rxrpc-ng_main.iml" group="rxrpc-ng" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-ng/rxrpc-ng_test.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-ng/rxrpc-ng_test.iml" group="rxrpc-ng" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sample/sample.iml" filepath="$PROJECT_DIR$/.idea/modules/sample/sample.iml" group="sample" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sample/sample_main.iml" filepath="$PROJECT_DIR$/.idea/modules/sample/sample_main.iml" group="sample" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sample/sample_test.iml" filepath="$PROJECT_DIR$/.idea/modules/sample/sample_test.iml" group="sample" />
     </modules>
   </component>
 </project>

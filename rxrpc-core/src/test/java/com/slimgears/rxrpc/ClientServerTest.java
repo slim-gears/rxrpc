@@ -2,10 +2,10 @@ package com.slimgears.rxrpc;
 
 import com.slimgears.rxrpc.client.AbstractClient;
 import com.slimgears.rxrpc.client.RxClient;
-import com.slimgears.rxrpc.core.ServiceResolver;
 import com.slimgears.rxrpc.server.EndpointRouter;
 import com.slimgears.rxrpc.server.EndpointRouters;
 import com.slimgears.rxrpc.server.RxServer;
+import com.slimgears.util.generic.ServiceResolver;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;

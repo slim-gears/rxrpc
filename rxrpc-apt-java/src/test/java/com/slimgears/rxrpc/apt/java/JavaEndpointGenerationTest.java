@@ -8,7 +8,7 @@ import com.slimgears.rxrpc.apt.DataClassGenerator;
 import com.slimgears.rxrpc.apt.TestBundles;
 import com.slimgears.rxrpc.apt.util.ServiceProvider;
 import com.slimgears.rxrpc.apt.util.ServiceProviders;
-import com.slimgears.rxrpc.core.util.Scope;
+import com.slimgears.util.generic.Scope;
 import org.junit.Test;
 import org.mockito.Mockito;
 

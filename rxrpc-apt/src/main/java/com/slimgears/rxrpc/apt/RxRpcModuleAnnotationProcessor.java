@@ -6,7 +6,7 @@ import com.slimgears.apt.data.TypeInfo;
 import com.slimgears.apt.util.ElementUtils;
 import com.slimgears.rxrpc.apt.util.ServiceProviders;
 import com.slimgears.rxrpc.core.RxRpcModule;
-import com.slimgears.rxrpc.core.util.Scope;
+import com.slimgears.util.generic.Scope;
 
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;

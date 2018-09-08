@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name="rxrpc-apt-java_main" target="1.8" />
+      <module name="rxrpc-apt-java_test" target="1.8" />
+      <module name="rxrpc-apt-typescript_main" target="1.8" />
+      <module name="rxrpc-apt-typescript_test" target="1.8" />
+      <module name="rxrpc-apt_main" target="1.8" />
+      <module name="rxrpc-apt_test" target="1.8" />
+      <module name="rxrpc-core_main" target="1.8" />
+      <module name="rxrpc-core_test" target="1.8" />
+      <module name="rxrpc-jetty-websocket_main" target="1.8" />
+      <module name="rxrpc-jetty-websocket_test" target="1.8" />
+      <module name="rxrpc-ng_main" target="1.8" />
+      <module name="rxrpc-ng_test" target="1.8" />
+      <module name="sample_main" target="1.8" />
+      <module name="sample_test" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

@@ -4,9 +4,12 @@ apply from: "$scriptsDir/maven-publish.gradle"
 dependencies {
     implementation project(':rxrpc-apt')
     testImplementation project(path: ':rxrpc-apt', configuration: 'testOutput')
-    implementation libs.autoService
+
+    compileOnly libs.autoService
     annotationProcessor libs.autoService
+
     implementation libs.guava
     implementation libs.slimGearsAptUtils
+    testImplementation libs.autoService
     testImplementation libs.slimGearsAptTestUtils
 }

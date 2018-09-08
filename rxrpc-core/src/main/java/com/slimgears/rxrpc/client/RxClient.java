@@ -6,12 +6,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.slimgears.rxrpc.core.RxTransport;
-import com.slimgears.rxrpc.core.ServiceResolver;
 import com.slimgears.rxrpc.core.data.Invocation;
 import com.slimgears.rxrpc.core.data.Response;
 import com.slimgears.rxrpc.core.data.Result;
 import com.slimgears.rxrpc.core.util.HasObjectMapper;
 import com.slimgears.rxrpc.core.util.MoreDisposables;
+import com.slimgears.util.generic.ServiceResolver;
 import com.slimgears.util.reflect.TypeToken;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
@@ -76,6 +76,7 @@ public class RxClient {
 
     public interface EndpointFactory {
         <T> T create(TypeToken<T> clientClass, Session session);
+        boolean canCreate(TypeToken<?> clientClass);
     }
 
     public interface Session extends AutoCloseable {
@@ -113,6 +114,11 @@ public class RxClient {
         @Override
         public <T> T resolve(TypeToken<T> endpointToken) {
             return config.endpointFactory().create(endpointToken, session);
+        }
+
+        @Override
+        public boolean canResolve(TypeToken<?> typeToken) {
+            return config.endpointFactory().canCreate(typeToken);
         }
 
         public void close() {

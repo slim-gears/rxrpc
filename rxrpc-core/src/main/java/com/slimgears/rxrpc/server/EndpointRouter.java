@@ -1,7 +1,7 @@
 package com.slimgears.rxrpc.server;
 
-import com.slimgears.rxrpc.core.ServiceResolver;
 import com.slimgears.rxrpc.server.internal.InvocationArguments;
+import com.slimgears.util.generic.ServiceResolver;
 import org.reactivestreams.Publisher;
 
 public interface EndpointRouter {

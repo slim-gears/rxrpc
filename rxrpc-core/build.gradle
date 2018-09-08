@@ -3,6 +3,7 @@ apply from: "$scriptsDir/maven-publish.gradle"
 
 dependencies {
     bundledImplementation libs.slimGearsStreamUtils
+    bundledImplementation libs.slimGearsGenericUtils
     bundledImplementation libs.slimGearsReflectUtils
 
     implementation libs.rxJava

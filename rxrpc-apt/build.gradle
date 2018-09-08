@@ -4,7 +4,7 @@ apply from: "$scriptsDir/maven-publish.gradle"
 import org.gradle.internal.jvm.Jvm
 
 configurations {
-    testOutput.extendsFrom (testImplementation)
+    testOutput.extendsFrom testImplementation
 }
 
 task testJar(type: Jar, dependsOn: testClasses) {

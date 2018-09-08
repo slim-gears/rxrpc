@@ -1,9 +1,9 @@
 package com.slimgears.rxrpc.server;
 
-import com.slimgears.rxrpc.core.ServiceResolver;
 import com.slimgears.rxrpc.server.internal.CompositeEndpointRouter;
 import com.slimgears.rxrpc.server.internal.InvocationArguments;
 import com.slimgears.rxrpc.server.internal.MethodDispatcher;
+import com.slimgears.util.generic.ServiceResolver;
 import com.slimgears.util.stream.Safe;
 import com.slimgears.util.stream.Streams;
 import org.reactivestreams.Publisher;

@@ -2,8 +2,8 @@ package com.slimgears.rxrpc.sample;
 
 import ch.qos.logback.classic.Level;
 import com.slimgears.rxrpc.client.RxClient;
-import com.slimgears.rxrpc.core.ServiceResolver;
 import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketRxTransport;
+import com.slimgears.util.generic.ServiceResolver;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;

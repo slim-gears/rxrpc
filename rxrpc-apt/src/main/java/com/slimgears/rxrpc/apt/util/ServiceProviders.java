@@ -3,7 +3,7 @@
  */
 package com.slimgears.rxrpc.apt.util;
 
-import com.slimgears.rxrpc.core.util.Scope;
+import com.slimgears.util.generic.Scope;
 
 import java.util.Collection;
 import java.util.Collections;
