@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -21,8 +23,21 @@ public abstract class ErrorInfo {
         return new AutoValue_ErrorInfo(type, message, Arrays.asList(stackTrace), null);
     }
 
+    @SuppressWarnings("unchecked")
     public Throwable toException() {
-        return new RuntimeException(message() + "\n" + String.join("\n", stackTrace()));
+        try {
+            Class<? extends Throwable> cls = (Class<? extends Throwable>)Class.forName(type());
+            ErrorInfo cause = cause();
+            if (cause != null) {
+                Constructor<? extends Throwable> ctor = cls.getConstructor(String.class, Throwable.class);
+                return ctor.newInstance(message(), cause.toException());
+            } else {
+                Constructor<? extends Throwable> ctor = cls.getConstructor(String.class);
+                return ctor.newInstance(message());
+            }
+        } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            return new RuntimeException(message() + "\n" + String.join("\n", stackTrace()));
+        }
     }
 
     @JsonCreator
@@ -36,7 +51,7 @@ public abstract class ErrorInfo {
 
     public static ErrorInfo fromException(Throwable e) {
         return create(
-                e.getClass().toString(),
+                e.getClass().getCanonicalName(),
                 e.getMessage(),
                 toString(e.getStackTrace()),
                 Optional.ofNullable(e.getCause()).map(ErrorInfo::fromException).orElse(null));

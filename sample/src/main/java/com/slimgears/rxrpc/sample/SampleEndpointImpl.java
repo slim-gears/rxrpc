@@ -27,4 +27,14 @@ public class SampleEndpointImpl implements SampleEndpoint {
                 .take(request.id)
                 .map(i -> new SampleNotification(request.name + " " + i, i));
     }
+
+    @Override
+    public Observable<SampleNotification> errorProducingMethod(String message) {
+        return Observable.error(new IllegalStateException(message));
+    }
+
+    @Override
+    public int blockingErrorProducingMethod(String message) {
+        throw new IllegalStateException(message);
+    }
 }

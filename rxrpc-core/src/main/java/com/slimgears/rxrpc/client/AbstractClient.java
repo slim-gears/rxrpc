@@ -105,7 +105,17 @@ public abstract class AbstractClient implements AutoCloseable {
         try {
             return invokeFuture(responseType, method, args).get();
         } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
+            if (e.getCause() != null) {
+                this.<RuntimeException>rethrow(e.getCause());
+            } else {
+                this.<RuntimeException>rethrow(e);
+            }
+            return null;
         }
+    }
+
+    private <T extends Throwable> T rethrow(Throwable e) throws T {
+        //noinspection unchecked
+        throw (T)e;
     }
 }

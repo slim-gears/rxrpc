@@ -19,4 +19,10 @@ public interface SampleEndpoint {
 
     @RxRpcMethod
     Observable<SampleNotification> observableMethod(SampleRequest request);
+
+    @RxRpcMethod
+    Observable<SampleNotification> errorProducingMethod(String message);
+
+    @RxRpcMethod
+    int blockingErrorProducingMethod(String message);
 }

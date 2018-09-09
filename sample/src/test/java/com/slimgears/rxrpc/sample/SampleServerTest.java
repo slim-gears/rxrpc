@@ -4,16 +4,18 @@ import ch.qos.logback.classic.Level;
 import com.slimgears.rxrpc.client.RxClient;
 import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketRxTransport;
 import com.slimgears.util.generic.ServiceResolver;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import io.reactivex.internal.functions.Functions;
+import org.junit.*;
 
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class SampleServerTest {
     private final static int port = 8000;
     private final static URI uri = URI.create("ws://localhost:" + port + "/api/");
+    private SampleServer server;
+    private ServiceResolver clientResolver;
 
     @BeforeClass
     public static void init() {
@@ -21,47 +23,67 @@ public class SampleServerTest {
         root.setLevel(Level.INFO);
     }
 
-    @Test
-    public void testSayHello() throws Exception {
-        SampleServer server = new SampleServer(port);
+    @Before
+    public void setUp() throws Exception {
+        server = new SampleServer(port);
         server.start();
-
         RxClient rxClient = RxClient.forClient(JettyWebSocketRxTransport.builder().buildClient());
-        try (ServiceResolver resolver = rxClient.connect(uri)) {
-            SayHelloEndpoint sayHelloClient = resolver.resolve(SayHelloEndpoint_RxClient.class);
-            sayHelloClient
-                    .sayHello("Alice")
-                    .test()
-                    .awaitDone(5000, TimeUnit.MILLISECONDS)
-                    .assertValueCount(1)
-                    .assertValue("Hello, Alice");
-        } finally {
-            server.stop();
-        }
+        clientResolver = rxClient.connect(uri);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        clientResolver.close();
+        server.stop();
+    }
+
+    @Test
+    public void testSayHello() {
+        SayHelloEndpoint sayHelloClient = clientResolver.resolve(SayHelloEndpoint_RxClient.class);
+        sayHelloClient
+                .sayHello("Alice")
+                .test()
+                .awaitDone(5000, TimeUnit.MILLISECONDS)
+                .assertValueCount(1)
+                .assertValue("Hello, Alice");
     }
 
     @Test
     public void testClientServer() throws Exception {
-        SampleServer server = new SampleServer(port);
-        server.start();
+        SampleEndpoint sampleEndpointClient = clientResolver.resolve(SampleEndpoint_RxClient.class);
+        String msgFromServer = sampleEndpointClient.futureStringMethod("Test", new SampleRequest(3, "sampleName")).get();
+        Assert.assertEquals("Server received from client: Test (id: 3, name: sampleName)", msgFromServer);
+        int intFromServer = sampleEndpointClient.blockingMethod(new SampleRequest(4, "sampleName"));
+        Assert.assertEquals(5, intFromServer);
+        testObservableMethod(sampleEndpointClient, 5);
+    }
 
-        RxClient rxClient = RxClient.forClient(JettyWebSocketRxTransport.builder().buildClient());
+    @Test
+    public void testServerMethodReturnsErrorAsync() throws InterruptedException {
+        SampleEndpoint sampleEndpoint = clientResolver.resolve(SampleEndpoint_RxClient.class);
+        sampleEndpoint
+                .errorProducingMethod("Test error")
+                .test()
+                .await()
+                .assertError(IllegalStateException.class)
+                .assertErrorMessage("Test error");
+        testObservableMethod(sampleEndpoint, 1);
+    }
 
-        try (ServiceResolver resolver = rxClient.connect(uri)) {
-            SampleEndpoint sampleEndpointClient = resolver.resolve(SampleEndpoint_RxClient.class);
-            String msgFromServer = sampleEndpointClient.futureStringMethod("Test", new SampleRequest(3, "sampleName")).get();
-            Assert.assertEquals("Server received from client: Test (id: 3, name: sampleName)", msgFromServer);
-            int intFromServer = sampleEndpointClient.blockingMethod(new SampleRequest(4, "sampleName"));
-            Assert.assertEquals(5, intFromServer);
-            sampleEndpointClient
-                    .observableMethod(new SampleRequest(5, "Test"))
-                    .map(n -> n.data)
-                    .test()
-                    .awaitDone(5000, TimeUnit.MILLISECONDS)
-                    .assertComplete()
-                    .assertValueCount(5);
-        } finally {
-            server.stop();
-        }
+    @Test(expected = IllegalStateException.class)
+    public void testServerMethodReturnsErrorBlocking() {
+        SampleEndpoint sampleEndpoint = clientResolver.resolve(SampleEndpoint_RxClient.class);
+        sampleEndpoint.blockingErrorProducingMethod("Test error");
+        testObservableMethod(sampleEndpoint, 1);
+    }
+
+    private void testObservableMethod(SampleEndpoint client, int count) {
+        client
+                .observableMethod(new SampleRequest(count, "Test"))
+                .map(n -> n.data)
+                .test()
+                .awaitDone(count * 1000 + 1000, TimeUnit.MILLISECONDS)
+                .assertComplete()
+                .assertValueCount(count);
     }
 }
