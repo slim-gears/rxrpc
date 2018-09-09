@@ -4,12 +4,13 @@
 package com.slimgears.rxrpc.sample;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.slimgears.rxrpc.core.RxRpcEndpoint;
 import com.slimgears.rxrpc.core.RxRpcGenerate;
 import io.reactivex.Observable;
 
 @RxRpcGenerate(
         className = "SampleMeta${T}Endpoint",
-        endpointName = "sampleMeta${T}Endpoint",
+        annotation = @RxRpcEndpoint(value = "sampleMeta${T}Endpoint"),
         value = {
                 @RxRpcGenerate.Endpoint(params = String.class),
                 @RxRpcGenerate.Endpoint(params = Integer.class),

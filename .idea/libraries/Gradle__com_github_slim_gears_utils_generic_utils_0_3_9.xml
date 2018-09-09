@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Gradle: com.github.slim-gears.utils:generic-utils:0.3.9">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/Could not resolve com.github.slim-gears.utils:generic-utils:0.3.9." />
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.slim-gears.utils/generic-utils/0.3.9/dfffc61b9c3d4b2a496740a94e75b950f638ae8d/generic-utils-0.3.9.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.slim-gears.utils/generic-utils/0.3.9/5c9ea131454d7ef0d56da5ea268f562771d378fa/generic-utils-0.3.9-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

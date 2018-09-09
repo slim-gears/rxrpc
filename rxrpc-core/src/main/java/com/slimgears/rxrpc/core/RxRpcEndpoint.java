@@ -10,4 +10,5 @@ import java.lang.annotation.Target;
 public @interface RxRpcEndpoint {
     String value() default "";
     String module() default "";
+    String[] options() default {};
 }

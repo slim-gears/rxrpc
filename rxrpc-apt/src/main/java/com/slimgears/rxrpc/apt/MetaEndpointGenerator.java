@@ -13,6 +13,7 @@ public interface MetaEndpointGenerator extends CodeGenerator<MetaEndpointGenerat
     @AutoValue
     abstract class Context extends CodeGenerator.Context {
         public abstract RxRpcGenerate meta();
+        public abstract String moduleName();
         public abstract ImmutableList<MetaEndpointInfo> endpoints();
 
         public static Context.Builder builder() {
@@ -22,6 +23,7 @@ public interface MetaEndpointGenerator extends CodeGenerator<MetaEndpointGenerat
         @AutoValue.Builder
         public interface Builder extends CodeGenerator.Context.Builder<Context, Context.Builder> {
             Builder meta(RxRpcGenerate meta);
+            Builder moduleName(String moduleName);
             ImmutableList.Builder<MetaEndpointInfo> endpointsBuilder();
 
             default Builder endpoint(MetaEndpointInfo endpoint) {

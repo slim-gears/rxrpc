@@ -6,6 +6,16 @@ $imports
  * Generated from $sourceClass.name()
  */
 @$[javax.annotation.Generated]("$processorClass.name()")
-@$[com.slimgears.rxrpc.core.RxRpcEndpoint](#if (!$endpointName.empty)"$endpointName"#end)
+@$[com.slimgears.rxrpc.core.RxRpcEndpoint]##
+#if ($annotation.hasValues())##
+(##
+    #foreach ($value in $annotation.values())##
+        #if ($foreach.hasNext)$value.name() = #end##
+        ${value.value().asString()}##
+        #if ($foreach.hasNext)#, #end##
+    #end##
+)##
+#end
+
 public interface $targetType.simpleName() extends $[$superType] {
 }

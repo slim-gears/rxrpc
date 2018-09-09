@@ -2,6 +2,7 @@ package com.slimgears.rxrpc.apt;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.auto.service.AutoService;
+import com.google.common.collect.ImmutableMap;
 import com.slimgears.apt.AbstractAnnotationProcessor;
 import com.slimgears.apt.data.Environment;
 import com.slimgears.apt.data.MethodInfo;
@@ -9,6 +10,7 @@ import com.slimgears.apt.data.TypeInfo;
 import com.slimgears.apt.util.ElementUtils;
 import com.slimgears.rxrpc.apt.data.PropertyInfo;
 import com.slimgears.rxrpc.apt.internal.CodeGenerator;
+import com.slimgears.rxrpc.apt.util.OptionsUtils;
 import com.slimgears.rxrpc.apt.util.ServiceProviders;
 import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import com.slimgears.rxrpc.core.RxRpcEndpoint;
@@ -21,11 +23,10 @@ import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,8 +46,13 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
 
     protected boolean processType(TypeElement annotationType, TypeElement typeElement) {
         log.info("Processing type: {}", typeElement.getQualifiedName());
-        EndpointGenerator.Context context = createContext(annotationType, typeElement);
-        endpointGenerators.forEach(cg -> cg.generate(context));
+        try (Environment ignored = Environment.instance()
+                .toBuilder()
+                .propertiesFrom(getOptions(typeElement))
+                .build()) {
+            EndpointGenerator.Context context = createContext(annotationType, typeElement);
+            endpointGenerators.forEach(cg -> cg.generate(context));
+        }
         return true;
     }
 
@@ -112,6 +118,14 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
                 .moduleName(getModuleName(typeElement))
                 .addMethods(methods)
                 .build();
+    }
+
+    private Map<String, String> getOptions(TypeElement typeElement) {
+        return Optional
+                .ofNullable(typeElement.getAnnotation(RxRpcEndpoint.class))
+                .map(RxRpcEndpoint::options)
+                .map(OptionsUtils::toOptions)
+                .orElseGet(ImmutableMap::of);
     }
 
     private String getEndpointName(TypeElement typeElement) {

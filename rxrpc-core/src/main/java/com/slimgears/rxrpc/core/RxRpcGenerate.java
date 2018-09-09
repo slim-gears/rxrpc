@@ -13,12 +13,12 @@ import java.lang.annotation.Target;
 public @interface RxRpcGenerate {
     @Retention(RetentionPolicy.SOURCE)
     @interface Endpoint {
+        RxRpcEndpoint annotation() default @RxRpcEndpoint();
         String className() default "";
-        String endpointName() default "";
         Class[] params();
     }
 
-    String endpointName() default "";
+    RxRpcEndpoint annotation() default @RxRpcEndpoint();
     String className() default "";
     Endpoint[] value();
 }

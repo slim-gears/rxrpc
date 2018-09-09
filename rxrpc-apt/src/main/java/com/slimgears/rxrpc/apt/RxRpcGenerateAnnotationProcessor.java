@@ -9,6 +9,7 @@ import com.slimgears.apt.data.TypeInfo;
 import com.slimgears.apt.util.ElementUtils;
 import com.slimgears.apt.util.NameTemplateUtils;
 import com.slimgears.rxrpc.apt.data.MetaEndpointInfo;
+import com.slimgears.rxrpc.apt.util.OptionsUtils;
 import com.slimgears.rxrpc.apt.util.ServiceProviders;
 import com.slimgears.rxrpc.core.RxRpcGenerate;
 import org.apache.commons.text.StringSubstitutor;
@@ -47,6 +48,7 @@ public class RxRpcGenerateAnnotationProcessor extends AbstractAnnotationProcesso
                 .builder()
                 .environment(processingEnv)
                 .sourceTypeElement(typeElement)
+                .moduleName(meta.annotation().module())
                 .processorClass(getClass())
                 .meta(meta);
 
@@ -75,9 +77,9 @@ public class RxRpcGenerateAnnotationProcessor extends AbstractAnnotationProcesso
                 .orElseGet(() -> substitutor.replace(meta.className()));
 
         String endpointName = Optional
-                .of(endpointMeta.endpointName())
+                .of(endpointMeta.annotation().value())
                 .filter(n -> !n.isEmpty())
-                .orElseGet(() -> substitutor.replace(meta.endpointName()));
+                .orElseGet(() -> substitutor.replace(meta.annotation().value()));
 
         String packageName = typeInfo.packageName();
         TypeInfo superType = TypeInfo.builder()
@@ -92,6 +94,8 @@ public class RxRpcGenerateAnnotationProcessor extends AbstractAnnotationProcesso
                 .targetType(targetType)
                 .meta(endpointMeta)
                 .name(endpointName)
+                .addOptions(OptionsUtils.toOptions(meta.annotation().options()))
+                .addOptions(OptionsUtils.toOptions(endpointMeta.annotation().options()))
                 .build();
     }
 
@@ -109,8 +113,8 @@ public class RxRpcGenerateAnnotationProcessor extends AbstractAnnotationProcesso
             NameTemplateUtils.validateNameTemplate(meta.className(), typeElement);
         }
 
-        if (endpointMeta.endpointName().isEmpty() && !meta.endpointName().isEmpty()) {
-            NameTemplateUtils.validateNameTemplate(meta.endpointName(), typeElement);
+        if (endpointMeta.annotation().value().isEmpty() && !meta.annotation().value().isEmpty()) {
+            NameTemplateUtils.validateNameTemplate(meta.annotation().value(), typeElement);
         }
 
         checkArgument(ElementUtils.typesFromAnnotation(endpointMeta, RxRpcGenerate.Endpoint::params).length == typeElement.getTypeParameters().size(), "Parameter number mismatch");

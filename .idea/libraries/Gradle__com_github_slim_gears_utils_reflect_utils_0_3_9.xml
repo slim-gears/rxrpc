@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Gradle: com.github.slim-gears.utils:reflect-utils:0.3.9">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/Could not resolve com.github.slim-gears.utils:reflect-utils:0.3.9." />
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.slim-gears.utils/reflect-utils/0.3.9/60a87c382ba9830539798ab8c1c6b48b9e4ad9b3/reflect-utils-0.3.9.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.slim-gears.utils/reflect-utils/0.3.9/561a2ccc6d99736cedee86e387ca1f35eccb0732/reflect-utils-0.3.9-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

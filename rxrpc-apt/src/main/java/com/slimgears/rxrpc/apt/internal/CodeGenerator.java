@@ -42,19 +42,16 @@ public interface CodeGenerator<C extends CodeGenerator.Context> {
             return ElementUtils.toDeclaredType(sourceTypeElement());
         }
         public Logger log() { return log; }
-        public Map<String, String> options() {
-            return environment().getOptions();
-        }
 
         public String option(String option) {
-            return Optional
-                    .ofNullable(Environment.instance().properties())
-                    .map(prop -> prop.getProperty(option))
-                    .orElse(null);
+            return Environment.instance().properties().get(option);
         }
 
         public boolean hasOption(String option) {
-            return Environment.instance().properties().containsKey(option);
+            return Optional
+                    .ofNullable(Environment.instance().properties().get(option))
+                    .map(Boolean::valueOf)
+                    .orElse(false);
         }
 
         public interface Builder<C extends Context, B extends Builder<C, B>> {
