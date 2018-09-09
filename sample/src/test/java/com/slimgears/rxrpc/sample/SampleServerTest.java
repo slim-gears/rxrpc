@@ -82,7 +82,7 @@ public class SampleServerTest {
                 .observableMethod(new SampleRequest(count, "Test"))
                 .map(n -> n.data)
                 .test()
-                .awaitDone(count * 1000 + 1000, TimeUnit.MILLISECONDS)
+                .awaitDone((count + 1) * 2000, TimeUnit.MILLISECONDS)
                 .assertComplete()
                 .assertValueCount(count);
     }
