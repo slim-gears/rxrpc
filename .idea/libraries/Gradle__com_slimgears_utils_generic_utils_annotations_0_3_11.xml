@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.slimgears.utils:generic-utils-annotations:0.3.11">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/slimgears/utils/generic-utils-annotations/0.3.11/generic-utils-annotations-0.3.11.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/slimgears/utils/generic-utils-annotations/0.3.11/generic-utils-annotations-0.3.11-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,5 +1,6 @@
 apply from: "$scriptsDir/java.gradle"
 apply from: "$scriptsDir/maven-publish.gradle"
+apply from: "$scriptsDir/bintray.gradle"
 
 dependencies {
     implementation project(':rxrpc-apt')

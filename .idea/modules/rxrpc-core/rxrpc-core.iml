@@ -5,7 +5,9 @@
     <content url="file://$MODULE_DIR$/../../../rxrpc-core">
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-core/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-core/build/classes" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-core/build/docs" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-core/build/libs" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-core/build/publications" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-core/build/reports" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-core/build/test-results" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-core/build/tmp" />

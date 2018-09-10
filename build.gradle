@@ -1,13 +1,15 @@
 group 'com.slimgears.rxrpc'
-version '0.3-SNAPSHOT'
+version System.getenv('TRAVIS_GIT') ?: '0.3-SNAPSHOT'
 
 buildscript {
     repositories {
         maven { url "https://plugins.gradle.org/m2/" }
+        maven { url 'https://jitpack.io' }
     }
     dependencies {
         classpath "net.ltgt.gradle:gradle-apt-plugin:0.18"
         classpath "com.moowork.gradle:gradle-node-plugin:1.2.0"
+        classpath 'com.github.slim-gears:gradle-bintray-plugin:1.8.7'
     }
 }
 
