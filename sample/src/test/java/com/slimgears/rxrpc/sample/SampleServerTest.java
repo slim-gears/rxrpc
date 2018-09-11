@@ -4,12 +4,10 @@ import ch.qos.logback.classic.Level;
 import com.slimgears.rxrpc.client.RxClient;
 import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketRxTransport;
 import com.slimgears.util.generic.ServiceResolver;
-import io.reactivex.internal.functions.Functions;
 import org.junit.*;
 
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class SampleServerTest {
     private final static int port = 8000;
@@ -43,7 +41,7 @@ public class SampleServerTest {
         sayHelloClient
                 .sayHello("Alice")
                 .test()
-                .awaitDone(5000, TimeUnit.MILLISECONDS)
+                .awaitDone(20, TimeUnit.SECONDS)
                 .assertValueCount(1)
                 .assertValue("Hello, Alice");
     }
@@ -82,7 +80,7 @@ public class SampleServerTest {
                 .observableMethod(new SampleRequest(count, "Test"))
                 .map(n -> n.data)
                 .test()
-                .awaitDone((count + 1) * 2000, TimeUnit.MILLISECONDS)
+                .awaitDone(20, TimeUnit.SECONDS)
                 .assertComplete()
                 .assertValueCount(count);
     }
