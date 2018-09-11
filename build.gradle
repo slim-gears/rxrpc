@@ -6,7 +6,6 @@ apply from: "$projectDir/gradle-scripts/root.gradle"
 
 rootProject.applyScripts(
         ["$scriptsDir/java.gradle",
-         "$scriptsDir/maven-publish.gradle",
          "$scriptsDir/bintray.gradle"],
         [':rxrpc-apt',
          ':rxrpc-apt-java',
