@@ -6,6 +6,7 @@ package com.slimgears.rxrpc.sample;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.slimgears.rxrpc.core.RxRpcEndpoint;
 import com.slimgears.rxrpc.core.RxRpcGenerate;
+import com.slimgears.rxrpc.core.RxRpcMethod;
 import io.reactivex.Observable;
 
 @RxRpcGenerate(
@@ -27,5 +28,6 @@ public interface SampleMetaEndpoint<T> {
         }
     }
 
+    @RxRpcMethod
     Observable<SampleData<T>> echoData(SampleData<T> data);
 }
