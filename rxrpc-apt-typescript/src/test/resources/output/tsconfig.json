@@ -18,6 +18,6 @@
       "dom"
     ]
   },
-  "files": [ "index.ts", "module.ts" ],
+  "files": [ "index.ts" ],
   "exclude": [ "node_modules", "dist" ]
 }
