@@ -5,12 +5,13 @@ package com.slimgears.rxrpc.apt.java;
 
 import com.google.auto.service.AutoService;
 import com.slimgears.apt.data.TypeInfo;
+import com.slimgears.apt.util.ElementUtils;
 import com.slimgears.apt.util.ImportTracker;
+import com.slimgears.apt.util.JavaUtils;
 import com.slimgears.apt.util.TemplateEvaluator;
 import com.slimgears.rxrpc.apt.EndpointGenerator;
 
 import javax.annotation.processing.SupportedOptions;
-import javax.lang.model.element.ElementKind;
 
 @AutoService(EndpointGenerator.class)
 @SupportedOptions({
@@ -44,7 +45,7 @@ public class JavaEndpointGenerator implements EndpointGenerator {
                 .forResource(templatePath)
                 .variables(context)
                 .variable("hasModuleName", context.moduleName() != null)
-                .variable("isInterface", context.sourceTypeElement().getKind() == ElementKind.INTERFACE)
+                .variable("isInterface", ElementUtils.isInterface(context.sourceTypeElement()))
                 .variable("javaUtils", new JavaUtils())
                 .variable("autoService", context.hasOption(useAutoServiceOption))
                 .variable("targetClass", targetClass)

@@ -21,4 +21,8 @@ public @interface RxRpcGenerate {
     RxRpcEndpoint annotation() default @RxRpcEndpoint();
     String className() default "";
     Endpoint[] value();
+
+    @interface ClassParam {
+        String value();
+    }
 }

@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.slimgears.utils:apt-utils:tests:0.3-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/slimgears/utils/apt-utils/0.3-SNAPSHOT/apt-utils-0.3-SNAPSHOT-tests.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/slimgears/utils/apt-utils/0.3-SNAPSHOT/apt-utils-0.3-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

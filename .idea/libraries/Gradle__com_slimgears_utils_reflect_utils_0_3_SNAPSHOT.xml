@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.slimgears.utils:reflect-utils:0.3-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/slimgears/utils/reflect-utils/0.3-SNAPSHOT/reflect-utils-0.3-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/slimgears/utils/reflect-utils/0.3-SNAPSHOT/reflect-utils-0.3-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

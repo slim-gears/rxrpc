@@ -16,5 +16,32 @@ $imports
 )##
 #end
 
-public interface $targetType.simpleName() extends $[$superType] {
+public ##
+#if ($isInterface)interface#{else}class#end ##
+$targetType.simpleName() extends $[$superType] {
+#foreach ($c in $mappedConstructors)##
+    #foreach ($ann in $c.superConstructor().annotations())##
+
+    @$[$ann.type()]##
+    #end##
+
+    public $targetClass.simpleName()(##
+    #foreach ($p in $c.params())##
+        #foreach ($ann in $p.annotations())##
+            $ann.asString() ##
+        #end##
+        $[$p.type()] $p.name()##
+        #if ($foreach.hasNext), #end##
+    #end) {
+        super(##
+    #foreach ($p in $c.superConstructor().params())##
+        #if ($c.isClassParam($p))##
+                $[$c.getClassParam($p)].class##
+        #else##
+            $p.name()##
+        #end##
+        #if ($foreach.hasNext), #end##
+    #end);
+    }
+#end
 }

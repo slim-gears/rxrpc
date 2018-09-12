@@ -1,7 +1,9 @@
 ## RxRpc: End-to-end asynchronus ReactiveX-based RPC framework for Java and TypeScript
 
+[![Tag](https://img.shields.io/github/tag/slim-gears/rxrpc.svg)](https://github.com/slim-gears/rxrpc)
 [![Build Status](https://travis-ci.org/slim-gears/rxrpc.svg?branch=master)](https://travis-ci.org/slim-gears/rxrpc)
 [![](https://jitpack.io/v/slim-gears/rxrpc.svg)](https://jitpack.io/#slim-gears/rxrpc)
+[![Download](https://api.bintray.com/packages/slim-gears/maven/rxrpc-core/images/download.svg)](https://bintray.com/slim-gears/maven/rxrpc-core/_latestVersion)
 [![npm version](https://badge.fury.io/js/ng-rxrpc.svg)](https://badge.fury.io/js/ng-rxrpc)
 
 # WORK IN PROGRESS...

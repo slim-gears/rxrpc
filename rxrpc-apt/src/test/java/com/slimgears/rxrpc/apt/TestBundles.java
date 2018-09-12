@@ -54,6 +54,13 @@ public class TestBundles {
                 .processedWith(new RxRpcGenerateAnnotationProcessor());
     }
 
+    public static AnnotationProcessingTester sampleGenericMetaEndpointClassTester() {
+        return rxRpcEndpointProcessingTester()
+                .inputFiles(
+                        "SampleGenericMetaEndpointClass.java")
+                .processedWith(new RxRpcGenerateAnnotationProcessor());
+    }
+
     public static AnnotationProcessingTester sampleMetaDefaultNameEndpointTester() {
         return rxRpcEndpointProcessingTester()
                 .inputFiles("SampleGenericMetaDefaultNameEndpoint.java")

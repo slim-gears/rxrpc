@@ -100,7 +100,7 @@ public class RxRpcGenerateAnnotationProcessor extends AbstractAnnotationProcesso
     }
 
     private void validateType(TypeElement typeElement) {
-        checkArgument(ElementUtils.isInterface(typeElement), "Annotated type should be interface");
+        //checkArgument(ElementUtils.isInterface(typeElement), "Annotated type should be interface");
         checkArgument(!typeElement.getTypeParameters().isEmpty(), "Annotated type should have one or more type parameters");
         RxRpcGenerate meta = typeElement.getAnnotation(RxRpcGenerate.class);
         checkArgument(meta.value().length > 0, "Meta endpoint instantiations are not defined");

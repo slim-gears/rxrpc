@@ -16,7 +16,6 @@ dependencies {
     implementation libs.jacksonJdk8
     compileOnly libs.autoService
     annotationProcessor libs.autoService
-    compileOnly libs.slimGearsGenericUtilsAnnotations
     testImplementation libs.logbackClassic
     testImplementation libs.logbackCore
 }
