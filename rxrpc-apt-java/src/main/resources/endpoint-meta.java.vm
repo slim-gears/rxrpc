@@ -10,9 +10,8 @@ $imports
 #if ($annotation.hasValues())##
 (##
     #foreach ($value in $annotation.values())##
-        #if ($foreach.hasNext)$value.name() = #end##
-        ${value.value().asString()}##
-        #if ($foreach.hasNext)#, #end##
+        $value.name() = ${value.value().asString()}##
+        #if ($foreach.hasNext), #end##
     #end##
 )##
 #end

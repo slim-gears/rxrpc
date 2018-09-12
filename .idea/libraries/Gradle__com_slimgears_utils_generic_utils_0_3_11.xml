@@ -3,10 +3,12 @@
     <CLASSES>
       <root url="file://$PROJECT_DIR$/Could not find com.slimgears.utils:generic-utils:0.3.11." />
       <root url="jar://$MAVEN_REPOSITORY$/com/slimgears/utils/generic-utils/0.3.11/generic-utils-0.3.11.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.slimgears.utils/generic-utils/0.3.11/46603b800270a4f531b055455728c838b39becfd/generic-utils-0.3.11.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
       <root url="jar://$MAVEN_REPOSITORY$/com/slimgears/utils/generic-utils/0.3.11/generic-utils-0.3.11-sources.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.slimgears.utils/generic-utils/0.3.11/8ca2e3b6d41a42c8e152f55faccf7b1b802e8ba6/generic-utils-0.3.11-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

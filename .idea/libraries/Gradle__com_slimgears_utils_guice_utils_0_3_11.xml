@@ -3,10 +3,12 @@
     <CLASSES>
       <root url="file://$PROJECT_DIR$/Could not find com.slimgears.utils:guice-utils:0.3.11." />
       <root url="jar://$MAVEN_REPOSITORY$/com/slimgears/utils/guice-utils/0.3.11/guice-utils-0.3.11.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.slimgears.utils/guice-utils/0.3.11/b43892862122db45e67e2b6c28ec56ff3ac8452c/guice-utils-0.3.11.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
       <root url="jar://$MAVEN_REPOSITORY$/com/slimgears/utils/guice-utils/0.3.11/guice-utils-0.3.11-sources.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.slimgears.utils/guice-utils/0.3.11/c7b91fd3802ee580429d13b1f262775ff7d56a3c/guice-utils-0.3.11-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

@@ -3,10 +3,12 @@
     <CLASSES>
       <root url="file://$PROJECT_DIR$/Could not find com.slimgears.utils:reflect-utils:0.3.11." />
       <root url="jar://$MAVEN_REPOSITORY$/com/slimgears/utils/reflect-utils/0.3.11/reflect-utils-0.3.11.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.slimgears.utils/reflect-utils/0.3.11/3edb99c11e08f2d2359b12668272ae85f2b4ca4d/reflect-utils-0.3.11.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
       <root url="jar://$MAVEN_REPOSITORY$/com/slimgears/utils/reflect-utils/0.3.11/reflect-utils-0.3.11-sources.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.slimgears.utils/reflect-utils/0.3.11/b8e998e4be9029653378eb5a5ce03889b03b358b/reflect-utils-0.3.11-sources.jar!/" />
     </SOURCES>
   </library>
 </component>
