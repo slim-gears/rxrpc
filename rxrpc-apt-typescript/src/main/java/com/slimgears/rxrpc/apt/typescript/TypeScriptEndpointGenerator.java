@@ -39,6 +39,10 @@ public class TypeScriptEndpointGenerator implements EndpointGenerator {
 
     @Override
     public void generate(Context context) {
+        if (!context.meta().generateClient()) {
+            return;
+        }
+
         TypeInfo targetClass = TypeInfo.of(context.sourceTypeElement().getSimpleName().toString() + "Client");
         generateCode(
                 context,

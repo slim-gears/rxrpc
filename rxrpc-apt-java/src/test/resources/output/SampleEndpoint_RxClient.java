@@ -2,6 +2,7 @@ package com.slimgears.rxrpc.sample;
 
 import com.slimgears.rxrpc.client.AbstractClient;
 import com.slimgears.rxrpc.client.RxClient.Session;
+import com.slimgears.util.reflect.TypeToken;
 import io.reactivex.Observable;
 import java.lang.Integer;
 import java.lang.String;
@@ -20,7 +21,7 @@ public class SampleEndpoint_RxClient extends AbstractClient implements SampleEnd
     @Override
     public Future<String> futureStringMethod(String msg, SampleRequest request) {
         return invokeFuture(
-                String.class,
+                TypeToken.of(String.class),
                 "sample-endpoint/futureStringMethod",
                 arguments()
                         .put("msg", msg)
@@ -30,7 +31,7 @@ public class SampleEndpoint_RxClient extends AbstractClient implements SampleEnd
     @Override
     public Observable<SampleData> observableDataMethod(SampleRequest request) {
         return invokeObservable(
-                SampleData.class,
+                TypeToken.of(SampleData.class),
                 "sample-endpoint/observableDataMethod",
                 arguments()
                         .put("request", request));
@@ -39,7 +40,7 @@ public class SampleEndpoint_RxClient extends AbstractClient implements SampleEnd
     @Override
     public int intMethod(SampleRequest request) {
         return invokeBlocking(
-                Integer.class,
+                TypeToken.of(Integer.class),
                 "sample-endpoint/intMethod",
                 arguments()
                         .put("request", request));
@@ -48,7 +49,7 @@ public class SampleEndpoint_RxClient extends AbstractClient implements SampleEnd
     @Override
     public Observable<SampleArray[]> arrayObservableMethod(SampleData sampleData) {
         return invokeObservable(
-                SampleArray[].class,
+                TypeToken.of(SampleArray[].class),
                 "sample-endpoint/arrayObservableMethod",
                 arguments()
                         .put("sampleData", sampleData));

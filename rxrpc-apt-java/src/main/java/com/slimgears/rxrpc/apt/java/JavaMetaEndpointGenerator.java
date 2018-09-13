@@ -28,6 +28,8 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -89,9 +91,20 @@ public class JavaMetaEndpointGenerator implements MetaEndpointGenerator {
                         .build())
                 .collect(ImmutableList.toImmutableList());
 
+        boolean generateClient = mergeAnnotationInfo(context, metaEndpoint, RxRpcEndpoint::generateClient, Boolean::logicalAnd);
+        boolean generateServer = mergeAnnotationInfo(context, metaEndpoint, RxRpcEndpoint::generateServer, Boolean::logicalAnd);
+
         AnnotationInfo.Builder rxRpcEndpointBuilder = AnnotationInfo
                 .builder()
                 .type(RxRpcEndpoint.class);
+
+        if (!generateClient) {
+            rxRpcEndpointBuilder.value(AnnotationValueInfo.ofPrimitive("generateClient", false));
+        }
+
+        if (!generateServer) {
+            rxRpcEndpointBuilder.value(AnnotationValueInfo.ofPrimitive("generateServer", false));
+        }
 
         if (!metaEndpoint.name().isEmpty()) {
             rxRpcEndpointBuilder.valuesBuilder().add(AnnotationValueInfo.ofPrimitive("value", metaEndpoint.name()));
@@ -131,5 +144,11 @@ public class JavaMetaEndpointGenerator implements MetaEndpointGenerator {
                 .variable("annotation", rxRpcEndpointBuilder.build())
                 .apply(JavaUtils.imports(importTracker))
                 .write(JavaUtils.fileWriter(context.environment(), metaEndpoint.targetType()));
+    }
+
+    private <T> T mergeAnnotationInfo(Context context, MetaEndpointInfo endpointInfo, Function<RxRpcEndpoint, T> getter, BinaryOperator<T> merger) {
+        T fromContext = getter.apply(context.meta().annotation());
+        T fromEndpoint = getter.apply(endpointInfo.meta().annotation());
+        return merger.apply(fromContext, fromEndpoint);
     }
 }

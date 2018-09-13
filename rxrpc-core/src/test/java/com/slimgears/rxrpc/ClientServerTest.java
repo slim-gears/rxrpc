@@ -6,6 +6,7 @@ import com.slimgears.rxrpc.server.EndpointRouter;
 import com.slimgears.rxrpc.server.EndpointRouters;
 import com.slimgears.rxrpc.server.RxServer;
 import com.slimgears.util.generic.ServiceResolver;
+import com.slimgears.util.reflect.TypeToken;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
@@ -43,7 +44,7 @@ public class ClientServerTest {
             super(session);
         }
 
-        public <T> Observable<T> invokeObservable(Class<T> responseType, String method, Function<InvocationArgs, InvocationArgs> args) {
+        public <T> Observable<T> invokeObservable(TypeToken<T> responseType, String method, Function<InvocationArgs, InvocationArgs> args) {
             InvocationArguments arguments = arguments();
             InvocationArgs invocationArgs = new InvocationArgs() {
                 @Override
@@ -64,7 +65,7 @@ public class ClientServerTest {
         EndpointRouter.Factory factory = EndpointRouters
                 .builder(Object.class)
                 .method("testMethod", (target, args) -> serverSubject
-                        .map(s -> args.get("prefix", String.class) + ":" + s)
+                        .map(s -> args.get("prefix", TypeToken.of(String.class)) + ":" + s)
                         .toFlowable(BackpressureStrategy.BUFFER))
                 .buildFactory();
 
@@ -89,7 +90,7 @@ public class ClientServerTest {
     public void testBasicClientServer() {
         TestObserver<String> tester = rxClient.connect(URI.create(""))
                 .resolve(EndpointClient.class)
-                .invokeObservable(String.class, "testMethod", args -> args.put("prefix", "[S]"))
+                .invokeObservable(TypeToken.of(String.class), "testMethod", args -> args.put("prefix", "[S]"))
                 .test();
 
         Observable.just("One", "Two", "Three").subscribe(serverSubject);
@@ -103,7 +104,7 @@ public class ClientServerTest {
     public void testClientUnsubscribeCausesServerUnsubscribe() {
         Disposable subscription = rxClient.connect(URI.create(""))
                 .resolve(EndpointClient.class)
-                .invokeObservable(String.class, "testMethod", args -> args.put("prefix", "[S]"))
+                .invokeObservable(TypeToken.of(String.class), "testMethod", args -> args.put("prefix", "[S]"))
                 .subscribe();
 
         Assert.assertTrue(serverSubject.hasObservers());
@@ -120,7 +121,7 @@ public class ClientServerTest {
         try (ServiceResolver resolver = rxClient.connect(URI.create(""))) {
             resolver
                     .resolve(EndpointClient.class)
-                    .invokeObservable(String.class, "testMethod", args -> args.put("prefix", "[S]"))
+                    .invokeObservable(TypeToken.of(String.class), "testMethod", args -> args.put("prefix", "[S]"))
                     .subscribe();
             Assert.assertTrue(serverSubject.hasObservers());
         }

@@ -2,6 +2,7 @@ package com.slimgears.rxrpc.sample;
 
 import com.slimgears.rxrpc.client.AbstractClient;
 import com.slimgears.rxrpc.client.RxClient.Session;
+import com.slimgears.util.reflect.TypeToken;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import java.lang.String;
@@ -19,7 +20,7 @@ public class SampleSpecializedEndpoint_RxClient extends AbstractClient implement
     @Override
     public Observable<String> genericMethod(String data) {
         return invokeObservable(
-                String.class,
+                TypeToken.of(String.class),
                 "sampleSpecializedEndpoint/genericMethod",
                 arguments()
                         .put("data", data));
@@ -28,7 +29,7 @@ public class SampleSpecializedEndpoint_RxClient extends AbstractClient implement
     @Override
     public Observable<SampleGenericData<String>> genericDataMethod(String request) {
         return invokeObservable(
-                (Class<SampleGenericData<String>>)(Class)SampleGenericData.class,
+                new TypeToken<SampleGenericData<String>>(){},
                 "sampleSpecializedEndpoint/genericDataMethod",
                 arguments()
                         .put("request", request));
@@ -37,7 +38,7 @@ public class SampleSpecializedEndpoint_RxClient extends AbstractClient implement
     @Override
     public Completable genericInputDataMethod(SampleGenericData<String> data) {
         return invokeCompletable(
-                Void.class,
+                TypeToken.of(Void.class),
                 "sampleSpecializedEndpoint/genericInputDataMethod",
                 arguments()
                         .put("data", data));

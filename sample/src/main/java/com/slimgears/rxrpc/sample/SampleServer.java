@@ -19,7 +19,9 @@ public class SampleServer {
                 .server(transportServer) // Use jetty WebSocket-servlet based transport
                 .modules(
                         EndpointRouters.moduleByName("sampleModule"),
-                        new SayHelloEndpoint_RxModule())
+                        new SayHelloEndpoint_RxModule(),
+                        new SampleMetaEndpointImplInteger_RxModule(),
+                        new SampleMetaEndpointImplSampleRequest_RxModule())
                 .resolver(ServiceResolvers
                         .builder()
                         .bind(SampleEndpoint.class).to(SampleEndpointImpl.class)

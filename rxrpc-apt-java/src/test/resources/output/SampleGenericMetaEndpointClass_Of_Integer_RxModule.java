@@ -6,6 +6,7 @@ import com.slimgears.rxrpc.server.EndpointRouter.Module;
 import com.slimgears.rxrpc.server.EndpointRouters;
 import com.slimgears.rxrpc.server.internal.MethodDispatcher;
 import com.slimgears.rxrpc.server.internal.Publishers;
+import com.slimgears.util.reflect.TypeToken;
 import java.lang.Integer;
 import javax.annotation.Generated;
 
@@ -16,7 +17,7 @@ import javax.annotation.Generated;
 public class SampleGenericMetaEndpointClass_Of_Integer_RxModule implements Module {
     private final static MethodDispatcher<SampleGenericMetaEndpointClass_Of_Integer, Integer> genericMethod = (target, args) ->
             Publishers.toPublisher(target.genericMethod(
-                    args.get("data", Integer.class)));
+                    args.get("data", TypeToken.of(Integer.class))));
 
     private final static Factory dispatcherFactory = EndpointRouters
             .builder(SampleGenericMetaEndpointClass_Of_Integer.class)

@@ -1,5 +1,6 @@
 dependencies {
     implementation project(':rxrpc-apt')
+    implementation project(':rxrpc-core')
     testImplementation project(path: ':rxrpc-apt', configuration: 'testOutput')
     compileOnly libs.autoService
     annotationProcessor libs.autoService

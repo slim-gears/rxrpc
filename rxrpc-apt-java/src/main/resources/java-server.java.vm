@@ -12,7 +12,7 @@ $imports
  */
 @$[javax.annotation.Generated]("$processorClass.name()")
 #if ($hasModuleName)
-@$[com.slimgears.rxrpc.core.RxRpcModule](name = "$moduleName", endpointClass = #classLiteral($sourceClass))
+@$[com.slimgears.rxrpc.core.RxRpcModule](name = "$moduleName", endpointClass = $[$sourceClass.erasureName()].class)
 #end
 #if ($autoService)##
 @$[com.google.auto.service.AutoService]($[com.slimgears.rxrpc.server.EndpointRouter.Module].class)

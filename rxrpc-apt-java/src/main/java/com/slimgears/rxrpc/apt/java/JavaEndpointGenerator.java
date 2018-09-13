@@ -26,10 +26,10 @@ public class JavaEndpointGenerator implements EndpointGenerator {
 
     @Override
     public void generate(Context context) {
-        if (context.hasOption(generateClientOption)) {
+        if (context.hasOption(generateClientOption) && context.meta().generateClient()) {
             generateClass(context, "_RxClient", "java-client.java.vm");
         }
-        if (context.hasOption(generateServerOption)) {
+        if (context.hasOption(generateServerOption) && context.meta().generateServer()) {
             generateClass(context, "_RxModule", "java-server.java.vm");
         }
     }

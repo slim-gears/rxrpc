@@ -105,6 +105,7 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
 
     protected EndpointGenerator.Context createContext(TypeElement annotationType, TypeElement typeElement) {
         DeclaredType declaredType = (DeclaredType)typeElement.asType();
+        RxRpcEndpoint annotation = typeElement.getAnnotation(RxRpcEndpoint.class);
 
         Collection<MethodInfo> methods = ElementUtils.toDeclaredTypeStream(typeElement)
                 .flatMap(ElementUtils::getHierarchy)
@@ -118,6 +119,7 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
                 .processorClass(getClass())
                 .sourceTypeElement(typeElement)
                 .environment(processingEnv)
+                .meta(annotation)
                 .endpointName(getEndpointName(typeElement))
                 .moduleName(getModuleName(typeElement))
                 .addMethods(methods)

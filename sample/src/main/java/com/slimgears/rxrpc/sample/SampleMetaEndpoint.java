@@ -11,7 +11,9 @@ import io.reactivex.Observable;
 
 @RxRpcGenerate(
         className = "SampleMeta${T}Endpoint",
-        annotation = @RxRpcEndpoint(value = "sampleMeta${T}Endpoint"),
+        annotation = @RxRpcEndpoint(
+                value = "sampleMeta${T}Endpoint",
+                generateServer = false),
         value = {
                 @RxRpcGenerate.Endpoint(params = String.class),
                 @RxRpcGenerate.Endpoint(params = Integer.class),
@@ -23,7 +25,7 @@ public interface SampleMetaEndpoint<T> {
     class SampleData<T> {
         @JsonProperty public final T value;
 
-        public SampleData(T value) {
+        public SampleData(@JsonProperty("value") T value) {
             this.value = value;
         }
     }
