@@ -57,6 +57,7 @@ public class TestBundles {
     public static AnnotationProcessingTester sampleGenericMetaEndpointClassTester() {
         return rxRpcEndpointProcessingTester()
                 .inputFiles(
+                        "SampleGenericMetaEndpointInterface.java",
                         "SampleGenericMetaEndpointClass.java")
                 .processedWith(new RxRpcGenerateAnnotationProcessor());
     }

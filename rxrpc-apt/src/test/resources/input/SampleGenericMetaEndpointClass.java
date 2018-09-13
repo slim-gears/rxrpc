@@ -13,11 +13,11 @@ import javax.inject.Named;
         className = "SampleGenericMetaEndpointClass_Of_${T}",
         annotation = @RxRpcEndpoint(options = "rxrpc.java.server=true"),
         value = @RxRpcGenerate.Endpoint(params = Integer.class))
-public class SampleGenericMetaEndpointClass<T> {
+public class SampleGenericMetaEndpointClass<T> implements SampleGenericMetaEndpointInterface<T> {
     private final Class<T> paramClass;
     private final List<T> items;
 
-    @RxRpcMethod
+    @Override
     public Observable<T> genericMethod(T data) {
         return Observable.fromIterable(items);
     }
