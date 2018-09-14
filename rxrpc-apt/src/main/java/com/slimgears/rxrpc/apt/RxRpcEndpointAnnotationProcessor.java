@@ -14,6 +14,7 @@ import com.slimgears.rxrpc.apt.util.OptionsUtils;
 import com.slimgears.rxrpc.apt.util.ServiceProviders;
 import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import com.slimgears.rxrpc.core.RxRpcEndpoint;
+import com.slimgears.rxrpc.core.RxRpcMethod;
 import com.slimgears.util.stream.Streams;
 
 import javax.annotation.processing.Processor;
@@ -23,10 +24,12 @@ import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
-import java.util.*;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -102,10 +105,12 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
 
     protected EndpointGenerator.Context createContext(TypeElement annotationType, TypeElement typeElement) {
         DeclaredType declaredType = (DeclaredType)typeElement.asType();
+        RxRpcEndpoint annotation = typeElement.getAnnotation(RxRpcEndpoint.class);
 
         Collection<MethodInfo> methods = ElementUtils.toDeclaredTypeStream(typeElement)
                 .flatMap(ElementUtils::getHierarchy)
                 .flatMap(ElementUtils::getMethods)
+                .filter(el -> ElementUtils.hasAnnotation(el, RxRpcMethod.class))
                 .map(method -> ensureReferencedTypesGenerated(method, declaredType))
                 .map(methodElement -> MethodInfo.create(methodElement, declaredType))
                 .collect(Collectors.toList());
@@ -114,6 +119,7 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
                 .processorClass(getClass())
                 .sourceTypeElement(typeElement)
                 .environment(processingEnv)
+                .meta(annotation)
                 .endpointName(getEndpointName(typeElement))
                 .moduleName(getModuleName(typeElement))
                 .addMethods(methods)

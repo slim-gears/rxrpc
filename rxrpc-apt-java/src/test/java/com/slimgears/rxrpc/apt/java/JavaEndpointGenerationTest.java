@@ -9,6 +9,7 @@ import com.slimgears.rxrpc.apt.TestBundles;
 import com.slimgears.rxrpc.apt.util.ServiceProvider;
 import com.slimgears.rxrpc.apt.util.ServiceProviders;
 import com.slimgears.util.generic.Scope;
+import com.slimgears.util.generic.ScopedInstance;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -52,6 +53,16 @@ public class JavaEndpointGenerationTest {
     }
 
     @Test
+    public void testGenericMetaEndpointClassGeneration() {
+        TestBundles.sampleGenericMetaEndpointClassTester()
+                .apply(this::javaOptions)
+                .expectedSources(
+                        "SampleGenericMetaEndpointClass_Of_Integer.java",
+                        "SampleGenericMetaEndpointClass_Of_Integer_RxModule.java")
+                .test();
+    }
+
+    @Test
     public void testGenericMetaDefaultNameEndpointGeneration() {
         TestBundles.sampleMetaDefaultNameEndpointTester()
                 .apply(this::javaOptions)
@@ -63,7 +74,7 @@ public class JavaEndpointGenerationTest {
     public void testMetaEndpointReferencedTypeParamsGeneration() {
         DataClassGenerator dataClassGenerator = Mockito.mock(DataClassGenerator.class);
 
-        try (Scope.Closable ignored = Scope.scope(builder -> builder
+        try (ScopedInstance.Closable ignored = Scope.scope(builder -> builder
                 .bind(DataClassGenerator.class).toInstance(dataClassGenerator)
                 .bind(ServiceProvider.class).toInstance(ServiceProviders.ofMultiple(
                         ServiceProviders::loadServicesWithServiceLoader,

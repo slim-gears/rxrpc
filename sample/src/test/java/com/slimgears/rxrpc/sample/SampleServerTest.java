@@ -1,11 +1,18 @@
 package com.slimgears.rxrpc.sample;
 
 import ch.qos.logback.classic.Level;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.slimgears.rxrpc.client.RxClient;
 import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketRxTransport;
 import com.slimgears.util.generic.ServiceResolver;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
@@ -73,6 +80,31 @@ public class SampleServerTest {
         SampleEndpoint sampleEndpoint = clientResolver.resolve(SampleEndpoint_RxClient.class);
         sampleEndpoint.blockingErrorProducingMethod("Test error");
         testObservableMethod(sampleEndpoint, 1);
+    }
+
+    @Test
+    public void testMetaEndpoint() {
+        SampleMetaRequestEndpoint integerEndpoint = clientResolver.resolve(SampleMetaRequestEndpoint_RxClient.class);
+        integerEndpoint
+                .echoData(new SampleMetaEndpoint.SampleData<>(new SampleRequest(1, "Alice")))
+                .map(data -> data.value.name)
+                .test()
+                .awaitDone(20, TimeUnit.SECONDS)
+                .assertValueCount(2);
+    }
+
+    @Test
+    public void testObjectMapper() throws IOException {
+        SampleMetaEndpoint.SampleData<SampleRequest> data = new SampleMetaEndpoint.SampleData<>(new SampleRequest(3, "Bob"));
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(data);
+        SampleMetaEndpoint.SampleData<SampleRequest> newData = objectMapper.readValue(
+                json,
+                new TypeReference<SampleMetaEndpoint.SampleData<SampleRequest>>(){});
+
+        Assert.assertNotNull(newData);
+        Assert.assertEquals(data.value.id, newData.value.id);
+        Assert.assertEquals(data.value.name, newData.value.name);
     }
 
     private void testObservableMethod(SampleEndpoint client, int count) {

@@ -6,6 +6,7 @@ import com.slimgears.rxrpc.server.EndpointRouter.Module;
 import com.slimgears.rxrpc.server.EndpointRouters;
 import com.slimgears.rxrpc.server.internal.MethodDispatcher;
 import com.slimgears.rxrpc.server.internal.Publishers;
+import com.slimgears.util.reflect.TypeToken;
 import java.lang.String;
 import java.lang.Void;
 import javax.annotation.Generated;
@@ -14,15 +15,15 @@ import javax.annotation.Generated;
 public class SampleSpecializedEndpoint_RxModule implements Module {
     private final static MethodDispatcher<SampleSpecializedEndpoint, String> genericMethod = (target, args) ->
             Publishers.toPublisher(target.genericMethod(
-                    args.get("data", String.class)));
+                    args.get("data", TypeToken.of(String.class))));
 
     private final static MethodDispatcher<SampleSpecializedEndpoint, SampleGenericData<String>> genericDataMethod = (target, args) ->
             Publishers.toPublisher(target.genericDataMethod(
-                    args.get("request", String.class)));
+                    args.get("request", TypeToken.of(String.class))));
 
     private final static MethodDispatcher<SampleSpecializedEndpoint, Void> genericInputDataMethod = (target, args) ->
             Publishers.toPublisher(target.genericInputDataMethod(
-                    args.get("data", (Class<SampleGenericData<String>>)(Class)SampleGenericData.class)));
+                    args.get("data", new TypeToken<SampleGenericData<String>>(){})));
 
 
     private final static Factory dispatcherFactory = EndpointRouters

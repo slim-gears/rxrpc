@@ -8,6 +8,7 @@ import com.slimgears.rxrpc.server.EndpointRouter.Module;
 import com.slimgears.rxrpc.server.EndpointRouters;
 import com.slimgears.rxrpc.server.internal.MethodDispatcher;
 import com.slimgears.rxrpc.server.internal.Publishers;
+import com.slimgears.util.reflect.TypeToken;
 import java.lang.Integer;
 import java.lang.String;
 import javax.annotation.Generated;
@@ -21,20 +22,20 @@ import javax.annotation.Generated;
 public class SampleEndpoint_RxModule implements Module {
     private final static MethodDispatcher<SampleEndpoint, String> futureStringMethod = (target, args) ->
             Publishers.toPublisher(target.futureStringMethod(
-                    args.get("msg", String.class),
-                    args.get("request", SampleRequest.class)));
+                    args.get("msg", TypeToken.of(String.class)),
+                    args.get("request", TypeToken.of(SampleRequest.class))));
 
     private final static MethodDispatcher<SampleEndpoint, SampleData> observableDataMethod = (target, args) ->
             Publishers.toPublisher(target.observableDataMethod(
-                    args.get("request", SampleRequest.class)));
+                    args.get("request", TypeToken.of(SampleRequest.class))));
 
     private final static MethodDispatcher<SampleEndpoint, Integer> intMethod = (target, args) ->
             Publishers.toPublisher(target.intMethod(
-                    args.get("request", SampleRequest.class)));
+                    args.get("request", TypeToken.of(SampleRequest.class))));
 
     private final static MethodDispatcher<SampleEndpoint, SampleArray[]> arrayObservableMethod = (target, args) ->
             Publishers.toPublisher(target.arrayObservableMethod(
-                    args.get("sampleData", SampleData.class)));
+                    args.get("sampleData", TypeToken.of(SampleData.class))));
 
     private final static Factory dispatcherFactory = EndpointRouters
             .builder(SampleEndpoint.class)

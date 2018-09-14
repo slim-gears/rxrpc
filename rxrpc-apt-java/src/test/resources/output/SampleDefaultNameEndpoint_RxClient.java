@@ -2,6 +2,8 @@ package com.slimgears.rxrpc.sample;
 
 import com.slimgears.rxrpc.client.AbstractClient;
 import com.slimgears.rxrpc.client.RxClient.Session;
+import com.slimgears.util.reflect.TypeToken;
+
 import java.lang.Integer;
 import javax.annotation.Generated;
 
@@ -19,7 +21,7 @@ public class SampleDefaultNameEndpoint_RxClient extends AbstractClient implement
     @Override
     public int method() {
         return invokeBlocking(
-                Integer.class,
+                TypeToken.of(Integer.class),
                 "sample-default-name-endpoint/method",
                 arguments()
         );

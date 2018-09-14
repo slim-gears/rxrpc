@@ -5,6 +5,6 @@ import java.lang.String;
 import javax.annotation.Generated;
 
 @Generated("com.slimgears.rxrpc.apt.RxRpcGenerateAnnotationProcessor")
-@RxRpcEndpoint("sampleGenericMetaEndpointWithSpecificName")
+@RxRpcEndpoint(value = "sampleGenericMetaEndpointWithSpecificName", options = "rxrpc.java.server=true")
 public interface SampleGenericMetaEndpointWithSpecificName extends SampleGenericMetaEndpoint<String> {
 }

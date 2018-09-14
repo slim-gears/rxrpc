@@ -3,11 +3,14 @@
  */
 package com.slimgears.rxrpc.core.util;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.slimgears.util.reflect.TypeToken;
 import com.slimgears.util.stream.Lazy;
 
+import java.lang.reflect.Type;
 import java.util.function.Supplier;
 
 public class ObjectMappers {
@@ -19,5 +22,14 @@ public class ObjectMappers {
         return Lazy.of(() -> supplier.get().copy()
                  .registerModule(new GuavaModule())
                  .registerModule(new Jdk8Module()));
+    }
+
+    public static <T> TypeReference<T> toReference(TypeToken<T> token) {
+        return new TypeReference<T>() {
+            @Override
+            public Type getType() {
+                return token.type();
+            }
+        };
     }
 }

@@ -11,4 +11,6 @@ public @interface RxRpcEndpoint {
     String value() default "";
     String module() default "";
     String[] options() default {};
+    boolean generateServer() default true;
+    boolean generateClient() default true;
 }

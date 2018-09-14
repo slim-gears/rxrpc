@@ -14,6 +14,7 @@ import com.slimgears.rxrpc.server.internal.InvocationArguments;
 import com.slimgears.rxrpc.server.internal.ScopedResolver;
 import com.slimgears.util.generic.ServiceResolver;
 import com.slimgears.util.generic.ServiceResolvers;
+import com.slimgears.util.reflect.TypeToken;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
@@ -30,6 +31,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static com.slimgears.rxrpc.core.util.ObjectMappers.toReference;
 
 public class RxServer implements AutoCloseable {
     private final static Logger log = LoggerFactory.getLogger(RxServer.class);
@@ -98,13 +101,13 @@ public class RxServer implements AutoCloseable {
     private InvocationArguments toArguments(Map<String, JsonNode> args) {
         return new InvocationArguments() {
             @Override
-            public <T> T get(String key, Class<T> cls) {
+            public <T> T get(String key, TypeToken<T> type) {
                 return Optional
                         .ofNullable(args.get(key))
-                        .map(json -> {
+                        .<T>map(json -> {
                             try {
-                                return config.objectMapper().treeToValue(json, cls);
-                            } catch (JsonProcessingException e) {
+                                return config.objectMapper().readValue(json.traverse(), toReference(type));
+                            } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
                         })

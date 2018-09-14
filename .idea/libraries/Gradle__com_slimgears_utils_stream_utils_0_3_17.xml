@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.slimgears.utils:stream-utils:0.3.17">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.slimgears.utils/stream-utils/0.3.17/7cb0658df6111e77f39574830ccb582210f71056/stream-utils-0.3.17.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.slimgears.utils/stream-utils/0.3.17/dfeb5d9a6199b961cb548c6f2038e35e0ee42f2e/stream-utils-0.3.17-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
