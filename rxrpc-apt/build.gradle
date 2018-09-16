@@ -38,10 +38,10 @@ dependencies {
     implementation libs.javaxAnnotationApi
     implementation libs.javaPoet
 
-    implementation libs.slimGearsStreamUtils
-    implementation libs.slimGearsGuiceUtils
-    implementation libs.slimGearsAptUtils
-    testImplementation libs.slimGearsAptTestUtils
+    implementation libs.slimStreamUtils
+    implementation libs.slimGuiceUtils
+    implementation libs.slimAptUtils
+    testImplementation libs.slimAptTestUtils
 
     testImplementation files(Jvm.current().getToolsJar())
 }

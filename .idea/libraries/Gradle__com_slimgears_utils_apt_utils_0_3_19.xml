@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.slimgears.utils:apt-utils:0.3.19">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.slimgears.utils/apt-utils/0.3.19/bea5d62639c5558369b02443b42b9429f2487bdb/apt-utils-0.3.19.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.slimgears.utils/apt-utils/0.3.19/82e3cec48aec33583657dd3a4e4aafe62fdb9cb4/apt-utils-0.3.19-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
