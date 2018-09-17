@@ -1,6 +1,6 @@
 import { SampleNestedDataEndpoint, SampleNestedDataEndpointData } from './index';
 import { Injectable } from '@angular/core';
-import { RxRpcClient } from 'ng-rxrpc';
+import { RxRpcInvoker } from 'ng-rxrpc';
 import { Observable } from 'rxjs';
 
 /**
@@ -8,10 +8,10 @@ import { Observable } from 'rxjs';
  */
 @Injectable()
 export class SampleNestedDataEndpointClient implements SampleNestedDataEndpoint {
-    constructor(private client: RxRpcClient) {
+    constructor(private invoker: RxRpcInvoker) {
     }
 
     public observableDataMethod(): Observable<SampleNestedDataEndpointData> {
-        return this.client.invoke('sampleNestedDataEndpoint/observableDataMethod', {});
+        return this.invoker.invoke('sampleNestedDataEndpoint/observableDataMethod', {});
     }
 }
