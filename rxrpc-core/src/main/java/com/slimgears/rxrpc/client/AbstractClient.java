@@ -122,8 +122,8 @@ public abstract class AbstractClient implements AutoCloseable {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends Throwable> T rethrow(Throwable e) throws T {
-        //noinspection unchecked
         throw (T)e;
     }
 }

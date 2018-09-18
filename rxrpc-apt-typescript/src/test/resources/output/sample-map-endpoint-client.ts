@@ -1,6 +1,6 @@
 import { SampleMapData, SampleMapEndpoint } from './index';
 import { Injectable } from '@angular/core';
-import { RxRpcClient, StringKeyMap } from 'ng-rxrpc';
+import { RxRpcInvoker, StringKeyMap } from 'ng-rxrpc';
 import { Observable } from 'rxjs';
 
 /**
@@ -8,14 +8,14 @@ import { Observable } from 'rxjs';
  */
 @Injectable()
 export class SampleMapEndpointClient implements SampleMapEndpoint {
-    constructor(private client: RxRpcClient) {
+    constructor(private invoker: RxRpcInvoker) {
     }
 
     public mapDataMethod(arg: StringKeyMap<SampleMapData>): Observable<SampleMapData> {
-        return this.client.invoke('sample-map-endpoint/mapDataMethod', {arg: arg});
+        return this.invoker.invoke('sample-map-endpoint/mapDataMethod', {arg: arg});
     }
 
     public mapOfmapDataMethod(): Observable<StringKeyMap<SampleMapData>> {
-        return this.client.invoke('sample-map-endpoint/mapOfmapDataMethod', {});
+        return this.invoker.invoke('sample-map-endpoint/mapOfmapDataMethod', {});
     }
 }

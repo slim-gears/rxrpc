@@ -13,7 +13,7 @@ export class $targetClass.simpleName()##
     #end##
 #end {##
 
-    constructor(private client: $[ngRxrpc.RxRpcClient]) {
+    constructor(private invoker: $[ngRxrpc.RxRpcInvoker]) {
     }
 
 #foreach ($m in $methods)
@@ -23,7 +23,7 @@ export class $targetClass.simpleName()##
         #if ($foreach.hasNext), #end##
         #end)##
             : $[rxjs.Observable<$tsUtils.toTypeScriptType($utils.elementType($m.returnType()))>] {
-        return this.client.invoke('$endpointName/$m.name()', {##
+        return this.invoker.invoke('$endpointName/$m.name()', {##
         #foreach ($p in $m.params())##
             $p.name(): $p.name()##
             #if ($foreach.hasNext), ##

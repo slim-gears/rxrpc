@@ -10,8 +10,8 @@ dependencies {
     compileOnly libs.autoValueAnnotations
     annotationProcessor libs.autoValue
 
-    implementation libs.slimGearsAptUtils
+    implementation libs.slimAptUtils
 
     testImplementation libs.autoService
-    testImplementation libs.slimGearsAptTestUtils
+    testImplementation libs.slimAptTestUtils
 }

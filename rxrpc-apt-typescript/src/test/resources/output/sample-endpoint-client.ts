@@ -1,6 +1,6 @@
 import { SampleArray, SampleData, SampleEndpoint, SampleRequest } from './index';
 import { Injectable } from '@angular/core';
-import { RxRpcClient } from 'ng-rxrpc';
+import { RxRpcInvoker } from 'ng-rxrpc';
 import { Observable } from 'rxjs';
 
 /**
@@ -8,22 +8,22 @@ import { Observable } from 'rxjs';
  */
 @Injectable()
 export class SampleEndpointClient implements SampleEndpoint {
-    constructor(private client: RxRpcClient) {
+    constructor(private invoker: RxRpcInvoker) {
     }
 
     public futureStringMethod(msg: string, request: SampleRequest): Observable<string> {
-        return this.client.invoke('sample-endpoint/futureStringMethod', {msg: msg, request: request});
+        return this.invoker.invoke('sample-endpoint/futureStringMethod', {msg: msg, request: request});
     }
 
     public observableDataMethod(request: SampleRequest): Observable<SampleData> {
-        return this.client.invoke('sample-endpoint/observableDataMethod', {request: request});
+        return this.invoker.invoke('sample-endpoint/observableDataMethod', {request: request});
     }
 
     public intMethod(request: SampleRequest): Observable<number> {
-        return this.client.invoke('sample-endpoint/intMethod', {request: request});
+        return this.invoker.invoke('sample-endpoint/intMethod', {request: request});
     }
 
     public arrayObservableMethod(sampleData: SampleData): Observable<SampleArray[]> {
-        return this.client.invoke('sample-endpoint/arrayObservableMethod', {sampleData: sampleData});
+        return this.invoker.invoke('sample-endpoint/arrayObservableMethod', {sampleData: sampleData});
     }
 }

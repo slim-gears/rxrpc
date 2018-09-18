@@ -1,6 +1,6 @@
 import { SampleDefaultNameEndpoint } from './index';
 import { Injectable } from '@angular/core';
-import { RxRpcClient } from 'ng-rxrpc';
+import { RxRpcInvoker } from 'ng-rxrpc';
 import { Observable } from 'rxjs';
 
 /**
@@ -8,10 +8,10 @@ import { Observable } from 'rxjs';
  */
 @Injectable()
 export class SampleDefaultNameEndpointClient implements SampleDefaultNameEndpoint {
-    constructor(private client: RxRpcClient) {
+    constructor(private invoker: RxRpcInvoker) {
     }
 
     public method(): Observable<number> {
-        return this.client.invoke('sample-default-name-endpoint/method', {});
+        return this.invoker.invoke('sample-default-name-endpoint/method', {});
     }
 }
