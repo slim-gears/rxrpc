@@ -12,6 +12,7 @@ import com.slimgears.util.generic.Scope;
 import com.slimgears.util.generic.ScopedInstance;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.slf4j.event.Level;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -112,7 +113,7 @@ public class JavaEndpointGenerationTest {
 
     private AnnotationProcessingTester javaOptions(AnnotationProcessingTester tester) {
         return tester
-                //.verbosity(Level.TRACE)
+                .verbosity(Level.TRACE)
                 .options(
                         "-Arxrpc.java.client",
                         "-Arxrpc.java.server");
