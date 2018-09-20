@@ -1,6 +1,7 @@
 package com.slimgears.rxrpc.apt;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.auto.common.MoreElements;
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableMap;
 import com.slimgears.apt.AbstractAnnotationProcessor;
@@ -30,6 +31,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -107,10 +109,13 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
         DeclaredType declaredType = (DeclaredType)typeElement.asType();
         RxRpcEndpoint annotation = typeElement.getAnnotation(RxRpcEndpoint.class);
 
-        Collection<MethodInfo> methods = ElementUtils.toDeclaredTypeStream(typeElement)
-                .flatMap(ElementUtils::getHierarchy)
-                .flatMap(ElementUtils::getMethods)
-                .filter(el -> ElementUtils.hasAnnotation(el, RxRpcMethod.class))
+        Collection<MethodInfo> methods = MoreElements
+                .getLocalAndInheritedMethods(
+                        typeElement,
+                        Environment.instance().types(),
+                        Environment.instance().elements())
+                .stream()
+                .filter(isRxRpcMethod())
                 .map(method -> ensureReferencedTypesGenerated(method, declaredType))
                 .map(methodElement -> MethodInfo.create(methodElement, declaredType))
                 .collect(Collectors.toList());
@@ -124,6 +129,10 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
                 .moduleName(getModuleName(typeElement))
                 .addMethods(methods)
                 .build();
+    }
+
+    private Predicate<ExecutableElement> isRxRpcMethod() {
+        return element -> ElementUtils.getMethodAnnotation(element, RxRpcMethod.class).findAny().isPresent();
     }
 
     private Map<String, String> getOptions(TypeElement typeElement) {

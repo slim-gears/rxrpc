@@ -20,6 +20,14 @@ import javax.annotation.Generated;
 @RxRpcModule(name = "test", endpointClass = SampleEndpoint.class)
 @AutoService(Module.class)
 public class SampleEndpoint_RxModule implements Module {
+    private final static MethodDispatcher<SampleEndpoint, Integer> intMethod = (target, args) ->
+            Publishers.toPublisher(target.intMethod(
+                    args.get("request", TypeToken.of(SampleRequest.class))));
+
+    private final static MethodDispatcher<SampleEndpoint, SampleArray[]> arrayObservableMethod = (target, args) ->
+            Publishers.toPublisher(target.arrayObservableMethod(
+                    args.get("sampleData", TypeToken.of(SampleData.class))));
+
     private final static MethodDispatcher<SampleEndpoint, String> futureStringMethod = (target, args) ->
             Publishers.toPublisher(target.futureStringMethod(
                     args.get("msg", TypeToken.of(String.class)),
@@ -29,20 +37,12 @@ public class SampleEndpoint_RxModule implements Module {
             Publishers.toPublisher(target.observableDataMethod(
                     args.get("request", TypeToken.of(SampleRequest.class))));
 
-    private final static MethodDispatcher<SampleEndpoint, Integer> intMethod = (target, args) ->
-            Publishers.toPublisher(target.intMethod(
-                    args.get("request", TypeToken.of(SampleRequest.class))));
-
-    private final static MethodDispatcher<SampleEndpoint, SampleArray[]> arrayObservableMethod = (target, args) ->
-            Publishers.toPublisher(target.arrayObservableMethod(
-                    args.get("sampleData", TypeToken.of(SampleData.class))));
-
     private final static Factory dispatcherFactory = EndpointRouters
             .builder(SampleEndpoint.class)
-            .method("futureStringMethod", futureStringMethod)
-            .method("observableDataMethod", observableDataMethod)
             .method("intMethod", intMethod)
             .method("arrayObservableMethod", arrayObservableMethod)
+            .method("futureStringMethod", futureStringMethod)
+            .method("observableDataMethod", observableDataMethod)
             .buildFactory();
 
     @Override

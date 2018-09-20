@@ -19,6 +19,24 @@ public class SampleEndpoint_RxClient extends AbstractClient implements SampleEnd
     }
 
     @Override
+    public int intMethod(SampleRequest request) {
+        return invokeBlocking(
+                TypeToken.of(Integer.class),
+                "sample-endpoint/intMethod",
+                arguments()
+                        .put("request", request));
+    }
+
+    @Override
+    public Observable<SampleArray[]> arrayObservableMethod(SampleData sampleData) {
+        return invokeObservable(
+                TypeToken.of(SampleArray[].class),
+                "sample-endpoint/arrayObservableMethod",
+                arguments()
+                        .put("sampleData", sampleData));
+    }
+
+    @Override
     public Future<String> futureStringMethod(String msg, SampleRequest request) {
         return invokeFuture(
                 TypeToken.of(String.class),
@@ -35,24 +53,6 @@ public class SampleEndpoint_RxClient extends AbstractClient implements SampleEnd
                 "sample-endpoint/observableDataMethod",
                 arguments()
                         .put("request", request));
-    }
-
-    @Override
-    public int intMethod(SampleRequest request) {
-        return invokeBlocking(
-                TypeToken.of(Integer.class),
-                "sample-endpoint/intMethod",
-                arguments()
-                        .put("request", request));
-    }
-
-    @Override
-    public Observable<SampleArray[]> arrayObservableMethod(SampleData sampleData) {
-        return invokeObservable(
-                TypeToken.of(SampleArray[].class),
-                "sample-endpoint/arrayObservableMethod",
-                arguments()
-                        .put("sampleData", sampleData));
     }
 
 }

@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class RxClient {
@@ -82,6 +83,7 @@ public class RxClient {
     public interface Session extends AutoCloseable {
         Publisher<Result> invoke(String method, Map<String, Object> args);
         Config clientConfig();
+        void close();
     }
 
     public static RxClient forClient(RxTransport.Client client) {
@@ -132,12 +134,14 @@ public class RxClient {
 
     private class DeferredSession implements Session {
         private final Single<Session> session;
+        private final AtomicReference<Session> sessionInstance = new AtomicReference<>();
         private final CompletableSubject cancellation = CompletableSubject.create();
 
         private DeferredSession(Single<RxTransport> transport) {
             this.session = transport
                     .<Session>map(InternalSession::new)
                     .takeUntil(cancellation)
+                    .doOnSuccess(sessionInstance::set)
                     .cache();
         }
 
@@ -154,7 +158,7 @@ public class RxClient {
         @Override
         public void close() {
             cancellation.onComplete();
-            this.session.subscribe(AutoCloseable::close);
+            Optional.ofNullable(sessionInstance.get()).ifPresent(Session::close);
         }
     }
 
