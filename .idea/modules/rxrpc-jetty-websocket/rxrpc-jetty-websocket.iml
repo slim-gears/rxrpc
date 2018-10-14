@@ -4,6 +4,7 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket">
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/.gradle" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/build" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/build/classes" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/build/docs" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-jetty-websocket/build/libs" />

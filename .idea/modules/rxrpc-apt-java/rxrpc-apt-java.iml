@@ -4,6 +4,7 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../rxrpc-apt-java">
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-apt-java/.gradle" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-apt-java/build" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-apt-java/build/classes" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-apt-java/build/docs" />
       <excludeFolder url="file://$MODULE_DIR$/../../../rxrpc-apt-java/build/libs" />
