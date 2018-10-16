@@ -1,7 +1,7 @@
 /**
  * Generated from com.slimgears.rxrpc.sample.SampleGenericData
  */
-export interface SampleGenericData<T> {
+export class SampleGenericData<T> {
     data: T;
     dataList: T[];
 }

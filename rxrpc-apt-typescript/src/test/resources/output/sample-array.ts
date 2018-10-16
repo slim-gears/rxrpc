@@ -1,7 +1,7 @@
 /**
  * Generated from com.slimgears.rxrpc.sample.SampleArray
  */
-export interface SampleArray {
+export class SampleArray {
     sampleArray: number[];
     sampleList: string[];
 }

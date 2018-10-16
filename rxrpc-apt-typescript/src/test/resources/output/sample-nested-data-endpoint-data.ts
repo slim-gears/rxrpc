@@ -3,6 +3,6 @@ import { SampleNestedDataEndpointDataType } from './index';
 /**
  * Generated from com.slimgears.rxrpc.sample.SampleNestedDataEndpoint.Data
  */
-export interface SampleNestedDataEndpointData {
+export class SampleNestedDataEndpointData {
     type: SampleNestedDataEndpointDataType;
 }

@@ -4,7 +4,7 @@ import { StringKeyMap } from 'ng-rxrpc';
 /**
  * Generated from com.slimgears.rxrpc.sample.SampleRequest
  */
-export interface SampleRequest {
+export class SampleRequest {
     id: number;
     name: string;
     data: SampleData;

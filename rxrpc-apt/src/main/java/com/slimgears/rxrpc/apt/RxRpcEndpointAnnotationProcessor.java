@@ -2,6 +2,7 @@ package com.slimgears.rxrpc.apt;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.auto.common.MoreElements;
+import com.google.auto.common.MoreTypes;
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableMap;
 import com.slimgears.apt.AbstractAnnotationProcessor;
@@ -81,11 +82,24 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
                 .sourceTypeElement(typeElement)
                 .environment(processingEnv);
 
+        typeElement.getInterfaces()
+                .stream()
+                .map(MoreTypes::asDeclared)
+                .flatMap(iface -> MoreElements
+                        .getLocalAndInheritedMethods(MoreElements.asType(iface.asElement()), Environment.instance().types(), Environment.instance().elements())
+                        .stream()
+                        .filter(element -> !ElementUtils.hasAnnotation(element, JsonIgnore.class))
+                        .map(element -> PropertyInfo.fromElement(iface, element)))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .distinct()
+                .forEach(builder::inheritedProperty);
+
         typeElement.getEnclosedElements()
                 .stream()
                 .filter(element -> !ElementUtils.hasAnnotation(element, JsonIgnore.class))
                 .filter(element -> !ElementUtils.hasAnnotation(element, Override.class))
-                .map(PropertyInfo::of)
+                .map(PropertyInfo::fromElement)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .forEach(builder::property);

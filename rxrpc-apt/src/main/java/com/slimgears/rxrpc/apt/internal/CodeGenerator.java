@@ -15,7 +15,6 @@ import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedOptions;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
-import java.util.Map;
 import java.util.Optional;
 
 public interface CodeGenerator<C extends CodeGenerator.Context> {
@@ -34,6 +33,9 @@ public interface CodeGenerator<C extends CodeGenerator.Context> {
         public abstract ProcessingEnvironment environment();
         public abstract TypeElement sourceTypeElement();
         public abstract TypeInfo processorClass();
+        public boolean isInterface() {
+            return ElementUtils.isInterface(sourceTypeElement());
+        }
         public TemplateUtils utils() { return TemplateUtils.instance; }
         public TypeInfo sourceClass() {
             return TypeInfo.of(sourceTypeElement());

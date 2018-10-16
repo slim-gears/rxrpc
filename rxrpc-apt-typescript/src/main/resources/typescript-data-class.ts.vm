@@ -1,12 +1,20 @@
 $imports
 
 #parse("macros.ts.vm")
-
 /**
  * Generated from $sourceClass.name()
  */
-export interface $targetClass.simpleName()#typeParams($sourceClass)#interfaces($interfaces) {
+export #if($isInterface)interface#{else}class#end $targetClass.simpleName()#typeParams($sourceClass)##
+#if (!$interfaces.isEmpty()) ##
+    #if ($isInterface)extends#{else}implements#end ##
+    #foreach ($iface in $interfaces)$[$iface]#if($foreach.hasNext), #end##
+    #end##
+#end {##
+
 #foreach($p in $properties)
+    $p.name()#if ($p.isOptional())?#end: $[$tsUtils.toTypeScriptType($p.type())];
+#end
+#foreach($p in $inheritedProperties)
     $p.name()#if ($p.isOptional())?#end: $[$tsUtils.toTypeScriptType($p.type())];
 #end
 }
