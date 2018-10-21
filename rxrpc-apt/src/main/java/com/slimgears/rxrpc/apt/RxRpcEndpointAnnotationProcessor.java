@@ -82,28 +82,34 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
                 .sourceTypeElement(typeElement)
                 .environment(processingEnv);
 
-        typeElement.getInterfaces()
+        Collection<PropertyInfo> allProperties =        typeElement.getInterfaces()
                 .stream()
                 .map(MoreTypes::asDeclared)
                 .flatMap(iface -> MoreElements
                         .getLocalAndInheritedMethods(MoreElements.asType(iface.asElement()), Environment.instance().types(), Environment.instance().elements())
                         .stream()
                         .filter(element -> !ElementUtils.hasAnnotation(element, JsonIgnore.class))
-                        .map(element -> PropertyInfo.fromElement(iface, element)))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                        .map(element -> PropertyInfo.fromElement(iface, element))
+                        .filter(Optional::isPresent)
+                        .map(Optional::get))
                 .distinct()
-                .forEach(builder::inheritedProperty);
+                .collect(Collectors.toList());
 
         typeElement.getEnclosedElements()
                 .stream()
-                .filter(element -> !ElementUtils.hasAnnotation(element, JsonIgnore.class))
                 .filter(element -> !ElementUtils.hasAnnotation(element, Override.class))
+                .filter(element -> !ElementUtils.hasAnnotation(element, JsonIgnore.class))
                 .map(PropertyInfo::fromElement)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .forEach(builder::property);
+                .forEach(prop -> {
+                    builder.property(prop);
+                    if (!allProperties.contains(prop)) {
+                        allProperties.add(prop);
+                    }
+                });
 
+        builder.allPropertiesBuilder().addAll(allProperties);
         DataClassGenerator.Context context = builder.build();
         dataClassGenerators.forEach(g -> g.generate(context));
     }

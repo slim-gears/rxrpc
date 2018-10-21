@@ -68,7 +68,12 @@ public abstract class PropertyInfo implements HasName, HasType {
                 .filter(el -> el.getParameters().size() == 0)
                 .filter(el -> el.getReturnType().getKind() != TypeKind.VOID)
                 .map(el -> fromJsonProperty(owningType, el, type -> MoreTypes.asExecutable(type).getReturnType())
-                        .orElseGet(() -> builder().name(propertyName(el)).type(el.getReturnType()))
+                        .orElseGet(() -> builder()
+                                .name(propertyName(el))
+                                .type(MoreTypes.asExecutable(Environment.instance()
+                                        .types()
+                                        .asMemberOf(owningType, el))
+                                        .getReturnType()))
                         .isOptional(isOptional(el, el.getReturnType()))
                         .build());
     }

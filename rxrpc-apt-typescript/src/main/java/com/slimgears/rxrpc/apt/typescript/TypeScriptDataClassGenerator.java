@@ -3,6 +3,7 @@
  */
 package com.slimgears.rxrpc.apt.typescript;
 
+import com.google.auto.common.MoreTypes;
 import com.google.auto.service.AutoService;
 import com.slimgears.apt.data.EnumInfo;
 import com.slimgears.apt.data.TypeInfo;
@@ -17,9 +18,12 @@ import org.slf4j.LoggerFactory;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.slimgears.util.stream.Streams.ofType;
 
 @AutoService(DataClassGenerator.class)
 public class TypeScriptDataClassGenerator implements DataClassGenerator {
@@ -49,11 +53,12 @@ public class TypeScriptDataClassGenerator implements DataClassGenerator {
                 targetClass);
 
         TypeScriptUtils typeScriptUtils = TypeScriptUtils.create();
-        Collection<TypeInfo> interfaces = Stream.concat(
-                Stream.of(context.sourceTypeElement().getSuperclass()),
-                context.sourceTypeElement().getInterfaces().stream())
-                .flatMap(ElementUtils::toTypeElement)
-                .filter(ElementUtils::isUnknownType)
+        Collection<TypeInfo> interfaces = Stream
+                .concat(
+                        Stream.of(context.sourceTypeElement().getSuperclass()),
+                        context.sourceTypeElement().getInterfaces().stream())
+                .flatMap(ofType(DeclaredType.class))
+                .filter(this::isUnknownType)
                 .map(TypeInfo::of)
                 .map(typeScriptUtils::toTypeScriptType)
                 .collect(Collectors.toList());
@@ -65,6 +70,10 @@ public class TypeScriptDataClassGenerator implements DataClassGenerator {
                 .variables(context)
                 .apply(typeScriptUtils.imports(importTracker))
                 .write(TypeScriptUtils.fileWriter(context.environment(), filename));
+    }
+
+    private boolean isUnknownType(DeclaredType declaredType) {
+        return ElementUtils.isUnknownType(MoreTypes.asTypeElement(declaredType));
     }
 
     private String getTargetTypeName(Element element) {

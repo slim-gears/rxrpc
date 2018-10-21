@@ -12,7 +12,7 @@ public interface DataClassGenerator extends CodeGenerator<DataClassGenerator.Con
     @AutoValue
     abstract class Context extends CodeGenerator.Context {
         public abstract ImmutableList<PropertyInfo> properties();
-        public abstract ImmutableList<PropertyInfo> inheritedProperties();
+        public abstract ImmutableList<PropertyInfo> allProperties();
 
         public static Builder builder() {
             return new AutoValue_DataClassGenerator_Context.Builder();
@@ -21,15 +21,15 @@ public interface DataClassGenerator extends CodeGenerator<DataClassGenerator.Con
         @AutoValue.Builder
         public interface Builder extends CodeGenerator.Context.Builder<Context, Builder> {
             ImmutableList.Builder<PropertyInfo> propertiesBuilder();
-            ImmutableList.Builder<PropertyInfo> inheritedPropertiesBuilder();
+            ImmutableList.Builder<PropertyInfo> allPropertiesBuilder();
 
             default Builder property(PropertyInfo property) {
                 propertiesBuilder().add(property);
                 return this;
             }
 
-            default Builder inheritedProperty(PropertyInfo propertyInfo) {
-                inheritedPropertiesBuilder().add(propertyInfo);
+            default Builder localOrInheritedProperty(PropertyInfo propertyInfo) {
+                allPropertiesBuilder().add(propertyInfo);
                 return this;
             }
         }

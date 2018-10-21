@@ -2,12 +2,10 @@ package com.slimgears.rxrpc.apt.typescript; /**
  *
  */
 
-import com.slimgears.apt.data.TypeInfo;
 import com.slimgears.apt.util.AnnotationProcessingTester;
 import com.slimgears.rxrpc.apt.TestBundles;
 import com.slimgears.util.generic.ScopedInstance;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.event.Level;
