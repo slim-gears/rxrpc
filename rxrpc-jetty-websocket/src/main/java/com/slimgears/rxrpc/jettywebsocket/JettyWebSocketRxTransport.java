@@ -2,19 +2,23 @@ package com.slimgears.rxrpc.jettywebsocket;
 
 import com.slimgears.rxrpc.core.RxTransport;
 import com.slimgears.rxrpc.core.util.Emitters;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Emitter;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
 import io.reactivex.internal.functions.Functions;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.CompletableSubject;
 import io.reactivex.subjects.Subject;
+import io.reactivex.subscribers.DisposableSubscriber;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.eclipse.jetty.websocket.api.WebSocketPolicy;
+import org.eclipse.jetty.websocket.api.WriteCallback;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
@@ -70,10 +74,7 @@ public class JettyWebSocketRxTransport implements RxTransport, WebSocketListener
 
     @Override
     public synchronized void onWebSocketConnect(Session session) {
-        disposable.getAndSet(outgoingSubject.subscribe(
-                msg -> session.getRemote().sendString(msg),
-                error -> session.close(StatusCode.ABNORMAL, error.getMessage()),
-                session::close));
+        disposable.getAndSet(subscribeOutgoing(session));
         connected.onComplete();
     }
 
@@ -86,6 +87,47 @@ public class JettyWebSocketRxTransport implements RxTransport, WebSocketListener
     public void close() {
         outgoing().onComplete();
         incoming().onComplete();
+    }
+
+    private Disposable subscribeOutgoing(Session session) {
+        DisposableSubscriber<String> subscriber = new DisposableSubscriber<String>() {
+            @Override
+            public void onNext(String s) {
+                session.getRemote().sendString(s, new WriteCallback() {
+                    @Override
+                    public void writeFailed(Throwable x) {
+                        onError(x);
+                    }
+
+                    @Override
+                    public void writeSuccess() {
+                        request(1);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                session.close(StatusCode.ABNORMAL, t.getMessage());
+            }
+
+            @Override
+            public void onComplete() {
+                session.close();
+            }
+
+            @Override
+            public void onStart() {
+                request(1);
+            }
+        };
+
+        outgoingSubject
+                .toFlowable(BackpressureStrategy.BUFFER)
+                .observeOn(Schedulers.io())
+                .subscribe(subscriber);
+
+        return subscriber;
     }
 
     public static class Builder {
