@@ -17,7 +17,7 @@ import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
 public class SampleServerTest {
-    private final static int port = 8000;
+    private final static int port = 9000;
     private final static URI uri = URI.create("ws://localhost:" + port + "/api/");
     private SampleServer server;
     private ServiceResolver clientResolver;

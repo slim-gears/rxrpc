@@ -3,15 +3,18 @@
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output-test url="file://$MODULE_DIR$/../../../rxrpc-core/out/test/classes" />
     <exclude-output />
+    <content url="file://$MODULE_DIR$/../../../rxrpc-core/build/generated/source/apt/test">
+      <sourceFolder url="file://$MODULE_DIR$/../../../rxrpc-core/build/generated/source/apt/test" isTestSource="true" generated="true" />
+    </content>
     <content url="file://$MODULE_DIR$/../../../rxrpc-core/src/test">
       <sourceFolder url="file://$MODULE_DIR$/../../../rxrpc-core/src/test/java" isTestSource="true" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="rxrpc-core_main" />
-    <orderEntry type="library" name="Gradle: com.slimgears.utils:stream-utils:0.3.25" level="project" />
-    <orderEntry type="library" name="Gradle: com.slimgears.utils:generic-utils:0.3.25" level="project" />
-    <orderEntry type="library" name="Gradle: com.slimgears.utils:reflect-utils:0.3.25" level="project" />
+    <orderEntry type="library" name="Gradle: com.slimgears.utils:stream-utils:0.3.29" level="project" />
+    <orderEntry type="library" name="Gradle: com.slimgears.utils:generic-utils:0.3.29" level="project" />
+    <orderEntry type="library" name="Gradle: com.slimgears.utils:reflect-utils:0.3.29" level="project" />
     <orderEntry type="library" name="Gradle: io.reactivex.rxjava2:rxjava:2.2.0" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.datatype:jackson-datatype-guava:2.9.6" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.9.6" level="project" />
