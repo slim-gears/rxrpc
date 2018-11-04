@@ -3,13 +3,16 @@ package com.slimgears.rxrpc.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.slimgears.rxrpc.core.data.Result;
 import com.slimgears.util.reflect.TypeToken;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableEmitter;
+import io.reactivex.FlowableTransformer;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableTransformer;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
+import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,16 +65,20 @@ public abstract class AbstractClient implements AutoCloseable {
         };
     }
 
-    protected <T> Observable<T> invokeObservable(TypeToken<T> responseType, String method, InvocationArguments args) {
-        return Observable
+    protected <T> Flowable<T> invokeFlowable(TypeToken<T> responseType, String method, InvocationArguments args) {
+        return Flowable
                 .fromPublisher(session.invoke(method, args.toMap()))
                 .takeWhile(result -> result.type() != Result.Type.Complete)
                 .doOnError(e -> log.warn("Error when executing {}({}): {}", method, args.toString(), e))
                 .compose(toValue(responseType));
     }
 
-    private <T> ObservableTransformer<Result, T> toValue(TypeToken<T> valueType) {
-        return source -> Observable.create(emitter -> {
+    protected <T> Observable<T> invokeObservable(TypeToken<T> responseType, String method, InvocationArguments args) {
+        return invokeFlowable(responseType, method, args).toObservable();
+    }
+
+    private <T> FlowableTransformer<Result, T> toValue(TypeToken<T> valueType) {
+        return source -> Flowable.create(emitter -> {
             Disposable disposable = source.subscribe(res -> {
                 if (res.type() == Result.Type.Data) {
                     handleDataResult(res.data(), emitter, valueType);
@@ -80,10 +87,10 @@ public abstract class AbstractClient implements AutoCloseable {
                 }
             }, emitter::onError, emitter::onComplete);
             emitter.setDisposable(disposable);
-        });
+        }, BackpressureStrategy.BUFFER);
     }
 
-    private <T> void handleDataResult(JsonNode json, ObservableEmitter<T> emitter, TypeToken<T> valueType) throws IOException {
+    private <T> void handleDataResult(JsonNode json, FlowableEmitter<T> emitter, TypeToken<T> valueType) throws IOException {
         if (json == null) {
             emitter.onComplete();
             return;
@@ -106,6 +113,10 @@ public abstract class AbstractClient implements AutoCloseable {
 
     protected <T> Future<T> invokeFuture(TypeToken<T> responseType, String method, InvocationArguments args) {
         return invokeObservable(responseType, method, args).toFuture();
+    }
+
+    protected <T>Publisher<T> invokePublisher(TypeToken<T> responseType, String method, InvocationArguments args) {
+        return invokeFlowable(responseType, method, args);
     }
 
     protected <T> T invokeBlocking(TypeToken<T> responseType, String method, InvocationArguments args) {

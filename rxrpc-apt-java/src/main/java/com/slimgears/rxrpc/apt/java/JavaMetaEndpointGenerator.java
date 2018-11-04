@@ -111,7 +111,7 @@ public class JavaMetaEndpointGenerator implements MetaEndpointGenerator {
         }
 
         if (!context.moduleName().isEmpty()) {
-            rxRpcEndpointBuilder.valuesBuilder().add(AnnotationValueInfo.ofPrimitive("moduleName", context.moduleName()));
+            rxRpcEndpointBuilder.valuesBuilder().add(AnnotationValueInfo.ofPrimitive("module", context.moduleName()));
         }
 
         if (!metaEndpoint.options().isEmpty()) {

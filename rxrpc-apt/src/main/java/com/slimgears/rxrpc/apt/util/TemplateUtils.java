@@ -6,7 +6,6 @@ package com.slimgears.rxrpc.apt.util;
 import com.google.common.collect.ImmutableSet;
 import com.slimgears.apt.data.TypeInfo;
 
-import java.util.function.Function;
 import java.util.regex.Pattern;
 
 public class TemplateUtils extends com.slimgears.apt.util.TemplateUtils {
@@ -17,6 +16,8 @@ public class TemplateUtils extends com.slimgears.apt.util.TemplateUtils {
             .add("io.reactivex.Single")
             .add("io.reactivex.Maybe")
             .add("io.reactivex.Completable")
+            .add("io.reactivex.Flowable")
+            .add("org.reactivestreams.Publisher")
             .add("java.util.concurrent.Future")
             .build();
 
