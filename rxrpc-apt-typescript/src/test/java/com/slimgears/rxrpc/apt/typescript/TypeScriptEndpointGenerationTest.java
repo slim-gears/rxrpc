@@ -107,7 +107,7 @@ public class TypeScriptEndpointGenerationTest {
     public void testEndpointPointModuleGeneration() {
         TestBundles.sampleEndpointModuleTester()
                 .apply(this::typeScriptOptions)
-                .expectedFiles("sample-module.ts")
+                .expectedFiles("module.ts")
                 .test();
     }
 
