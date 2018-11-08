@@ -1,5 +1,5 @@
 import { SampleGenericData, SampleSpecializedEndpoint } from './index';
-import { Injectable } from '@angular/core';
+import { FactoryProvider, Injectable, InjectionToken, Type } from '@angular/core';
 import { RxRpcInvoker } from 'ng-rxrpc';
 import { Observable } from 'rxjs';
 
@@ -21,5 +21,13 @@ export class SampleSpecializedEndpointClient implements SampleSpecializedEndpoin
 
     public genericInputDataMethod(data: SampleGenericData<string>): Observable<void> {
         return this.invoker.invoke('sampleSpecializedEndpoint/genericInputDataMethod', {data: data});
+    }
+
+    public static provider(invokerToken: Type<RxRpcInvoker>|InjectionToken<RxRpcInvoker>): FactoryProvider {
+        return {
+            provide: SampleSpecializedEndpointClient,
+            useFactory: invoker => new SampleSpecializedEndpointClient(invoker),
+            deps: [invokerToken]
+        };
     }
 }

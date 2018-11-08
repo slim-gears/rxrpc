@@ -17,7 +17,7 @@ public class TypeScriptModuleGenerator implements ModuleGenerator {
     }
 
     public void generateNgModule(Context context, String moduleName, Collection<ModuleInfo> endpoints) {
-        String ngModuleName = toClassName(moduleName, "Module");
+        String ngModuleName = toModuleClassName(moduleName);
         Collection<TypeInfo> typescriptEndpoints = endpoints.stream()
                 .map(ModuleInfo::endpointClass)
                 .map(GeneratedClassTracker.current()::resolveGeneratedEndpoint)
@@ -31,8 +31,13 @@ public class TypeScriptModuleGenerator implements ModuleGenerator {
     }
 
     private static String toClassName(String name, String suffix) {
+        Preconditions.checkNotNull(name);
         Preconditions.checkArgument(!name.isEmpty());
         name = Character.toUpperCase(name.charAt(0)) + name.substring(1);
         return name.endsWith(suffix) ? name : name + suffix;
+    }
+
+    public static String toModuleClassName(String moduleName) {
+        return toClassName(moduleName, "Module");
     }
 }

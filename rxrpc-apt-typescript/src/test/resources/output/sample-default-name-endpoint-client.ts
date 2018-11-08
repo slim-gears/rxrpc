@@ -1,5 +1,5 @@
 import { SampleDefaultNameEndpoint } from './index';
-import { Injectable } from '@angular/core';
+import { FactoryProvider, Injectable, InjectionToken, Type } from '@angular/core';
 import { RxRpcInvoker } from 'ng-rxrpc';
 import { Observable } from 'rxjs';
 
@@ -13,5 +13,13 @@ export class SampleDefaultNameEndpointClient implements SampleDefaultNameEndpoin
 
     public method(): Observable<number> {
         return this.invoker.invoke('sample-default-name-endpoint/method', {});
+    }
+
+    public static provider(invokerToken: Type<RxRpcInvoker>|InjectionToken<RxRpcInvoker>): FactoryProvider {
+        return {
+            provide: SampleDefaultNameEndpointClient,
+            useFactory: invoker => new SampleDefaultNameEndpointClient(invoker),
+            deps: [invokerToken]
+        };
     }
 }

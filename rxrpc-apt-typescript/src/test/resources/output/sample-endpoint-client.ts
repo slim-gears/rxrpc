@@ -1,5 +1,5 @@
 import { SampleArray, SampleData, SampleEndpoint, SampleRequest } from './index';
-import { Injectable } from '@angular/core';
+import { FactoryProvider, Injectable, InjectionToken, Type } from '@angular/core';
 import { RxRpcInvoker } from 'ng-rxrpc';
 import { Observable } from 'rxjs';
 
@@ -25,5 +25,13 @@ export class SampleEndpointClient implements SampleEndpoint {
 
     public observableDataMethod(request: SampleRequest): Observable<SampleData> {
         return this.invoker.invoke('sample-endpoint/observableDataMethod', {request: request});
+    }
+
+    public static provider(invokerToken: Type<RxRpcInvoker>|InjectionToken<RxRpcInvoker>): FactoryProvider {
+        return {
+            provide: SampleEndpointClient,
+            useFactory: invoker => new SampleEndpointClient(invoker),
+            deps: [invokerToken]
+        };
     }
 }

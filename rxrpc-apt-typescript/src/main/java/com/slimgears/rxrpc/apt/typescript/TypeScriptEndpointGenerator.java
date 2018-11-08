@@ -23,6 +23,7 @@ import javax.lang.model.type.TypeMirror;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -79,10 +80,16 @@ public class TypeScriptEndpointGenerator implements EndpointGenerator {
 
         log.debug("Target file name: {}", filename);
 
+        String ngModuleName = Optional
+                .ofNullable(context.moduleName())
+                .map(TypeScriptModuleGenerator::toModuleClassName)
+                .orElse(null);
+
         TypeScriptUtils typeScriptUtils = TypeScriptUtils.create();
         TemplateEvaluator.forResource(templateName)
                 .variable("targetClass", targetClass)
                 .variable("generateNgModule", context.hasOption(generateNgModuleOption))
+                .variable("ngModuleName", ngModuleName)
                 .variable("tsUtils", typeScriptUtils)
                 .variable("interfaces", interfaceProvider.apply(typeScriptUtils))
                 .variables(context)
