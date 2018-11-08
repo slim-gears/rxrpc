@@ -20,6 +20,8 @@ import javax.annotation.processing.SupportedOptions;
         JavaEndpointGenerator.useAutoServiceOption
 })
 public class JavaEndpointGenerator implements EndpointGenerator {
+    static final String rxModuleClassSuffix = "_RxModule";
+    static final String rxClientClassSuffix = "_RxClient";
     static final String generateClientOption = "rxrpc.java.client";
     static final String generateServerOption = "rxrpc.java.server";
     static final String useAutoServiceOption = "rxrpc.java.autoservice";
@@ -27,11 +29,15 @@ public class JavaEndpointGenerator implements EndpointGenerator {
     @Override
     public void generate(Context context) {
         if (context.hasOption(generateClientOption) && context.meta().generateClient()) {
-            generateClass(context, "_RxClient", "java-client.java.vm");
+            generateClass(context, rxClientClassSuffix, "java-client.java.vm");
         }
         if (context.hasOption(generateServerOption) && context.meta().generateServer()) {
-            generateClass(context, "_RxModule", "java-server.java.vm");
+            generateClass(context, rxModuleClassSuffix, "java-server.java.vm");
         }
+    }
+
+    static TypeInfo rxModuleFromEndpoint(TypeInfo endpointClass) {
+        return TypeInfo.of(endpointClass.erasureName() + rxModuleClassSuffix);
     }
 
     private void generateClass(Context context, String classNameSuffix, String templatePath) {

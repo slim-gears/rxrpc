@@ -38,6 +38,7 @@ public class NgModuleGenerator {
         Preconditions.checkNotNull(ngModuleName);
 
         String filename = TemplateUtils.camelCaseToDash(ngModuleName);
+
         TemplateEvaluator
                 .forResource("typescript-ngmodule.ts.vm")
                 .variables(context)

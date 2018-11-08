@@ -7,3 +7,4 @@ export * from './sample-endpoint';
 export * from './sample-endpoint-client';
 export * from './sample-enum';
 export * from './sample-request';
+export * from './test-module';

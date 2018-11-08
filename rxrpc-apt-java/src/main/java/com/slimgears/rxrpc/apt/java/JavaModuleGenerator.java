@@ -24,19 +24,20 @@ public class JavaModuleGenerator implements ModuleGenerator {
 
     private void writeModule(String moduleName, Iterable<ModuleInfo> modules) {
         String filePath = "META-INF/rxrpc-modules/" + moduleName;
-        log.debug("Writing {}", filePath);
+        log.info("Writing {}", filePath);
         Filer filer = Environment.instance().processingEnvironment().getFiler();
         try {
             FileObject fileObject = filer.createResource(StandardLocation.CLASS_OUTPUT, "", filePath);
             try (OutputStream stream = fileObject.openOutputStream();
                  PrintWriter printWriter = new PrintWriter(stream)) {
                 modules.forEach(module -> {
-                    printWriter.println(module.moduleClass().erasureName());
-                    log.debug(module.moduleClass().erasureName());
+                    String className = JavaEndpointGenerator.rxModuleFromEndpoint(module.endpointClass()).erasureName();
+                    printWriter.println(className);
+                    log.debug(className);
                 });
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            log.warn("Could not write file: {}", filePath);
         }
     }
 }

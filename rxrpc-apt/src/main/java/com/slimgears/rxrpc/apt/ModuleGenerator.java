@@ -10,10 +10,9 @@ public interface ModuleGenerator extends CodeGenerator<ModuleGenerator.Context> 
     abstract class ModuleInfo {
         public abstract String name();
         public abstract TypeInfo endpointClass();
-        public abstract TypeInfo moduleClass();
 
-        public static ModuleInfo create(String name, TypeInfo endpointClass, TypeInfo moduleClass) {
-            return new AutoValue_ModuleGenerator_ModuleInfo(name, endpointClass, moduleClass);
+        public static ModuleInfo create(String name, TypeInfo endpointClass) {
+            return new AutoValue_ModuleGenerator_ModuleInfo(name, endpointClass);
         }
     }
 
@@ -29,8 +28,8 @@ public interface ModuleGenerator extends CodeGenerator<ModuleGenerator.Context> 
         public interface Builder extends CodeGenerator.Context.Builder<Context, Builder> {
             ImmutableMultimap.Builder<String, ModuleInfo> modulesBuilder();
 
-            default void addModule(String moduleName, TypeInfo endpoint, TypeInfo module) {
-                modulesBuilder().put(moduleName, ModuleInfo.create(moduleName, endpoint, module));
+            default void addModule(String moduleName, TypeInfo endpoint) {
+                modulesBuilder().put(moduleName, ModuleInfo.create(moduleName, endpoint));
             }
         }
     }

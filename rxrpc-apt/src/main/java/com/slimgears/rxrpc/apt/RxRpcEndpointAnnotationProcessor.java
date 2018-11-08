@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
 import com.google.auto.service.AutoService;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.slimgears.apt.AbstractAnnotationProcessor;
 import com.slimgears.apt.data.Environment;
@@ -42,12 +43,17 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
     private final Collection<EndpointGenerator> endpointGenerators;
     private final Collection<CodeGenerationFinalizer> finalizers;
     private final Collection<DataClassGenerator> dataClassGenerators;
+    private final Collection<ModuleGenerator> moduleGenerators;
     private final Collection<Name> processedClasses = new HashSet<>();
+    private final ModuleGenerator.Context.Builder moduleContextBuilder = ModuleGenerator.Context
+            .builder()
+            .processorClass(getClass());
 
     public RxRpcEndpointAnnotationProcessor() {
         endpointGenerators = ServiceProviders.loadServices(EndpointGenerator.class);
         finalizers = ServiceProviders.loadServices(CodeGenerationFinalizer.class);
         dataClassGenerators = ServiceProviders.loadServices(DataClassGenerator.class);
+        moduleGenerators = ServiceProviders.loadServices(ModuleGenerator.class);
     }
 
     protected boolean processType(TypeElement annotationType, TypeElement typeElement) {
@@ -121,6 +127,11 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
                 .environment(processingEnv)
                 .build();
 
+        ModuleGenerator.Context moduleContext = moduleContextBuilder
+                .environment(processingEnv)
+                .build();
+        moduleGenerators.forEach(g -> g.generate(moduleContext));
+
         finalizers.forEach(f -> f.generate(context));
         finalizers.clear();
     }
@@ -140,13 +151,19 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
                 .map(methodElement -> MethodInfo.create(methodElement, declaredType))
                 .collect(Collectors.toList());
 
+        String moduleName = getModuleName(typeElement);
+        moduleContextBuilder.sourceTypeElement(annotationType);
+        if (!Strings.isNullOrEmpty(moduleName)) {
+            moduleContextBuilder.addModule(moduleName, TypeInfo.of(declaredType));
+        }
+
         return EndpointGenerator.Context.builder()
                 .processorClass(getClass())
                 .sourceTypeElement(typeElement)
                 .environment(processingEnv)
                 .meta(annotation)
                 .endpointName(getEndpointName(typeElement))
-                .moduleName(getModuleName(typeElement))
+                .moduleName(moduleName)
                 .addMethods(methods)
                 .build();
     }
@@ -204,7 +221,7 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
 
     @Override
     protected Stream<String> getAdditionalSupportedOptions() {
-        return Stream.of(endpointGenerators, finalizers, dataClassGenerators)
+        return Stream.of(endpointGenerators, finalizers, dataClassGenerators, moduleGenerators)
                 .flatMap(Collection::stream)
                 .map(CodeGenerator::getSupportedOptions)
                 .filter(Objects::nonNull)

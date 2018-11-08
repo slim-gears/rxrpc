@@ -4,12 +4,16 @@ import com.google.auto.service.AutoService;
 import com.google.common.base.Preconditions;
 import com.slimgears.apt.data.TypeInfo;
 import com.slimgears.rxrpc.apt.ModuleGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
 
 @AutoService(ModuleGenerator.class)
 public class TypeScriptModuleGenerator implements ModuleGenerator {
+    private final static Logger log = LoggerFactory.getLogger(TypeScriptModuleGenerator.class);
+
     @Override
     public void generate(Context context) {
         context.modules().asMap()
@@ -17,6 +21,8 @@ public class TypeScriptModuleGenerator implements ModuleGenerator {
     }
 
     public void generateNgModule(Context context, String moduleName, Collection<ModuleInfo> endpoints) {
+        log.info("Generating module: {}", moduleName);
+
         String ngModuleName = toModuleClassName(moduleName);
         Collection<TypeInfo> typescriptEndpoints = endpoints.stream()
                 .map(ModuleInfo::endpointClass)
