@@ -3,6 +3,7 @@ package com.slimgears.rxrpc.apt.java;
 import com.google.auto.service.AutoService;
 import com.slimgears.apt.data.Environment;
 import com.slimgears.rxrpc.apt.ModuleGenerator;
+import com.slimgears.util.stream.Streams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,11 +31,13 @@ public class JavaModuleGenerator implements ModuleGenerator {
             FileObject fileObject = filer.createResource(StandardLocation.CLASS_OUTPUT, "", filePath);
             try (OutputStream stream = fileObject.openOutputStream();
                  PrintWriter printWriter = new PrintWriter(stream)) {
-                modules.forEach(module -> {
-                    String className = JavaEndpointGenerator.rxModuleFromEndpoint(module.endpointClass()).erasureName();
-                    printWriter.println(className);
-                    log.debug(className);
-                });
+                Streams.fromIterable(modules)
+                        .filter(moduleInfo -> moduleInfo.endpointMeta().generateServer())
+                        .forEach(module -> {
+                            String className = JavaEndpointGenerator.rxModuleFromEndpoint(module.endpointClass()).erasureName();
+                            printWriter.println(className);
+                            log.debug(className);
+                        });
             }
         } catch (IOException e) {
             log.warn("Could not write file: {}", filePath);

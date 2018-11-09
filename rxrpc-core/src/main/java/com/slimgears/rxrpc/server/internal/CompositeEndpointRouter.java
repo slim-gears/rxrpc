@@ -5,6 +5,7 @@ package com.slimgears.rxrpc.server.internal;
 
 import com.slimgears.rxrpc.core.data.EndpointPath;
 import com.slimgears.rxrpc.server.EndpointRouter;
+import com.slimgears.rxrpc.server.RouteNotFoundException;
 import com.slimgears.util.generic.ServiceResolver;
 import org.reactivestreams.Publisher;
 
@@ -28,7 +29,7 @@ public class CompositeEndpointRouter implements EndpointRouter {
         return Optional
                 .ofNullable(dispatcherMap.get(p.head()))
                 .map(factory -> factory.create(resolver))
-                .orElse(EMPTY)
+                .orElseThrow(() -> new RouteNotFoundException(path))
                 .dispatch(p.tail(), args);
     }
 }

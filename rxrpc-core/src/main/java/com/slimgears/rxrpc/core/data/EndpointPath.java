@@ -18,4 +18,9 @@ public abstract class EndpointPath {
         }
         return new AutoValue_EndpointPath(matcher.group("head"), matcher.group("tail"));
     }
+
+    @Override
+    public String toString() {
+        return head() + "/" + tail();
+    }
 }

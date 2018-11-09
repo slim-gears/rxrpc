@@ -154,7 +154,7 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
         String moduleName = getModuleName(typeElement);
         moduleContextBuilder.sourceTypeElement(annotationType);
         if (!Strings.isNullOrEmpty(moduleName)) {
-            moduleContextBuilder.addModule(moduleName, TypeInfo.of(declaredType));
+            moduleContextBuilder.addModule(moduleName, TypeInfo.of(declaredType), annotation);
         }
 
         return EndpointGenerator.Context.builder()
