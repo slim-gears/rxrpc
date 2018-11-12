@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.slimgears.utils:guice-utils:0.3.33">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.slimgears.utils/guice-utils/0.3.33/fc63c430c8c6e6529be0391878e1efda177f6c77/guice-utils-0.3.33.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.slimgears.utils/guice-utils/0.3.33/7aa97d121083eb1282fedaaf1a47b5143ad1eaee/guice-utils-0.3.33-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
