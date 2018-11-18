@@ -12,7 +12,6 @@ import com.slimgears.apt.data.HasType;
 import com.slimgears.apt.data.InfoBuilder;
 import com.slimgears.apt.data.TypeInfo;
 import com.slimgears.apt.util.ElementUtils;
-import com.slimgears.rxrpc.core.RxRpcOptional;
 import com.slimgears.util.stream.Optionals;
 
 import javax.annotation.Nullable;
@@ -91,7 +90,6 @@ public abstract class PropertyInfo implements HasName, HasType {
 
     private static boolean isOptional(Element element, TypeMirror propertyType) {
         return ElementUtils.hasAnnotation(element, Nullable.class) ||
-                ElementUtils.hasAnnotation(element, RxRpcOptional.class) ||
                 Stream.of(propertyType)
                         .flatMap(ElementUtils::toTypeElement)
                         .anyMatch(te -> te.getQualifiedName().toString().equals(Optional.class.getName()));
