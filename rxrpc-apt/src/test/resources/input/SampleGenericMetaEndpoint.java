@@ -6,6 +6,8 @@ import com.slimgears.rxrpc.core.RxRpcMethod;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 
+import java.io.Serializable;
+
 @RxRpcGenerate(
         className = "SampleGenericMetaEndpoint_Of_${T}",
         annotation = @RxRpcEndpoint(value = "sampleGenericMetaEndpoint_of_${T}", options = "rxrpc.java.server=true"),
@@ -19,7 +21,7 @@ import io.reactivex.Observable;
                 @RxRpcGenerate.Endpoint(
                         params = Double.class),
         })
-public interface SampleGenericMetaEndpoint<T> {
+public interface SampleGenericMetaEndpoint<T extends Comparable<T> & Serializable> {
     @RxRpcMethod
     public Observable<T> genericMethod(T data);
 
