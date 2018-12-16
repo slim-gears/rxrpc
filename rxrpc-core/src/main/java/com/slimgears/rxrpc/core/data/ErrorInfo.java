@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 @AutoValue
 public abstract class ErrorInfo {
     @JsonProperty public abstract String type();
-    @JsonProperty public abstract String message();
+    @JsonProperty @Nullable public abstract String message();
     @JsonProperty public abstract List<String> stackTrace();
     @JsonProperty @Nullable public abstract ErrorInfo cause();
 
@@ -53,15 +53,15 @@ public abstract class ErrorInfo {
         return create(
                 e.getClass().getCanonicalName(),
                 e.getMessage(),
-                toString(e.getStackTrace()),
+                toStringArray(e.getStackTrace()),
                 Optional.ofNullable(e.getCause()).map(ErrorInfo::fromException).orElse(null));
     }
 
-    private static String[] toString(StackTraceElement[] elements) {
-        return Stream.of(elements).map(ErrorInfo::toString).toArray(String[]::new);
+    private static String[] toStringArray(StackTraceElement[] elements) {
+        return Stream.of(elements).map(ErrorInfo::toStringArray).toArray(String[]::new);
     }
 
-    private static String toString(StackTraceElement element) {
+    private static String toStringArray(StackTraceElement element) {
         return String.format("%s.%s (%s:%d)", element.getClassName(), element.getMethodName(), element.getFileName(), element.getLineNumber());
     }
 }
