@@ -98,12 +98,14 @@ public class RxServer implements AutoCloseable {
         stop();
     }
 
-    private InvocationArguments toArguments(Map<String, JsonNode> args) {
+    private InvocationArguments toArguments(Invocation invocation) {
+        Map<String, JsonNode> args = invocation.arguments();
         return new InvocationArguments() {
             @Override
             public <T> T get(String key, TypeToken<T> type) {
                 return Optional
-                        .ofNullable(args.get(key))
+                        .ofNullable(args)
+                        .map(args -> args.get(key))
                         .<T>map(json -> {
                             try {
                                 return config.objectMapper().readValue(json.traverse(), toReference(type));
@@ -111,7 +113,8 @@ public class RxServer implements AutoCloseable {
                                 throw new RuntimeException(e);
                             }
                         })
-                        .orElseThrow(() -> new IllegalArgumentException("Argument " + key + " not found"));
+                        .orElse(null);
+//                        .orElseThrow(() -> new IllegalArgumentException("Argument " + key + " not found (invocation: " + invocation.toString() + ")"));
             }
         };
     }
@@ -187,7 +190,7 @@ public class RxServer implements AutoCloseable {
             try {
                 EndpointRouter dispatcher = config.dispatcherFactory().create(resolver);
                 Publisher<?> response = dispatcher
-                        .dispatch(message.method(), toArguments(message.arguments()));
+                        .dispatch(message.method(), toArguments(message));
 
                 //noinspection ResultOfMethodCallIgnored
                 Observable
