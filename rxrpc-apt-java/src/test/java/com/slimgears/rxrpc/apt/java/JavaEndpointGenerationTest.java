@@ -75,7 +75,7 @@ public class JavaEndpointGenerationTest {
     public void testMetaEndpointReferencedTypeParamsGeneration() {
         DataClassGenerator dataClassGenerator = Mockito.mock(DataClassGenerator.class);
 
-        try (ScopedInstance.Closable ignored = Scope.scope(builder -> builder
+        try (ScopedInstance.Closeable ignored = Scope.scope(builder -> builder
                 .bind(DataClassGenerator.class).toInstance(dataClassGenerator)
                 .bind(ServiceProvider.class).toInstance(ServiceProviders.ofMultiple(
                         ServiceProviders::loadServicesWithServiceLoader,

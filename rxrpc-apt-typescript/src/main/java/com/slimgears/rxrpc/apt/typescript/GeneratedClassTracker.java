@@ -31,7 +31,7 @@ public class GeneratedClassTracker {
         return instance.current();
     }
 
-    public static ScopedInstance.Closable trackFiles() {
+    public static ScopedInstance.Closeable trackFiles() {
         return instance.scope(new GeneratedClassTracker());
     }
 

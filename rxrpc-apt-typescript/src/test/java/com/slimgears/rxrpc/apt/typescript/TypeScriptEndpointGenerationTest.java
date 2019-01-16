@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.slf4j.event.Level;
 
 public class TypeScriptEndpointGenerationTest {
-    private ScopedInstance.Closable classTrackerDisposable;
+    private ScopedInstance.Closeable classTrackerDisposable;
 
     @Before
     public void setUp() {
