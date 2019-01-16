@@ -107,6 +107,16 @@ public class SampleServerTest {
         Assert.assertEquals(data.value.name, newData.value.name);
     }
 
+    @Test
+    public void testDecoratedMethod() throws InterruptedException {
+        SampleEndpoint sampleEndpoint = clientResolver.resolve(SampleEndpoint_RxClient.class);
+        sampleEndpoint.observeDecoratedMethod()
+                .test()
+                .await()
+                .assertValueCount(1)
+                .assertValue("test1");
+    }
+
     private void testObservableMethod(SampleEndpoint client, int count) {
         client
                 .observableMethod(new SampleRequest(count, "Test"))

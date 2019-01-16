@@ -34,6 +34,12 @@ public class SampleEndpointImpl implements SampleEndpoint {
     }
 
     @Override
+    public Observable<String> observeDecoratedMethod() {
+        String name = SampleDecorator.Decorator.currentName();
+        return Observable.fromCallable(() -> name);
+    }
+
+    @Override
     public int blockingErrorProducingMethod(String message) {
         throw new IllegalStateException(message);
     }

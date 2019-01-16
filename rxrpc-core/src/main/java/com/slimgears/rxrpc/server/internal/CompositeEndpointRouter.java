@@ -12,24 +12,19 @@ import org.reactivestreams.Publisher;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.slimgears.rxrpc.server.EndpointRouters.EMPTY;
-
 public class CompositeEndpointRouter implements EndpointRouter {
-    private final ServiceResolver resolver;
-    private final Map<String, Factory> dispatcherMap;
+    private final Map<String, EndpointRouter> routerMap;
 
-    public CompositeEndpointRouter(ServiceResolver resolver, Map<String, Factory> dispatcherMap) {
-        this.resolver = resolver;
-        this.dispatcherMap = dispatcherMap;
+    public CompositeEndpointRouter(Map<String, EndpointRouter> routerMap) {
+        this.routerMap = routerMap;
     }
 
     @Override
-    public Publisher<?> dispatch(String path, InvocationArguments args) {
+    public Publisher<?> dispatch(ServiceResolver resolver, String path, InvocationArguments args) {
         EndpointPath p = EndpointPath.of(path);
         return Optional
-                .ofNullable(dispatcherMap.get(p.head()))
-                .map(factory -> factory.create(resolver))
+                .ofNullable(routerMap.get(p.head()))
                 .orElseThrow(() -> new RouteNotFoundException(path))
-                .dispatch(p.tail(), args);
+                .dispatch(resolver, p.tail(), args);
     }
 }

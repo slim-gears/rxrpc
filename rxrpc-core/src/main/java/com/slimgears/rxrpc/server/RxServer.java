@@ -44,7 +44,7 @@ public class RxServer implements AutoCloseable {
     public static abstract class Config implements HasObjectMapper {
         public abstract RxTransport.Server server();
         public abstract ServiceResolver resolver();
-        public abstract EndpointRouter.Factory dispatcherFactory();
+        public abstract EndpointRouter router();
 
         public static Builder builder() {
             return new AutoValue_RxServer_Config.Builder()
@@ -56,7 +56,7 @@ public class RxServer implements AutoCloseable {
         public interface Builder extends HasObjectMapper.Builder<Builder> {
             Builder server(RxTransport.Server server);
             Builder resolver(ServiceResolver resolver);
-            Builder dispatcherFactory(EndpointRouter.Factory factory);
+            Builder router(EndpointRouter router);
             Config build();
 
             default RxServer createServer() {
@@ -68,7 +68,7 @@ public class RxServer implements AutoCloseable {
             }
 
             default Builder modules(EndpointRouter.Module... modules) {
-                return dispatcherFactory(EndpointRouters.factoryFromModules(modules));
+                return router(EndpointRouters.fromModules(modules));
             }
         }
     }
@@ -188,9 +188,9 @@ public class RxServer implements AutoCloseable {
 
         private void handleSubscription(Invocation message) {
             try {
-                EndpointRouter dispatcher = config.dispatcherFactory().create(resolver);
-                Publisher<?> response = dispatcher
-                        .dispatch(message.method(), toArguments(message));
+                EndpointRouter router = config.router();
+                Publisher<?> response = router
+                        .dispatch(resolver, message.method(), toArguments(message));
 
                 //noinspection ResultOfMethodCallIgnored
                 Observable

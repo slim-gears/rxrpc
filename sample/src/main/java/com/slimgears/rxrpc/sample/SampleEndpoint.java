@@ -25,4 +25,7 @@ public interface SampleEndpoint {
 
     @RxRpcMethod
     int blockingErrorProducingMethod(String message);
+
+    @RxRpcMethod @SampleDecorator("test1")
+    Observable<String> observeDecoratedMethod();
 }

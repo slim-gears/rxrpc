@@ -5,14 +5,10 @@ import com.slimgears.util.generic.ServiceResolver;
 import org.reactivestreams.Publisher;
 
 public interface EndpointRouter {
-    Publisher<?> dispatch(String path, InvocationArguments args);
-
-    interface Factory {
-        EndpointRouter create(ServiceResolver resolver);
-    }
+    Publisher<?> dispatch(ServiceResolver serviceResolver, String path, InvocationArguments args);
 
     interface Configuration {
-        void addFactory(String path, EndpointRouter.Factory factory);
+        void addRouter(String path, EndpointRouter router);
     }
 
     interface Module {
