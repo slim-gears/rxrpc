@@ -23,6 +23,9 @@ public class SampleSpecializedEndpoint_RxModule implements Module {
             Publishers.toPublisher(target.genericDataMethod(
                     args.get("request", TypeToken.of(String.class))));
 
+    private final static MethodDispatcher<SampleSpecializedEndpoint, SampleGenericList<String>> genericListMethod = (resolver, target, args) ->
+            Publishers.toPublisher(target.genericListMethod());
+
     private final static MethodDispatcher<SampleSpecializedEndpoint, Void> genericInputDataMethod = (resolver, target, args) ->
             Publishers.toPublisher(target.genericInputDataMethod(
                     args.get("data", new TypeToken<SampleGenericData<String>>(){})));
@@ -31,6 +34,7 @@ public class SampleSpecializedEndpoint_RxModule implements Module {
             .builder(SampleSpecializedEndpoint.class)
             .method("genericMethod", genericMethod, String.class)
             .method("genericDataMethod", genericDataMethod, String.class)
+            .method("genericListMethod", genericListMethod)
             .method("genericInputDataMethod", genericInputDataMethod, SampleGenericData.class)
             .build();
 

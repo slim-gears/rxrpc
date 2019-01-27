@@ -56,13 +56,13 @@ public class TypeScriptUtils extends TemplateUtils {
     }
 
     public TypeInfo toTypeScriptType(TypeInfo type) {
-        return typeConverter.convert(type);
+        TypeInfo tsType = typeConverter.convert(type);
+        log.trace("Type conversion {} -> {}", type, tsType);
+        return tsType;
     }
 
     public static Consumer<String> fileWriter(ProcessingEnvironment environment, String filename) {
-        return content -> {
-            writeFile(environment, filename, content.trim() + "\n");
-        };
+        return content -> writeFile(environment, filename, content.trim() + "\n");
     }
 
     public Function<TemplateEvaluator, TemplateEvaluator> imports(ImportTracker importTracker) {

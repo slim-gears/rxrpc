@@ -12,5 +12,8 @@ public interface SampleGenericEndpoint<T> {
     public Observable<SampleGenericData<T>> genericDataMethod(String request);
 
     @RxRpcMethod
+    public Observable<SampleGenericList<T>> genericListMethod();
+
+    @RxRpcMethod
     public Completable genericInputDataMethod(SampleGenericData<T> data);
 }

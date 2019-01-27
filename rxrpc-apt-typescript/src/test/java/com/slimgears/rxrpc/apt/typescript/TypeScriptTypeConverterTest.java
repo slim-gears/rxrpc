@@ -29,4 +29,17 @@ public class TypeScriptTypeConverterTest {
             Assert.assertEquals("Item<T>[]", tsType.toString());
         }
     }
+
+    @Test
+    public void testGenericListConversion() {
+        try (Safe.Closable ignored = Environment.withEnvironment(processingEnvironment, roundEnvironment)) {
+            TypeInfo sourceType = TypeInfo.of("com.google.common.collect.ImmutableList<Item<T>>");
+            TypeInfo tsType = TypeScriptUtils
+                    .create()
+                    .toTypeScriptType(sourceType);
+            System.out.println(sourceType.name());
+            System.out.println(tsType.name());
+            Assert.assertEquals("Item<T>[]", tsType.toString());
+        }
+    }
 }

@@ -48,6 +48,7 @@ public class TypeScriptEndpointGenerationTest {
                 .apply(this::typeScriptOptions)
                 .expectedFiles(
                         "sample-generic-data.ts",
+                        "sample-generic-list.ts",
                         "sample-generic-endpoint.ts",
                         "sample-specialized-endpoint.ts",
                         "sample-specialized-endpoint-client.ts")
