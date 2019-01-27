@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @RxRpcDecorator(SampleDecorator.Decorator.class)
 public @interface SampleDecorator {
-    String value();
+    String name();
 
     class Decorator implements RxDecorator<SampleDecorator> {
         private final static ScopedInstance<String> scopedString = ScopedInstance.create();
@@ -26,7 +26,7 @@ public @interface SampleDecorator {
 
         @Override
         public <T> Publisher<T> decorate(SampleDecorator annotation, Supplier<Publisher<T>> upstream) {
-            return scopedString.withScope(annotation.value(), upstream::get);
+            return scopedString.withScope(annotation.name(), upstream::get);
         }
     }
 }

@@ -129,6 +129,10 @@ public class TypeScriptUtils extends TemplateUtils {
             return TypeInfo.of(toSimpleName(typeInfo));
         }
 
+        if (typeInfo.isArray()) {
+            return TypeInfo.arrayOf(convertRecursively(typeConverter, typeInfo.elementTypeOrSelf()));
+        }
+
         TypeInfo.Builder builder = TypeInfo.builder().name(toSimpleName(typeInfo));
         typeInfo.typeParams().forEach(tp -> builder.typeParam(tp.name(), typeConverter.convert(tp.type())));
         return builder.build();
