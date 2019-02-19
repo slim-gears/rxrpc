@@ -40,8 +40,12 @@ export class $targetClass.simpleName()##
     public static provider(invokerToken: $[@angular.core.Type]<RxRpcInvoker>|$[@angular.core.InjectionToken]<RxRpcInvoker>): $[@angular.core.FactoryProvider] {
         return {
             provide: $targetClass.simpleName(),
-            useFactory: invoker => new ${targetClass.simpleName()}(invoker),
+            useFactory: ${targetClass.simpleName()}Factory,
             deps: [invokerToken]
         };
     }
+}
+
+export function ${targetClass.simpleName()}Factory(invoker: RxRpcInvoker) {
+    return new ${targetClass.simpleName()}(invoker)
 }
