@@ -1,19 +1,18 @@
 import {InjectionToken, Injector, ModuleWithProviders, NgModule, Type} from '@angular/core';
 import {RxRpcClient, RxRpcClientModule, RxRpcInvoker, RxRpcTransport} from 'ng-rxrpc';
 #foreach($c in $classes)
-import { $c.name() } from './$utils.camelCaseToDash($c.name())';
 #end
 
 const RXRPC_INVOKER = new InjectionToken<RxRpcInvoker>('${ngModuleName}.RxRpcInvoker');
 
     @NgModule({
     imports: [ RxRpcClientModule ],
-providers: [
+    providers: [
 #foreach($c in $classes)
-    ${c.name()}.provider(RXRPC_INVOKER)#if($foreach.hasNext),#end
+        ${c.name()}.provider(RXRPC_INVOKER)#if($foreach.hasNext),#end
 
 #end
-]
+    ]
 })
 export class $ngModuleName {
 
