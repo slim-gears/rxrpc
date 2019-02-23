@@ -47,5 +47,5 @@ export class $targetClass.simpleName()##
 }
 
 export function ${targetClass.simpleName()}Factory(invoker: RxRpcInvoker) {
-    return new ${targetClass.simpleName()}(invoker)
+    return new ${targetClass.simpleName()}(invoker);
 }
