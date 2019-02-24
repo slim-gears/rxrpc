@@ -30,8 +30,12 @@ export class SampleEndpointClient implements SampleEndpoint {
     public static provider(invokerToken: Type<RxRpcInvoker>|InjectionToken<RxRpcInvoker>): FactoryProvider {
         return {
             provide: SampleEndpointClient,
-            useFactory: invoker => new SampleEndpointClient(invoker),
+            useFactory: SampleEndpointClientFactory,
             deps: [invokerToken]
         };
     }
+}
+
+export function SampleEndpointClientFactory(invoker: RxRpcInvoker) {
+    return new SampleEndpointClient(invoker);
 }

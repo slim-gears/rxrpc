@@ -4,13 +4,13 @@ import {RxRpcClient, RxRpcClientModule, RxRpcInvoker, RxRpcTransport} from 'ng-r
 import { $c.name() } from './$utils.camelCaseToDash($c.name())';
 #end
 
-const RXRPC_INVOKER = new InjectionToken<RxRpcInvoker>('${ngModuleName}.RxRpcInvoker');
+export const ${ngModuleName}RXRPC_INVOKER = new InjectionToken<RxRpcInvoker>('${ngModuleName}.RxRpcInvoker');
 
 @NgModule({
     imports: [ RxRpcClientModule ],
     providers: [
 #foreach($c in $classes)
-        ${c.name()}.provider(RXRPC_INVOKER)#if($foreach.hasNext),#end
+        ${c.name()}.provider(${ngModuleName}RXRPC_INVOKER)#if($foreach.hasNext),#end
 
 #end
     ]
@@ -21,10 +21,14 @@ export class $ngModuleName {
         return {
             ngModule: $ngModuleName,
             providers: [{
-                provide: RXRPC_INVOKER,
-                useFactory: t => new RxRpcClient(t),
+                provide: ${ngModuleName}RXRPC_INVOKER,
+                useFactory: ${ngModuleName}RxRpcInvokerFactory,
                 deps: [transport]
             }]
         };
     }
+}
+
+export function ${ngModuleName}RxRpcInvokerFactory(t: RxRpcTransport) {
+    return new RxRpcClient(t);
 }

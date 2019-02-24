@@ -2,12 +2,12 @@ import {InjectionToken, Injector, ModuleWithProviders, NgModule, Type} from '@an
 import {RxRpcClient, RxRpcClientModule, RxRpcInvoker, RxRpcTransport} from 'ng-rxrpc';
 import { SampleEndpointClient } from './sample-endpoint-client';
 
-const RXRPC_INVOKER = new InjectionToken<RxRpcInvoker>('RxRpcGeneratedClientModule.RxRpcInvoker');
+export const RxRpcGeneratedClientModuleRXRPC_INVOKER = new InjectionToken<RxRpcInvoker>('RxRpcGeneratedClientModule.RxRpcInvoker');
 
 @NgModule({
     imports: [ RxRpcClientModule ],
     providers: [
-        SampleEndpointClient.provider(RXRPC_INVOKER)
+        SampleEndpointClient.provider(RxRpcGeneratedClientModuleRXRPC_INVOKER)
     ]
 })
 export class RxRpcGeneratedClientModule {
@@ -16,10 +16,14 @@ export class RxRpcGeneratedClientModule {
         return {
             ngModule: RxRpcGeneratedClientModule,
             providers: [{
-                provide: RXRPC_INVOKER,
-                useFactory: t => new RxRpcClient(t),
+                provide: RxRpcGeneratedClientModuleRXRPC_INVOKER,
+                useFactory: RxRpcGeneratedClientModuleRxRpcInvokerFactory,
                 deps: [transport]
             }]
         };
     }
+}
+
+export function RxRpcGeneratedClientModuleRxRpcInvokerFactory(t: RxRpcTransport) {
+    return new RxRpcClient(t);
 }
