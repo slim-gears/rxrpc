@@ -26,8 +26,12 @@ export class SampleSpecializedEndpointClient implements SampleSpecializedEndpoin
     public static provider(invokerToken: Type<RxRpcInvoker>|InjectionToken<RxRpcInvoker>): FactoryProvider {
         return {
             provide: SampleSpecializedEndpointClient,
-            useFactory: invoker => new SampleSpecializedEndpointClient(invoker),
+            useFactory: SampleSpecializedEndpointClientFactory,
             deps: [invokerToken]
         };
     }
+}
+
+export function SampleSpecializedEndpointClientFactory(invoker: RxRpcInvoker) {
+    return new SampleSpecializedEndpointClient(invoker);
 }

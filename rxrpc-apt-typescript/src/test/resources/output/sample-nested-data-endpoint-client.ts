@@ -18,8 +18,12 @@ export class SampleNestedDataEndpointClient implements SampleNestedDataEndpoint 
     public static provider(invokerToken: Type<RxRpcInvoker>|InjectionToken<RxRpcInvoker>): FactoryProvider {
         return {
             provide: SampleNestedDataEndpointClient,
-            useFactory: invoker => new SampleNestedDataEndpointClient(invoker),
+            useFactory: SampleNestedDataEndpointClientFactory,
             deps: [invokerToken]
         };
     }
+}
+
+export function SampleNestedDataEndpointClientFactory(invoker: RxRpcInvoker) {
+    return new SampleNestedDataEndpointClient(invoker);
 }
