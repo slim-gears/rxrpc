@@ -13,7 +13,7 @@
             <option value="$PROJECT_DIR$/rxrpc-apt-typescript" />
             <option value="$PROJECT_DIR$/rxrpc-core" />
             <option value="$PROJECT_DIR$/rxrpc-jetty-websocket" />
-            <option value="$PROJECT_DIR$/rxrpc-ng" />
+            <option value="$PROJECT_DIR$/rxrpc-js" />
             <option value="$PROJECT_DIR$/sample" />
           </set>
         </option>
