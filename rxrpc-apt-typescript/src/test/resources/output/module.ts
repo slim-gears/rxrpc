@@ -1,11 +1,10 @@
 import {InjectionToken, Injector, ModuleWithProviders, NgModule, Type} from '@angular/core';
-import {RxRpcClient, RxRpcClientModule, RxRpcInvoker, RxRpcTransport} from 'ng-rxrpc';
+import {RxRpcClient, RxRpcInvoker, RxRpcTransport} from 'ng-rxrpc';
 import { SampleEndpointClient } from './sample-endpoint-client';
 
 export const RxRpcGeneratedClientModuleRXRPC_INVOKER = new InjectionToken<RxRpcInvoker>('RxRpcGeneratedClientModule.RxRpcInvoker');
 
 @NgModule({
-    imports: [ RxRpcClientModule ],
     providers: [
         SampleEndpointClient.provider(RxRpcGeneratedClientModuleRXRPC_INVOKER)
     ]
