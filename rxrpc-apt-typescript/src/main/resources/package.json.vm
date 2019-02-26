@@ -17,7 +17,7 @@
     "@angular/core": "^6.0.3",
 #end
     "rxjs": "^6.0.0",
-    "ng-rxrpc": "^$ngRxRpcVersion"
+    "rxrpc-js": "^$rxRpcJsVersion"
   },
   "files": ["*.ts", "*.json", "dist/*"]
 }

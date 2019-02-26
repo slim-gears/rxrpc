@@ -1,7 +1,7 @@
 import { SampleMapData, SampleMapEndpoint } from './index';
 import { FactoryProvider, Injectable, InjectionToken, Type } from '@angular/core';
-import { RxRpcInvoker, StringKeyMap } from 'ng-rxrpc';
 import { Observable } from 'rxjs';
+import { RxRpcInvoker, StringKeyMap } from 'rxrpc-js';
 
 /**
  * Generated from com.slimgears.rxrpc.sample.SampleMapEndpoint
@@ -15,8 +15,8 @@ export class SampleMapEndpointClient implements SampleMapEndpoint {
         return this.invoker.invoke('sample-map-endpoint/mapDataMethod', {arg: arg});
     }
 
-    public mapOfmapDataMethod(): Observable<StringKeyMap<SampleMapData>> {
-        return this.invoker.invoke('sample-map-endpoint/mapOfmapDataMethod', {});
+    public mapOfMapDataMethod(): Observable<StringKeyMap<SampleMapData>> {
+        return this.invoker.invoke('sample-map-endpoint/mapOfMapDataMethod', {});
     }
 
     public static provider(invokerToken: Type<RxRpcInvoker>|InjectionToken<RxRpcInvoker>): FactoryProvider {

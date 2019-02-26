@@ -1,7 +1,7 @@
 import { SampleNestedDataEndpoint, SampleNestedDataEndpointData } from './index';
 import { FactoryProvider, Injectable, InjectionToken, Type } from '@angular/core';
-import { RxRpcInvoker } from 'ng-rxrpc';
 import { Observable } from 'rxjs';
+import { RxRpcInvoker } from 'rxrpc-js';
 
 /**
  * Generated from com.slimgears.rxrpc.sample.SampleNestedDataEndpoint

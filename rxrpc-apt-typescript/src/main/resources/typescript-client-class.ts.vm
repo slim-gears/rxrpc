@@ -13,7 +13,7 @@ export class $targetClass.simpleName()##
     #end##
 #end {##
 
-    constructor(private invoker: $[ngRxrpc.RxRpcInvoker]) {
+    constructor(private invoker: $[rxrpcJs.RxRpcInvoker]) {
     }
 
 #foreach ($m in $methods)
