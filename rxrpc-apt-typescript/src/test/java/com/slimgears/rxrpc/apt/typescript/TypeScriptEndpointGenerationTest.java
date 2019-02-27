@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.slf4j.event.Level;
 
 public class TypeScriptEndpointGenerationTest {
-    private ScopedInstance.Closable classTrackerDisposable;
+    private ScopedInstance.Closeable classTrackerDisposable;
 
     @Before
     public void setUp() {
@@ -48,6 +48,7 @@ public class TypeScriptEndpointGenerationTest {
                 .apply(this::typeScriptOptions)
                 .expectedFiles(
                         "sample-generic-data.ts",
+                        "sample-generic-list.ts",
                         "sample-generic-endpoint.ts",
                         "sample-specialized-endpoint.ts",
                         "sample-specialized-endpoint-client.ts")

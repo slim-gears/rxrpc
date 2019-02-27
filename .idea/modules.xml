@@ -18,9 +18,9 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-jetty-websocket/rxrpc-jetty-websocket.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-jetty-websocket/rxrpc-jetty-websocket.iml" group="rxrpc-jetty-websocket" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-jetty-websocket/rxrpc-jetty-websocket_main.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-jetty-websocket/rxrpc-jetty-websocket_main.iml" group="rxrpc-jetty-websocket" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-jetty-websocket/rxrpc-jetty-websocket_test.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-jetty-websocket/rxrpc-jetty-websocket_test.iml" group="rxrpc-jetty-websocket" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-ng/rxrpc-ng.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-ng/rxrpc-ng.iml" group="rxrpc-ng" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-ng/rxrpc-ng_main.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-ng/rxrpc-ng_main.iml" group="rxrpc-ng" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-ng/rxrpc-ng_test.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-ng/rxrpc-ng_test.iml" group="rxrpc-ng" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-js/rxrpc-js.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-js/rxrpc-js.iml" group="rxrpc-js" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-js/rxrpc-js_main.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-js/rxrpc-js_main.iml" group="rxrpc-js" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxrpc-js/rxrpc-js_test.iml" filepath="$PROJECT_DIR$/.idea/modules/rxrpc-js/rxrpc-js_test.iml" group="rxrpc-js" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/sample/sample.iml" filepath="$PROJECT_DIR$/.idea/modules/sample/sample.iml" group="sample" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/sample/sample_main.iml" filepath="$PROJECT_DIR$/.idea/modules/sample/sample_main.iml" group="sample" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/sample/sample_test.iml" filepath="$PROJECT_DIR$/.idea/modules/sample/sample_test.iml" group="sample" />

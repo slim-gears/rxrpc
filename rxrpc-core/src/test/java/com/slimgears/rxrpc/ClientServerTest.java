@@ -62,18 +62,18 @@ public class ClientServerTest {
     public void setUp() {
         serverSubject = ReplaySubject.create();
 
-        EndpointRouter.Factory factory = EndpointRouters
+        EndpointRouter router = EndpointRouters
                 .builder(Object.class)
-                .method("testMethod", (target, args) -> serverSubject
+                .method("testMethod", (resolver, target, args) -> serverSubject
                         .map(s -> args.get("prefix", TypeToken.of(String.class)) + ":" + s)
-                        .toFlowable(BackpressureStrategy.BUFFER))
-                .buildFactory();
+                        .toFlowable(BackpressureStrategy.BUFFER), String.class)
+                .build();
 
         MockTransport mockTransport = new MockTransport();
         rxServer = RxServer
                 .configBuilder()
                 .server(mockTransport)
-                .dispatcherFactory(factory)
+                .router(router)
                 .createServer();
 
         rxClient = RxClient.forClient(mockTransport);

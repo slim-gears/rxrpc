@@ -44,7 +44,7 @@ public class RxServer implements AutoCloseable {
     public static abstract class Config implements HasObjectMapper {
         public abstract RxTransport.Server server();
         public abstract ServiceResolver resolver();
-        public abstract EndpointRouter.Factory dispatcherFactory();
+        public abstract EndpointRouter router();
 
         public static Builder builder() {
             return new AutoValue_RxServer_Config.Builder()
@@ -56,7 +56,7 @@ public class RxServer implements AutoCloseable {
         public interface Builder extends HasObjectMapper.Builder<Builder> {
             Builder server(RxTransport.Server server);
             Builder resolver(ServiceResolver resolver);
-            Builder dispatcherFactory(EndpointRouter.Factory factory);
+            Builder router(EndpointRouter router);
             Config build();
 
             default RxServer createServer() {
@@ -68,7 +68,7 @@ public class RxServer implements AutoCloseable {
             }
 
             default Builder modules(EndpointRouter.Module... modules) {
-                return dispatcherFactory(EndpointRouters.factoryFromModules(modules));
+                return router(EndpointRouters.fromModules(modules));
             }
         }
     }
@@ -98,12 +98,14 @@ public class RxServer implements AutoCloseable {
         stop();
     }
 
-    private InvocationArguments toArguments(Map<String, JsonNode> args) {
+    private InvocationArguments toArguments(Invocation invocation) {
+        Map<String, JsonNode> args = invocation.arguments();
         return new InvocationArguments() {
             @Override
             public <T> T get(String key, TypeToken<T> type) {
                 return Optional
-                        .ofNullable(args.get(key))
+                        .ofNullable(args)
+                        .map(args -> args.get(key))
                         .<T>map(json -> {
                             try {
                                 return config.objectMapper().readValue(json.traverse(), toReference(type));
@@ -111,7 +113,8 @@ public class RxServer implements AutoCloseable {
                                 throw new RuntimeException(e);
                             }
                         })
-                        .orElseThrow(() -> new IllegalArgumentException("Argument " + key + " not found"));
+                        .orElse(null);
+//                        .orElseThrow(() -> new IllegalArgumentException("Argument " + key + " not found (invocation: " + invocation.toString() + ")"));
             }
         };
     }
@@ -185,9 +188,9 @@ public class RxServer implements AutoCloseable {
 
         private void handleSubscription(Invocation message) {
             try {
-                EndpointRouter dispatcher = config.dispatcherFactory().create(resolver);
-                Publisher<?> response = dispatcher
-                        .dispatch(message.method(), toArguments(message.arguments()));
+                EndpointRouter router = config.router();
+                Publisher<?> response = router
+                        .dispatch(resolver, message.method(), toArguments(message));
 
                 //noinspection ResultOfMethodCallIgnored
                 Observable

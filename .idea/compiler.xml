@@ -24,6 +24,8 @@
       <module name="rxrpc-core_test" target="1.8" />
       <module name="rxrpc-jetty-websocket_main" target="1.8" />
       <module name="rxrpc-jetty-websocket_test" target="1.8" />
+      <module name="rxrpc-js_main" target="1.8" />
+      <module name="rxrpc-js_test" target="1.8" />
       <module name="rxrpc-ng_main" target="1.8" />
       <module name="rxrpc-ng_test" target="1.8" />
       <module name="sample_main" target="1.8" />

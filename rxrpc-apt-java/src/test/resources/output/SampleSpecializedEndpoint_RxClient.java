@@ -9,8 +9,9 @@ import java.lang.String;
 import java.lang.Void;
 import javax.annotation.Generated;
 
-
-
+/**
+ * Generated from com.slimgears.rxrpc.sample.SampleSpecializedEndpoint
+ */
 @Generated("com.slimgears.rxrpc.apt.RxRpcEndpointAnnotationProcessor")
 public class SampleSpecializedEndpoint_RxClient extends AbstractClient implements SampleSpecializedEndpoint {
     public SampleSpecializedEndpoint_RxClient(Session session) {
@@ -33,6 +34,14 @@ public class SampleSpecializedEndpoint_RxClient extends AbstractClient implement
                 "sampleSpecializedEndpoint/genericDataMethod",
                 arguments()
                         .put("request", request));
+    }
+
+    @Override
+    public Observable<SampleGenericList<String>> genericListMethod() {
+        return invokeObservable(
+                new TypeToken<SampleGenericList<String>>(){},
+                "sampleSpecializedEndpoint/genericListMethod",
+                arguments());
     }
 
     @Override

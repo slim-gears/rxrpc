@@ -1,6 +1,6 @@
-[submodule "rxrpc-ng"]
-	path = rxrpc-ng
-	url = https://github.com/slim-gears/ng-rxrpc
+[submodule "rxrpc-js"]
+	path = rxrpc-js
+	url = https://github.com/slim-gears/rxrpc-js
 [submodule "gradle"]
 	path = gradle
 	url = https://github.com/slim-gears/gradle

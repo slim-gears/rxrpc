@@ -56,13 +56,13 @@ public class TypeScriptUtils extends TemplateUtils {
     }
 
     public TypeInfo toTypeScriptType(TypeInfo type) {
-        return typeConverter.convert(type);
+        TypeInfo tsType = typeConverter.convert(type);
+        log.trace("Type conversion {} -> {}", type, tsType);
+        return tsType;
     }
 
     public static Consumer<String> fileWriter(ProcessingEnvironment environment, String filename) {
-        return content -> {
-            writeFile(environment, filename, content.trim() + "\n");
-        };
+        return content -> writeFile(environment, filename, content.trim() + "\n");
     }
 
     public Function<TemplateEvaluator, TemplateEvaluator> imports(ImportTracker importTracker) {
@@ -127,6 +127,10 @@ public class TypeScriptUtils extends TemplateUtils {
     private static TypeInfo convertRecursively(TypeConverter typeConverter, TypeInfo typeInfo) {
         if (typeInfo.typeParams().isEmpty()) {
             return TypeInfo.of(toSimpleName(typeInfo));
+        }
+
+        if (typeInfo.isArray()) {
+            return TypeInfo.arrayOf(convertRecursively(typeConverter, typeInfo.elementTypeOrSelf()));
         }
 
         TypeInfo.Builder builder = TypeInfo.builder().name(toSimpleName(typeInfo));

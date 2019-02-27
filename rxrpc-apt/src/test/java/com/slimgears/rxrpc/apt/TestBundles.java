@@ -26,6 +26,7 @@ public class TestBundles {
         return rxRpcEndpointProcessingTester()
                 .inputFiles(
                         "SampleGenericData.java",
+                        "SampleGenericList.java",
                         "SampleGenericEndpoint.java",
                         "SampleSpecializedEndpoint.java");
     }

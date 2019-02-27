@@ -15,5 +15,5 @@ public interface SampleMapEndpoint {
     public Observable<SampleMapData> mapDataMethod(Map<String, SampleMapData> arg);
 
     @RxRpcMethod
-    public Observable<ImmutableMap<String, SampleMapData>> mapOfmapDataMethod();
+    public Observable<ImmutableMap<String, SampleMapData>> mapOfMapDataMethod();
 }

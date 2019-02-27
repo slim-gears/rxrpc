@@ -18,7 +18,7 @@ import javax.annotation.processing.SupportedOptions;
         TypeScriptIndexGenerator.npmVersionOption,
         TypeScriptIndexGenerator.npmAuthorOption,
         TypeScriptIndexGenerator.npmDescriptionOption,
-        TypeScriptIndexGenerator.ngRxRpcVersionOption
+        TypeScriptIndexGenerator.rxRpcJsVersionOption
 })
 public class TypeScriptIndexGenerator implements CodeGenerationFinalizer {
     static final String generateNgModuleOption = TypeScriptEndpointGenerator.generateNgModuleOption;
@@ -28,7 +28,7 @@ public class TypeScriptIndexGenerator implements CodeGenerationFinalizer {
     static final String npmDescriptionOption = "rxrpc.ts.npm.description";
     static final String npmAuthorOption = "rxrpc.ts.npm.author";
     static final String npmNameOption = "rxrpc.ts.npm.name";
-    static final String ngRxRpcVersionOption = "rxrpc.ts.ngrxrpc.version";
+    static final String rxRpcJsVersionOption = "rxrpc.ts.rxrpcjs.version";
 
     @Override
     public void generate(Context context) {
@@ -49,7 +49,7 @@ public class TypeScriptIndexGenerator implements CodeGenerationFinalizer {
                     .variable("npmModuleDescription", context.option(npmDescriptionOption))
                     .variable("npmModuleAuthor", context.option(npmAuthorOption))
                     .variable("npmModuleName", context.option(npmNameOption))
-                    .variable("ngRxRpcVersion", context.option(ngRxRpcVersionOption))
+                    .variable("rxRpcJsVersion", context.option(rxRpcJsVersionOption))
                     .write(TypeScriptUtils.fileWriter(context.environment(), "package.json"));
             TemplateEvaluator
                     .forResource("tsconfig.json.vm")
