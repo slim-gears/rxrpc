@@ -1,5 +1,5 @@
 import {InjectionToken, Injector, ModuleWithProviders, NgModule, Type} from '@angular/core';
-import {RxRpcClient, RxRpcInvoker, RxRpcTransport} from 'ng-rxrpc';
+import {RxRpcClient, RxRpcInvoker, RxRpcTransport} from 'rxrpc-js';
 #foreach($c in $classes)
 import { $c.name() } from './$utils.camelCaseToDash($c.name())';
 #end
