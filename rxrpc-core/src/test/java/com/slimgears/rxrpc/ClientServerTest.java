@@ -89,6 +89,7 @@ public class ClientServerTest {
     @Test
     public void testBasicClientServer() {
         TestObserver<String> tester = rxClient.connect(URI.create(""))
+                .blockingGet()
                 .resolve(EndpointClient.class)
                 .invokeObservable(TypeToken.of(String.class), "testMethod", args -> args.put("prefix", "[S]"))
                 .test();
@@ -103,6 +104,7 @@ public class ClientServerTest {
     @Test
     public void testClientUnsubscribeCausesServerUnsubscribe() {
         Disposable subscription = rxClient.connect(URI.create(""))
+                .blockingGet()
                 .resolve(EndpointClient.class)
                 .invokeObservable(TypeToken.of(String.class), "testMethod", args -> args.put("prefix", "[S]"))
                 .subscribe();
@@ -118,7 +120,7 @@ public class ClientServerTest {
 
     @Test
     public void testEndpointResolverClosesConnection() {
-        try (ServiceResolver resolver = rxClient.connect(URI.create(""))) {
+        try (ServiceResolver resolver = rxClient.connect(URI.create("")).blockingGet()) {
             resolver
                     .resolve(EndpointClient.class)
                     .invokeObservable(TypeToken.of(String.class), "testMethod", args -> args.put("prefix", "[S]"))
