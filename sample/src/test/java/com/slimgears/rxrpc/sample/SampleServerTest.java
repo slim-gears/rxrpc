@@ -33,7 +33,7 @@ public class SampleServerTest {
         server = new SampleServer(port);
         server.start();
         RxClient rxClient = RxClient.forClient(JettyWebSocketRxTransport.builder().buildClient());
-        clientResolver = rxClient.connect(uri);
+        clientResolver = rxClient.connect(uri).blockingGet();
     }
 
     @After

@@ -3,6 +3,6 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/gradle" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/rxrpc-ng" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rxrpc-js" vcs="Git" />
   </component>
 </project>
