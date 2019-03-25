@@ -101,4 +101,11 @@ public class TestBundles {
                 .inputFiles("SampleEndpointModule.java")
                 .processedWith(new RxRpcModuleAnnotationProcessor());
     }
+
+    public static AnnotationProcessingTester sampleCircularReferenceDataEndpoint() {
+        return rxRpcEndpointProcessingTester()
+                .inputFiles(
+                        "SampleCircularReferenceData.java",
+                        "SampleCircularReferenceEndpoint.java");
+    }
 }

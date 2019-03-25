@@ -24,8 +24,7 @@ hs_err_pid*
 
 .gradle/
 !gradle/wrapper/gradle-wrapper.jar
-/.idea/workspace.xml
-/.idea/shelf/
+/.idea
 build/
 target/
 node_modules/
