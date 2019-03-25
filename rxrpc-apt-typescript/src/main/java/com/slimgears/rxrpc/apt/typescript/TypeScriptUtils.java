@@ -125,6 +125,13 @@ public class TypeScriptUtils extends TemplateUtils {
     }
 
     private static TypeInfo convertRecursively(TypeConverter typeConverter, TypeInfo typeInfo) {
+        if (typeInfo.hasEnclosingType()) {
+            typeInfo = typeInfo
+                    .toBuilder()
+                    .name(typeInfo.name().replaceAll("\\$", "."))
+                    .build();
+        }
+
         if (typeInfo.typeParams().isEmpty()) {
             return TypeInfo.of(toSimpleName(typeInfo));
         }
