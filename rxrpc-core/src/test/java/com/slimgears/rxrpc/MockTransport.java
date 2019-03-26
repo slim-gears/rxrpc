@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.slimgears.rxrpc;
 
 import com.slimgears.rxrpc.core.RxTransport;
@@ -14,9 +11,13 @@ import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 
 import java.net.URI;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 class MockTransport implements RxTransport.Server, RxTransport.Client {
     private final Subject<RxTransport> connections = BehaviorSubject.create();
+    private final AtomicReference<RxTransport> clientTransport = new AtomicReference<>();
+    private final AtomicReference<RxTransport> serverTransport = new AtomicReference<>();
 
     @Override
     public Observable<RxTransport> connections() {
@@ -28,11 +29,19 @@ class MockTransport implements RxTransport.Server, RxTransport.Client {
         Subject<String> clientIncoming = PublishSubject.create();
         Subject<String> serverIncoming = PublishSubject.create();
 
-        RxTransport clientTransport = transportFor(clientIncoming, serverIncoming);
-        RxTransport serverTransport = transportFor(serverIncoming, clientIncoming);
+        this.clientTransport.set(transportFor(clientIncoming, serverIncoming));
+        this.serverTransport.set(transportFor(serverIncoming, clientIncoming));
 
-        connections.onNext(serverTransport);
-        return Single.just(clientTransport);
+        connections.onNext(serverTransport.get());
+        return Single.just(clientTransport.get());
+    }
+
+    public RxTransport clientTransport() {
+        return Objects.requireNonNull(this.clientTransport.get());
+    }
+
+    public RxTransport serverTransport() {
+        return Objects.requireNonNull(this.serverTransport.get());
     }
 
     private RxTransport transportFor(Observable<String> incoming, Observer<String> outgoing) {

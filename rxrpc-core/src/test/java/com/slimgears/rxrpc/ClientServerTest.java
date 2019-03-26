@@ -22,6 +22,8 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 /**
@@ -34,6 +36,7 @@ public class ClientServerTest {
     private RxServer rxServer;
     private RxClient rxClient;
     private Subject<String> serverSubject;
+    private MockTransport mockTransport;
 
     public static class EndpointClient extends AbstractClient {
         interface InvocationArgs {
@@ -69,7 +72,7 @@ public class ClientServerTest {
                         .toFlowable(BackpressureStrategy.BUFFER), String.class)
                 .build();
 
-        MockTransport mockTransport = new MockTransport();
+        mockTransport = new MockTransport();
         rxServer = RxServer
                 .configBuilder()
                 .server(mockTransport)
@@ -129,5 +132,28 @@ public class ClientServerTest {
         }
 
         Assert.assertFalse(serverSubject.hasObservers());
+    }
+
+    @Test
+    public void testInvocationErrorCausesDisconnection() {
+        AtomicBoolean complete = new AtomicBoolean();
+        AtomicReference<Throwable> error = new AtomicReference<>();
+        AtomicReference<String> value = new AtomicReference<>();
+        Disposable subscription = rxClient.connect(URI.create(""))
+                .blockingGet()
+                .resolve(EndpointClient.class)
+                .invokeObservable(TypeToken.of(String.class), "testMethod", args -> args.put("prefix", "[S]"))
+                .subscribe(value::set, error::set, () -> complete.set(true));
+
+        try {
+            Assert.assertFalse(complete.get());
+            Assert.assertNull(error.get());
+            mockTransport.clientTransport().outgoing().onNext("Corrupted input");
+
+            //Assert.assertTrue(complete.get());
+            Assert.assertNotNull(error.get());
+        } finally {
+            subscription.dispose();
+        }
     }
 }
