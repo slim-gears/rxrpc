@@ -105,10 +105,20 @@ public class TypeScriptEndpointGenerationTest {
     }
 
     @Test
-    public void testEndpointPointModuleGeneration() {
+    public void testEndpointModuleGeneration() {
         TestBundles.sampleEndpointModuleTester()
                 .apply(this::typeScriptOptions)
                 .expectedFiles("module.ts")
+                .test();
+    }
+
+    @Test
+    public void testCircularReferenceEndpointGeneration() {
+        TestBundles.sampleCircularReferenceDataEndpoint()
+                .apply(this::typeScriptOptions)
+                .expectedFiles(
+                        "sample-circular-reference-data.ts",
+                        "sample-circular-reference-endpoint.ts")
                 .test();
     }
 

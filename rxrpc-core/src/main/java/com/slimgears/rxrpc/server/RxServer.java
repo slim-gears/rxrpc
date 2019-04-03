@@ -1,5 +1,6 @@
 package com.slimgears.rxrpc.server;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.auto.value.AutoValue;
@@ -114,7 +115,6 @@ public class RxServer implements AutoCloseable {
                             }
                         })
                         .orElse(null);
-//                        .orElseThrow(() -> new IllegalArgumentException("Argument " + key + " not found (invocation: " + invocation.toString() + ")"));
             }
         };
     }
@@ -135,6 +135,7 @@ public class RxServer implements AutoCloseable {
             Observable<Invocation> invocations = this.transport
                     .incoming()
                     .map(this::toInvocation)
+                    .doOnError(e -> transport.outgoing().onError(e))
                     .share();
 
             this.disposable = MoreDisposables.ofAll(
@@ -157,7 +158,11 @@ public class RxServer implements AutoCloseable {
         }
 
         private Invocation toInvocation(String msg) throws IOException {
-            return config.objectMapper().readValue(msg, Invocation.class);
+            try {
+                return config.objectMapper().readValue(msg, Invocation.class);
+            } catch (JsonParseException e) {
+                throw new IllegalArgumentException("Unrecognized message received: " + msg, e);
+            }
         }
 
         private void sendResponse(Response response) {

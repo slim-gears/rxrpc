@@ -14,6 +14,7 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.CompletableSubject;
 import io.reactivex.subjects.Subject;
 import io.reactivex.subscribers.DisposableSubscriber;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
@@ -80,6 +81,7 @@ public class JettyWebSocketRxTransport implements RxTransport, WebSocketListener
 
     @Override
     public void onWebSocketError(Throwable cause) {
+        connected.onError(cause);
         incoming.onError(cause);
     }
 
@@ -191,7 +193,8 @@ public class JettyWebSocketRxTransport implements RxTransport, WebSocketListener
     }
 
     public static class Client implements RxTransport.Client {
-        private final WebSocketClient webSocketClient = new WebSocketClient();
+        private final SslContextFactory sslContextFactory = new SslContextFactory(true);
+        private final WebSocketClient webSocketClient = new WebSocketClient(sslContextFactory);
         private final Consumer<WebSocketPolicy> policyConfigurator;
 
         private Client(Consumer<WebSocketPolicy> policyConfigurator) {
