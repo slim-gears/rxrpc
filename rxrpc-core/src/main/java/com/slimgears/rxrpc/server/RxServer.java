@@ -200,6 +200,7 @@ public class RxServer implements AutoCloseable {
                 //noinspection ResultOfMethodCallIgnored
                 Observable
                         .fromPublisher(response)
+                        .doOnError(throwable -> log.error("RxServer.handleSubscription: Log uncaught error before sending to client",throwable))
                         .doOnSubscribe(disposable -> activeInvocations.put(message.invocationId(), disposable))
                         .doFinally(() -> activeInvocations.remove(message.invocationId()))
                         .subscribe(
