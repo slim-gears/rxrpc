@@ -121,8 +121,8 @@ public class EndpointRouters {
             return Builder.this::dispatch;
         }
 
+        @SuppressWarnings("unchecked")
         private <R> Publisher<R> dispatch(ServiceResolver resolver, String method, InvocationArguments args) {
-            //noinspection unchecked
             Supplier<Publisher<R>> publisherSupplier = Optional
                     .ofNullable(methodDispatcherMap.get(method))
                     .<Supplier<Publisher<R>>>map(dispatcher -> () -> (Publisher<R>)dispatcher.dispatch(resolver, resolver.resolve(endpointType), args))
@@ -173,8 +173,8 @@ public class EndpointRouters {
             this.annotation = annotation;
         }
 
+        @SuppressWarnings("unchecked")
         static <A extends Annotation> DecorationItem<A> create(Class<? extends RxDecorator<? extends Annotation>> decoratorClass, Annotation annotation) {
-            //noinspection unchecked
             return new DecorationItem<>((Class<? extends RxDecorator<A>>)decoratorClass, (A)annotation);
         }
     }

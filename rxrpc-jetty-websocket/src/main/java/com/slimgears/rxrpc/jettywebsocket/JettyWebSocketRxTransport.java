@@ -26,6 +26,7 @@ import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicReference;
@@ -67,28 +68,60 @@ public class JettyWebSocketRxTransport implements RxTransport, WebSocketListener
     @Override
     public void onWebSocketClose(int statusCode, String reason) {
         if (statusCode == StatusCode.NORMAL) {
-            incoming.onComplete();
+            completeIfNotTerminated(incoming);
         } else {
-            incoming.onError(new RuntimeException("Connection closed with status: " + statusCode + " (" + reason + ")"));
+            errorIfNotTerminated(incoming, new IOException("Connection closed with status: " + statusCode + " (" + reason + ")"));
         }
     }
 
     @Override
     public synchronized void onWebSocketConnect(Session session) {
         disposable.getAndSet(subscribeOutgoing(session));
-        connected.onComplete();
+        completeIfNotTerminated(connected);
     }
 
     @Override
     public void onWebSocketError(Throwable cause) {
-        connected.onError(cause);
-        incoming.onError(cause);
+        errorIfNotTerminated(connected, cause);
+        errorIfNotTerminated(incoming, cause);
     }
 
     @Override
     public void close() {
         outgoing().onComplete();
         incoming().onComplete();
+    }
+
+    private static boolean isTerminated(Subject<?> subject) {
+        return subject.hasComplete() || subject.hasThrowable();
+    }
+
+    private static boolean isTerminated(CompletableSubject subject) {
+        return subject.hasComplete() || subject.hasThrowable();
+    }
+
+    private static void errorIfNotTerminated(CompletableSubject subject, Throwable error) {
+        if (!isTerminated(subject)) {
+            subject.onError(error);
+        }
+    }
+
+    private static void completeIfNotTerminated(CompletableSubject subject) {
+        if (!isTerminated(subject)) {
+            subject.onComplete();
+        }
+    }
+
+    private static void errorIfNotTerminated(Subject<?> subject, Throwable error) {
+        if (!isTerminated(subject)) {
+            subject.onError(error);
+        }
+    }
+
+    private static void completeIfNotTerminated(Subject<?> subject) {
+        if (!isTerminated(subject)) {
+            subject.onComplete();
+        }
     }
 
     private Disposable subscribeOutgoing(Session session) {
