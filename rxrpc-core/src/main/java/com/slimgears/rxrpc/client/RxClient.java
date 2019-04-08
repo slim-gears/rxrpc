@@ -104,7 +104,8 @@ public class RxClient {
     public Single<ServiceResolver> connect(URI uri) {
         Single<RxTransport> transport = this.config.client().connect(uri);
         return transport
-                .map(tr -> new InternalEndpointResolver(new DeferredSession(Single.just(tr))));
+                .<ServiceResolver>map(tr -> new InternalEndpointResolver(new DeferredSession(Single.just(tr))))
+                .cache();
     }
 
     private class InternalEndpointResolver implements ServiceResolver {
