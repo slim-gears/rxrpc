@@ -18,6 +18,7 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.internal.functions.Functions;
 import io.reactivex.subjects.CompletableSubject;
 import io.reactivex.subjects.ReplaySubject;
 import io.reactivex.subjects.Subject;
@@ -104,7 +105,8 @@ public class RxClient {
     public Single<ServiceResolver> connect(URI uri) {
         Single<RxTransport> transport = this.config.client().connect(uri);
         return transport
-                .map(tr -> new InternalEndpointResolver(new DeferredSession(Single.just(tr))));
+                .<ServiceResolver>map(tr -> new InternalEndpointResolver(new InternalSession(tr)))
+                .cache();
     }
 
     private class InternalEndpointResolver implements ServiceResolver {
@@ -130,36 +132,6 @@ public class RxClient {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }
-    }
-
-    private class DeferredSession implements Session {
-        private final Single<Session> session;
-        private final AtomicReference<Session> sessionInstance = new AtomicReference<>();
-        private final CompletableSubject cancellation = CompletableSubject.create();
-
-        private DeferredSession(Single<RxTransport> transport) {
-            this.session = transport
-                    .<Session>map(InternalSession::new)
-                    .takeUntil(cancellation)
-                    .doOnSuccess(sessionInstance::set)
-                    .cache();
-        }
-
-        @Override
-        public Publisher<Result> invoke(String method, Map<String, Object> args) {
-            return session.flatMapPublisher(s -> s.invoke(method, args));
-        }
-
-        @Override
-        public Config clientConfig() {
-            return config;
-        }
-
-        @Override
-        public void close() {
-            cancellation.onComplete();
-            Optional.ofNullable(sessionInstance.get()).ifPresent(Session::close);
         }
     }
 
