@@ -11,39 +11,31 @@ import java.lang.Void;
 import javax.annotation.Generated;
 
 /**
- * Generated from com.slimgears.rxrpc.sample.SampleSpecializedEndpoint
+ * Generated from com.slimgears.rxrpc.sample.SampleGenericMetaEndpointWithSpecificName
  */
 @Generated("com.slimgears.rxrpc.apt.RxRpcEndpointAnnotationProcessor")
-public class SampleSpecializedEndpoint_RxModule implements Module {
-    private final static MethodDispatcher<SampleSpecializedEndpoint, String> genericMethod = (resolver, target, args) ->
+public class SampleGenericMetaEndpointWithSpecificName_RxModule implements Module {
+    private final static MethodDispatcher<SampleGenericMetaEndpointWithSpecificName, String> genericMethod = (resolver, target, args) ->
         Publishers.toPublisher(target.genericMethod(
             args.get("data", TypeToken.of(String.class))));
 
-    private final static MethodDispatcher<SampleSpecializedEndpoint, SampleGenericData<String>> genericDataMethod = (resolver, target, args) ->
+    private final static MethodDispatcher<SampleGenericMetaEndpointWithSpecificName, SampleGenericData<String>> genericDataMethod = (resolver, target, args) ->
         Publishers.toPublisher(target.genericDataMethod(
             args.get("request", TypeToken.of(String.class))));
 
-    private final static MethodDispatcher<SampleSpecializedEndpoint, SampleGenericList<String>> genericListMethod = (resolver, target, args) ->
-        Publishers.toPublisher(target.genericListMethod());
-
-    private final static MethodDispatcher<SampleSpecializedEndpoint, Void> genericInputDataMethod = (resolver, target, args) ->
+    private final static MethodDispatcher<SampleGenericMetaEndpointWithSpecificName, Void> genericInputDataMethod = (resolver, target, args) ->
         Publishers.toPublisher(target.genericInputDataMethod(
             args.get("data", new TypeToken<SampleGenericData<String>>(){})));
 
-    private final static MethodDispatcher<SampleSpecializedEndpoint, SampleSpecializedData> data = (resolver, target, args) ->
-        Publishers.toPublisher(target.data());
-
     private final static EndpointRouter router = EndpointRouters
-        .builder(SampleSpecializedEndpoint.class)
+        .builder(SampleGenericMetaEndpointWithSpecificName.class)
         .method("genericMethod", genericMethod, String.class)
         .method("genericDataMethod", genericDataMethod, String.class)
-        .method("genericListMethod", genericListMethod)
         .method("genericInputDataMethod", genericInputDataMethod, SampleGenericData.class)
-        .method("data", data)
         .build();
 
     @Override
     public void configure(EndpointRouter.Configuration configuration) {
-        configuration.addRouter("sampleSpecializedEndpoint", router);
+        configuration.addRouter("sampleGenericMetaEndpointWithSpecificName", router);
     }
 }

@@ -3,4 +3,5 @@
  */
 export interface SampleBaseData {
     value: number;
+    ignoredMethod: number;
 }

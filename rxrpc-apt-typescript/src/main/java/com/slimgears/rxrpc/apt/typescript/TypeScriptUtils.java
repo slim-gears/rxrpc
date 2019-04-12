@@ -3,6 +3,7 @@
  */
 package com.slimgears.rxrpc.apt.typescript;
 
+import com.slimgears.apt.data.Environment;
 import com.slimgears.apt.data.TypeInfo;
 import com.slimgears.apt.util.ImportTracker;
 import com.slimgears.apt.util.LogUtils;
@@ -11,6 +12,7 @@ import com.slimgears.apt.util.TypeConverter;
 import com.slimgears.apt.util.TypeConverters;
 import com.slimgears.rxrpc.apt.util.TemplateUtils;
 import com.slimgears.util.stream.Safe;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,10 +117,11 @@ public class TypeScriptUtils extends TemplateUtils {
                 .orElseGet(Safe.ofSupplier(() -> filer.createResource(StandardLocation.SOURCE_OUTPUT, "typescript", filename)));
         try (Writer writer = fileObject.openWriter();
              BufferedWriter bufWriter = new BufferedWriter(writer)) {
-            for (String line: content.split("\n")) {
-                bufWriter.write(line);
-                bufWriter.newLine();
-            }
+            IOUtils.write(content, bufWriter);
+            Environment.instance()
+                    .fileListener()
+                    .onFileWrite(filename, content);
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

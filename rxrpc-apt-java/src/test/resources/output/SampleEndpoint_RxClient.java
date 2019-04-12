@@ -21,38 +21,38 @@ public class SampleEndpoint_RxClient extends AbstractClient implements SampleEnd
     @Override
     public int intMethod(SampleRequest request) {
         return invokeBlocking(
-                TypeToken.of(Integer.class),
-                "sample-endpoint/intMethod",
-                arguments()
-                        .put("request", request));
+            TypeToken.of(Integer.class),
+            "sample-endpoint/intMethod",
+            arguments()
+                .put("request", request));
     }
 
     @Override
     public Observable<SampleArray[]> arrayObservableMethod(SampleData sampleData) {
         return invokeObservable(
-                TypeToken.of(SampleArray[].class),
-                "sample-endpoint/arrayObservableMethod",
-                arguments()
-                        .put("sampleData", sampleData));
+            TypeToken.of(SampleArray[].class),
+            "sample-endpoint/arrayObservableMethod",
+            arguments()
+                .put("sampleData", sampleData));
     }
 
     @Override
     public Future<String> futureStringMethod(String msg, SampleRequest request) {
         return invokeFuture(
-                TypeToken.of(String.class),
-                "sample-endpoint/futureStringMethod",
-                arguments()
-                        .put("msg", msg)
-                        .put("request", request));
+            TypeToken.of(String.class),
+            "sample-endpoint/futureStringMethod",
+            arguments()
+                .put("msg", msg)
+                .put("request", request));
     }
 
     @Override
     public Observable<SampleData> observableDataMethod(SampleRequest request) {
         return invokeObservable(
-                TypeToken.of(SampleData.class),
-                "sample-endpoint/observableDataMethod",
-                arguments()
-                        .put("request", request));
+            TypeToken.of(SampleData.class),
+            "sample-endpoint/observableDataMethod",
+            arguments()
+                .put("request", request));
     }
 
 }

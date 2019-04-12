@@ -28,6 +28,7 @@ public class TestBundles {
                         "SampleGenericData.java",
                         "SampleGenericList.java",
                         "SampleGenericEndpoint.java",
+                        "SampleSpecializedData.java",
                         "SampleSpecializedEndpoint.java");
     }
 

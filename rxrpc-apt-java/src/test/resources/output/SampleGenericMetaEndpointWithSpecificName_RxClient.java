@@ -10,11 +10,11 @@ import java.lang.Void;
 import javax.annotation.Generated;
 
 /**
- * Generated from com.slimgears.rxrpc.sample.SampleSpecializedEndpoint
+ * Generated from com.slimgears.rxrpc.sample.SampleGenericMetaEndpointWithSpecificName
  */
 @Generated("com.slimgears.rxrpc.apt.RxRpcEndpointAnnotationProcessor")
-public class SampleSpecializedEndpoint_RxClient extends AbstractClient implements SampleSpecializedEndpoint {
-    public SampleSpecializedEndpoint_RxClient(Session session) {
+public class SampleGenericMetaEndpointWithSpecificName_RxClient extends AbstractClient implements SampleGenericMetaEndpointWithSpecificName {
+    public SampleGenericMetaEndpointWithSpecificName_RxClient(Session session) {
         super(session);
     }
 
@@ -22,7 +22,7 @@ public class SampleSpecializedEndpoint_RxClient extends AbstractClient implement
     public Observable<String> genericMethod(String data) {
         return invokeObservable(
             TypeToken.of(String.class),
-            "sampleSpecializedEndpoint/genericMethod",
+            "sampleGenericMetaEndpointWithSpecificName/genericMethod",
             arguments()
                 .put("data", data));
     }
@@ -31,34 +31,18 @@ public class SampleSpecializedEndpoint_RxClient extends AbstractClient implement
     public Observable<SampleGenericData<String>> genericDataMethod(String request) {
         return invokeObservable(
             new TypeToken<SampleGenericData<String>>(){},
-            "sampleSpecializedEndpoint/genericDataMethod",
+            "sampleGenericMetaEndpointWithSpecificName/genericDataMethod",
             arguments()
                 .put("request", request));
-    }
-
-    @Override
-    public Observable<SampleGenericList<String>> genericListMethod() {
-        return invokeObservable(
-            new TypeToken<SampleGenericList<String>>(){},
-            "sampleSpecializedEndpoint/genericListMethod",
-            arguments());
     }
 
     @Override
     public Completable genericInputDataMethod(SampleGenericData<String> data) {
         return invokeCompletable(
             TypeToken.of(Void.class),
-            "sampleSpecializedEndpoint/genericInputDataMethod",
+            "sampleGenericMetaEndpointWithSpecificName/genericInputDataMethod",
             arguments()
                 .put("data", data));
-    }
-
-    @Override
-    public Observable<SampleSpecializedData> data() {
-        return invokeObservable(
-            TypeToken.of(SampleSpecializedData.class),
-            "sampleSpecializedEndpoint/data",
-            arguments());
     }
 
 }

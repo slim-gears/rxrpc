@@ -5,24 +5,24 @@ import com.slimgears.rxrpc.server.EndpointRouter.Module;
 import com.slimgears.rxrpc.server.EndpointRouters;
 import com.slimgears.rxrpc.server.internal.MethodDispatcher;
 import com.slimgears.rxrpc.server.internal.Publishers;
-import java.lang.Integer;
+import java.lang.String;
 import javax.annotation.Generated;
 
 /**
- * Generated from com.slimgears.rxrpc.sample.SampleDefaultNameEndpoint
+ * Generated from com.slimgears.rxrpc.sample.SampleGenericMetaDefaultNameEndpoint_Of_String
  */
 @Generated("com.slimgears.rxrpc.apt.RxRpcEndpointAnnotationProcessor")
-public class SampleDefaultNameEndpoint_RxModule implements Module {
-    private final static MethodDispatcher<SampleDefaultNameEndpoint, Integer> method = (resolver, target, args) ->
+public class SampleGenericMetaDefaultNameEndpoint_Of_String_RxModule implements Module {
+    private final static MethodDispatcher<SampleGenericMetaDefaultNameEndpoint_Of_String, String> method = (resolver, target, args) ->
         Publishers.toPublisher(target.method());
 
     private final static EndpointRouter router = EndpointRouters
-        .builder(SampleDefaultNameEndpoint.class)
+        .builder(SampleGenericMetaDefaultNameEndpoint_Of_String.class)
         .method("method", method)
         .build();
 
     @Override
     public void configure(EndpointRouter.Configuration configuration) {
-        configuration.addRouter("sample-default-name-endpoint", router);
+        configuration.addRouter("sample-generic-meta-default-name-endpoint_of_string", router);
     }
 }

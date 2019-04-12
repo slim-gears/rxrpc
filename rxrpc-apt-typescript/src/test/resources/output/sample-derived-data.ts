@@ -5,4 +5,5 @@ import { SampleBaseData } from './index';
  */
 export class SampleDerivedData implements SampleBaseData {
     value: number;
+    ignoredMethod: number;
 }

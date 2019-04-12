@@ -4,12 +4,14 @@
 package com.slimgears.rxrpc.apt.java;
 
 import com.slimgears.apt.util.AnnotationProcessingTester;
+import com.slimgears.apt.util.StoreWrittenFilesRule;
 import com.slimgears.rxrpc.apt.DataClassGenerator;
 import com.slimgears.rxrpc.apt.TestBundles;
 import com.slimgears.rxrpc.apt.util.ServiceProvider;
 import com.slimgears.rxrpc.apt.util.ServiceProviders;
 import com.slimgears.util.generic.Scope;
 import com.slimgears.util.generic.ScopedInstance;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
@@ -20,6 +22,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 public class JavaEndpointGenerationTest {
+    @ClassRule
+    public final static StoreWrittenFilesRule storeWrittenFilesRule = StoreWrittenFilesRule
+            .forPath("build/test-results/files");
+
     @Test
     public void testEndpointClientServerGeneration() {
         TestBundles.sampleEndpointTester()
