@@ -70,7 +70,7 @@ public class TypeScriptDataClassGenerator implements DataClassGenerator {
                 .variable("interfaces", interfaces)
                 .variables(context)
                 .apply(typeScriptUtils.imports(importTracker))
-                .write(TypeScriptUtils.fileWriter(context.environment(), filename));
+                .write(TypeScriptUtils.fileWriter(filename));
     }
 
     private boolean isUnknownType(DeclaredType declaredType) {

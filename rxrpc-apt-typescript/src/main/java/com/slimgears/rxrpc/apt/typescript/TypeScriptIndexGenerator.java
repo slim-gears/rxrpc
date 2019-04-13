@@ -50,12 +50,12 @@ public class TypeScriptIndexGenerator implements CodeGenerationFinalizer {
                     .variable("npmModuleAuthor", context.option(npmAuthorOption))
                     .variable("npmModuleName", context.option(npmNameOption))
                     .variable("rxRpcJsVersion", context.option(rxRpcJsVersionOption))
-                    .write(TypeScriptUtils.fileWriter(context.environment(), "package.json"));
+                    .write(TypeScriptUtils.fileWriter("package.json"));
             TemplateEvaluator
                     .forResource("tsconfig.json.vm")
-                    .write(TypeScriptUtils.fileWriter(context.environment(), "tsconfig.json"));
+                    .write(TypeScriptUtils.fileWriter("tsconfig.json"));
         }
 
-        TypeScriptUtils.writeFile(context.environment(), "index.ts", GeneratedClassTracker.current().generateIndex());
+        TypeScriptUtils.fileWriter("index.ts").accept(GeneratedClassTracker.current().generateIndex());
     }
 }

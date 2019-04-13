@@ -94,7 +94,7 @@ public class TypeScriptEndpointGenerator implements EndpointGenerator {
                 .variable("interfaces", interfaceProvider.apply(typeScriptUtils))
                 .variables(context)
                 .apply(typeScriptUtils.imports(importTracker))
-                .write(TypeScriptUtils.fileWriter(context.environment(), filename));
+                .write(TypeScriptUtils.fileWriter(filename));
 
         GeneratedClassTracker.current().addClass(
                 TypeInfo.of(context.sourceTypeElement()),

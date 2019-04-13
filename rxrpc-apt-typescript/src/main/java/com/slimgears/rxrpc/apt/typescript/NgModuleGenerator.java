@@ -44,7 +44,7 @@ public class NgModuleGenerator {
                 .variables(context)
                 .variable("classes", endpoints)
                 .variable("ngModuleName", ngModuleName)
-                .write(TypeScriptUtils.fileWriter(context.environment(), filename + ".ts"));
+                .write(TypeScriptUtils.fileWriter(filename + ".ts"));
         GeneratedClassTracker.current().addFile(filename);
     }
 }
