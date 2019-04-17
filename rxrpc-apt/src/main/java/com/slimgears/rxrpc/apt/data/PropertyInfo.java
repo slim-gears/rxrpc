@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.slimgears.rxrpc.apt.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -107,9 +104,7 @@ public abstract class PropertyInfo implements HasName, HasType {
 
     private static String propertyName(ExecutableElement element) {
         String name = element.getSimpleName().toString();
-        if (startsWith(name, "is") && TypeInfo.of(element.getReturnType()).isOneOf(boolean.class, Boolean.class)) {
-            name = name.substring(2);
-        } else if (startsWith(name, "get")) {
+        if (startsWith(name, "get")) {
             name = name.substring(3);
         }
 

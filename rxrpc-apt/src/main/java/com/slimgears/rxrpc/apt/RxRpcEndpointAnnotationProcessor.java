@@ -1,6 +1,5 @@
 package com.slimgears.rxrpc.apt;
 
-import ch.qos.logback.classic.gaffer.PropertyUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
@@ -138,7 +137,7 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
     }
 
     private TypeMirror propertyTypeFromElement(DeclaredType type, Element element) {
-        TypeMirror propertyType = Optionals
+        return Optionals
                 .or(
                         () -> Optional.of(element)
                                 .flatMap(Optionals.ofType(ExecutableElement.class))
@@ -150,9 +149,9 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
                                 .map(el -> Environment.instance().types().asMemberOf(type, el))
                 )
                 .orElseThrow(() -> new IllegalArgumentException("Element kind " + element.getKind() + " is not supported as a property element"));
-        return propertyType;
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     private Stream<? extends Element> propertyElementsFromTypeElement(TypeElement typeElement) {
         return Stream.concat(
                 typeElement
@@ -221,7 +220,8 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
         finalizers.clear();
     }
 
-    protected EndpointGenerator.Context createContext(TypeElement annotationType, TypeElement typeElement) {
+    @SuppressWarnings("UnstableApiUsage")
+    private EndpointGenerator.Context createContext(TypeElement annotationType, TypeElement typeElement) {
         DeclaredType declaredType = (DeclaredType)typeElement.asType();
         RxRpcEndpoint annotation = typeElement.getAnnotation(RxRpcEndpoint.class);
 
