@@ -37,6 +37,7 @@ export class $targetClass.simpleName()##
 
 #end
 
+#if ($generateNgModule)
     public static provider(invokerToken: $[@angular.core.Type]<RxRpcInvoker>|$[@angular.core.InjectionToken]<RxRpcInvoker>): $[@angular.core.FactoryProvider] {
         return {
             provide: $targetClass.simpleName(),
@@ -44,8 +45,11 @@ export class $targetClass.simpleName()##
             deps: [invokerToken]
         };
     }
+#end
 }
 
+#if ($generateNgModule)
 export function ${targetClass.simpleName()}Factory(invoker: RxRpcInvoker) {
     return new ${targetClass.simpleName()}(invoker);
 }
+#end
