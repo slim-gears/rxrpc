@@ -21,6 +21,8 @@ import com.slimgears.rxrpc.core.RxRpcEndpoint;
 import com.slimgears.rxrpc.core.RxRpcMethod;
 import com.slimgears.util.stream.Optionals;
 import com.slimgears.util.stream.Streams;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -32,6 +34,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,6 +51,7 @@ import java.util.stream.Stream;
 @AutoService(Processor.class)
 @SupportedAnnotationTypes("com.slimgears.rxrpc.core.RxRpcEndpoint")
 public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcessor {
+    private final static Logger log = LoggerFactory.getLogger(RxRpcEndpointAnnotationProcessor.class);
     private final Collection<EndpointGenerator> endpointGenerators;
     private final Collection<CodeGenerationFinalizer> finalizers;
     private final Collection<DataClassGenerator> dataClassGenerators;
@@ -77,6 +81,10 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
     }
 
     private void generateDataType(TypeElement typeElement) {
+        if (typeElement.asType().getKind() == TypeKind.ERROR) {
+            delayProcessing();
+        }
+
         TypeInfo typeInfo = TypeInfo.of(typeElement);
         if (processedClasses.contains(typeElement.getQualifiedName()) ||
                 TemplateUtils.isKnownAsyncType(typeInfo) ||
@@ -287,6 +295,9 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
 
     private ExecutableElement ensureReferencedTypesGenerated(ExecutableElement element, DeclaredType declaredType) {
         ExecutableType executableType = (ExecutableType) Environment.instance().types().asMemberOf(declaredType, element);
+        if (executableType.getParameterTypes().stream().anyMatch(ElementUtils::hasErrors)) {
+            delayProcessing();
+        }
 
         Stream.of(
                 ElementUtils.getReferencedTypes(element),

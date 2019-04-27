@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.slimgears.rxrpc.apt.java;
 
 import com.google.auto.service.AutoService;
@@ -10,9 +7,12 @@ import com.slimgears.apt.util.ImportTracker;
 import com.slimgears.apt.util.JavaUtils;
 import com.slimgears.apt.util.TemplateEvaluator;
 import com.slimgears.rxrpc.apt.EndpointGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.processing.SupportedOptions;
 
+@SuppressWarnings("WeakerAccess")
 @AutoService(EndpointGenerator.class)
 @SupportedOptions({
         JavaEndpointGenerator.generateClientOption,
@@ -20,6 +20,8 @@ import javax.annotation.processing.SupportedOptions;
         JavaEndpointGenerator.useAutoServiceOption
 })
 public class JavaEndpointGenerator implements EndpointGenerator {
+    private final static Logger log = LoggerFactory.getLogger(JavaEndpointGenerator.class);
+
     static final String rxModuleClassSuffix = "_RxModule";
     static final String rxClientClassSuffix = "_RxClient";
     static final String generateClientOption = "rxrpc.java.client";
@@ -28,6 +30,7 @@ public class JavaEndpointGenerator implements EndpointGenerator {
 
     @Override
     public void generate(Context context) {
+
         if (context.hasOption(generateClientOption) && context.meta().generateClient()) {
             generateClass(context, rxClientClassSuffix, "java-client.java.vm");
         }
