@@ -4,6 +4,7 @@ import com.slimgears.rxrpc.client.AbstractClient;
 import com.slimgears.rxrpc.client.RxClient.Session;
 import com.slimgears.util.reflect.TypeToken;
 import io.reactivex.Observable;
+import java.lang.Boolean;
 import java.lang.Integer;
 import java.lang.String;
 import java.util.concurrent.Future;
@@ -44,6 +45,14 @@ public class SampleEndpoint_RxClient extends AbstractClient implements SampleEnd
             arguments()
                 .put("msg", msg)
                 .put("request", request));
+    }
+
+    @Override
+    public Observable<Boolean> futureBooleanMethod() {
+        return invokeObservable(
+            TypeToken.of(Boolean.class),
+            "sample-endpoint/futureBooleanMethod",
+            arguments());
     }
 
     @Override

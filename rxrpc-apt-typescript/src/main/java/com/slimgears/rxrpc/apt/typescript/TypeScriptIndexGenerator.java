@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.slimgears.rxrpc.apt.typescript;
 
 import com.google.auto.service.AutoService;
@@ -18,7 +15,10 @@ import javax.annotation.processing.SupportedOptions;
         TypeScriptIndexGenerator.npmVersionOption,
         TypeScriptIndexGenerator.npmAuthorOption,
         TypeScriptIndexGenerator.npmDescriptionOption,
-        TypeScriptIndexGenerator.rxRpcJsVersionOption
+        TypeScriptIndexGenerator.rxRpcJsVersionOption,
+        TypeScriptIndexGenerator.rxJsVersionOption,
+        TypeScriptIndexGenerator.angularVersionOption,
+        TypeScriptIndexGenerator.typeScriptVersionOption
 })
 public class TypeScriptIndexGenerator implements CodeGenerationFinalizer {
     static final String generateNgModuleOption = TypeScriptEndpointGenerator.generateNgModuleOption;
@@ -28,7 +28,10 @@ public class TypeScriptIndexGenerator implements CodeGenerationFinalizer {
     static final String npmDescriptionOption = "rxrpc.ts.npm.description";
     static final String npmAuthorOption = "rxrpc.ts.npm.author";
     static final String npmNameOption = "rxrpc.ts.npm.name";
-    static final String rxRpcJsVersionOption = "rxrpc.ts.rxrpcjs.version";
+    static final String rxRpcJsVersionOption = "rxrpc.ts.npm.deps.rxrpcjs.version";
+    static final String rxJsVersionOption = "rxrpc.ts.npm.deps.rxjs.version";
+    static final String angularVersionOption = "rxrpc.ts.npm.deps.angular.version";
+    static final String typeScriptVersionOption = "rxrpc.ts.npm.deps.typescript.version";
 
     @Override
     public void generate(Context context) {
@@ -50,6 +53,9 @@ public class TypeScriptIndexGenerator implements CodeGenerationFinalizer {
                     .variable("npmModuleAuthor", context.option(npmAuthorOption))
                     .variable("npmModuleName", context.option(npmNameOption))
                     .variable("rxRpcJsVersion", context.option(rxRpcJsVersionOption))
+                    .variable("rxJsVersion", context.option(rxJsVersionOption))
+                    .variable("angularVersion", context.option(angularVersionOption))
+                    .variable("typeScriptVersion", context.option(typeScriptVersionOption))
                     .write(TypeScriptUtils.fileWriter("package.json"));
             TemplateEvaluator
                     .forResource("tsconfig.json.vm")

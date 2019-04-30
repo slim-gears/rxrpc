@@ -10,13 +10,13 @@
     "build": "tsc"
   },
   "devDependencies": {
-    "typescript": "^3.0.1"
+    "typescript": "^$typeScriptVersion"
   },
   "dependencies": {
 #if ($generateNgModule)
-    "@angular/core": "^6.0.3",
+    "@angular/core": "^$angularVersion",
 #end
-    "rxjs": "^6.0.0",
+    "rxjs": "^$rxJsVersion",
     "rxrpc-js": "^$rxRpcJsVersion"
   },
   "files": ["*.ts", "*.json", "dist/*"]

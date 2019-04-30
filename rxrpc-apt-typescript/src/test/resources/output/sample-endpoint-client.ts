@@ -23,6 +23,10 @@ export class SampleEndpointClient implements SampleEndpoint {
         return this.invoker.invoke('sample-endpoint/futureStringMethod', {msg: msg, request: request});
     }
 
+    public futureBooleanMethod(): Observable<boolean> {
+        return this.invoker.invoke('sample-endpoint/futureBooleanMethod', {});
+    }
+
     public observableDataMethod(request: SampleRequest): Observable<SampleData> {
         return this.invoker.invoke('sample-endpoint/observableDataMethod', {request: request});
     }

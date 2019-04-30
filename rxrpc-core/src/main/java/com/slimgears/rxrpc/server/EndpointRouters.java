@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 
 import static com.slimgears.util.stream.Streams.ofType;
 
+@SuppressWarnings("WeakerAccess")
 public class EndpointRouters {
     private final static Logger log = LoggerFactory.getLogger(EndpointRouters.class);
     public final static EndpointRouter EMPTY = (resolver, path, args) -> { throw new NoSuchMethodError(path); };
@@ -90,7 +91,10 @@ public class EndpointRouters {
         ServiceLoader<EndpointRouter.Module> serviceLoader = ServiceLoader.load(
                 EndpointRouter.Module.class, EndpointRouters.class.getClassLoader());
 
-        return config -> serviceLoader.forEach(module -> module.configure(config));
+        return config -> serviceLoader.forEach(module -> {
+            log.debug("Discovered module: {}", module.getClass().getSimpleName());
+            module.configure(config);
+        });
     }
 
     public static class Builder<T> {
