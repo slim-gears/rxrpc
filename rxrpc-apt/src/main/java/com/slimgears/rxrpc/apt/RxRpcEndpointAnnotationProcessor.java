@@ -39,6 +39,7 @@ import javax.lang.model.type.TypeMirror;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -81,10 +82,6 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
     }
 
     private void generateDataType(TypeElement typeElement) {
-        if (typeElement.asType().getKind() == TypeKind.ERROR) {
-            delayProcessing();
-        }
-
         TypeInfo typeInfo = TypeInfo.of(typeElement);
         if (processedClasses.contains(typeElement.getQualifiedName()) ||
                 TemplateUtils.isKnownAsyncType(typeInfo) ||
@@ -94,10 +91,6 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
         processedClasses.add(typeElement.getQualifiedName());
 
         log.info("Generating from: {}", typeElement.getQualifiedName());
-
-//        ElementUtils
-//                .getReferencedTypes(typeElement)
-//                .forEach(this::generateDataType);
 
         DeclaredType declaredType = MoreTypes.asDeclared(typeElement.asType());
 
@@ -296,7 +289,19 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
     private ExecutableElement ensureReferencedTypesGenerated(ExecutableElement element, DeclaredType declaredType) {
         ExecutableType executableType = (ExecutableType) Environment.instance().types().asMemberOf(declaredType, element);
         if (executableType.getParameterTypes().stream().anyMatch(ElementUtils::hasErrors)) {
-            delayProcessing();
+            delayProcessing(executableType.getParameterTypes().stream()
+                    .filter(ElementUtils::hasErrors)
+                    .collect(Collectors.toList()));
+        }
+
+        List<TypeMirror> errorTypes = Stream.concat(
+                Stream.of(executableType.getReturnType()),
+                executableType.getParameterTypes().stream())
+                .filter(ElementUtils::hasErrors)
+                .collect(Collectors.toList());
+
+        if (!errorTypes.isEmpty()) {
+            delayProcessing(errorTypes);
         }
 
         Stream.of(
