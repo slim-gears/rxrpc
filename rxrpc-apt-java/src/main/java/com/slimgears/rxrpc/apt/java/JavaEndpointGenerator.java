@@ -1,6 +1,7 @@
 package com.slimgears.rxrpc.apt.java;
 
 import com.google.auto.service.AutoService;
+import com.google.common.base.Strings;
 import com.slimgears.apt.data.TypeInfo;
 import com.slimgears.apt.util.ElementUtils;
 import com.slimgears.apt.util.ImportTracker;
@@ -40,7 +41,7 @@ public class JavaEndpointGenerator implements EndpointGenerator {
         TemplateEvaluator
                 .forResource(templatePath)
                 .variables(context)
-                .variable("hasModuleName", context.moduleName() != null)
+                .variable("hasModuleName", !Strings.isNullOrEmpty(context.moduleName()))
                 .variable("isInterface", ElementUtils.isInterface(context.sourceTypeElement()))
                 .variable("javaUtils", new JavaUtils())
                 .variable("targetClass", targetClass)
