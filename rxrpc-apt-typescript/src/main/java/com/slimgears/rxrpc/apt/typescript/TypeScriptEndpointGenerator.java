@@ -82,6 +82,7 @@ public class TypeScriptEndpointGenerator implements EndpointGenerator {
 
         String ngModuleName = Optional
                 .ofNullable(context.moduleName())
+                .filter(m -> !m.isEmpty())
                 .map(TypeScriptModuleGenerator::toModuleClassName)
                 .orElse(null);
 

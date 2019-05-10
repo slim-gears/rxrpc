@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -86,7 +87,13 @@ public class EndpointRouters {
     }
 
     public static EndpointRouter.Module discover() {
-        return moduleByName("index");
+        ServiceLoader<EndpointRouter.Module> serviceLoader = ServiceLoader.load(
+                EndpointRouter.Module.class, EndpointRouters.class.getClassLoader());
+
+        return config -> serviceLoader.forEach(module -> {
+            log.debug("Discovered module: {}", module.getClass().getSimpleName());
+            module.configure(config);
+        });
     }
 
     public static class Builder<T> {

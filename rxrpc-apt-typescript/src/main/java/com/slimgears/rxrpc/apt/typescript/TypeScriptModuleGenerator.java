@@ -21,6 +21,10 @@ public class TypeScriptModuleGenerator implements ModuleGenerator {
     }
 
     public void generateNgModule(Context context, String moduleName, Collection<ModuleInfo> endpoints) {
+        if (moduleName.isEmpty()) {
+            return;
+        }
+
         log.info("Generating module: {}", moduleName);
 
         String ngModuleName = toModuleClassName(moduleName);

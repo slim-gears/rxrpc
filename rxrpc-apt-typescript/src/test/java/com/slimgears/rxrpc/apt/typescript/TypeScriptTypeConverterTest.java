@@ -11,6 +11,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
+import java.time.Instant;
+import java.time.LocalDateTime;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TypeScriptTypeConverterTest {

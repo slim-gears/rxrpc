@@ -239,9 +239,7 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
 
         String moduleName = getModuleName(typeElement);
         moduleContextBuilder.sourceTypeElement(annotationType);
-        if (!Strings.isNullOrEmpty(moduleName)) {
-            moduleContextBuilder.addModule(moduleName, TypeInfo.of(declaredType), annotation);
-        }
+        moduleContextBuilder.addModule(moduleName, TypeInfo.of(declaredType), annotation);
 
         return EndpointGenerator.Context.builder()
                 .processorClass(getClass())
@@ -278,8 +276,7 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
         return Optional
                 .ofNullable(typeElement.getAnnotation(RxRpcEndpoint.class))
                 .map(RxRpcEndpoint::module)
-                .filter(n -> !n.isEmpty())
-                .orElse(null);
+                .orElse("");
     }
 
     private String endpointNameFromClass(TypeElement typeElement) {

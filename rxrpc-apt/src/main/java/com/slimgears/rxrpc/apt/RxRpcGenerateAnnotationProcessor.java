@@ -4,6 +4,7 @@
 package com.slimgears.rxrpc.apt;
 
 import com.google.auto.service.AutoService;
+import com.google.common.collect.ImmutableList;
 import com.slimgears.apt.AbstractAnnotationProcessor;
 import com.slimgears.apt.data.TypeInfo;
 import com.slimgears.apt.util.ElementUtils;
@@ -17,11 +18,15 @@ import org.apache.commons.text.StringSubstitutor;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
+import java.lang.annotation.AnnotationTypeMismatchException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -102,9 +107,13 @@ public class RxRpcGenerateAnnotationProcessor extends AbstractAnnotationProcesso
     private void validateType(TypeElement typeElement) {
         //checkArgument(ElementUtils.isInterface(typeElement), "Annotated type should be interface");
         checkArgument(!typeElement.getTypeParameters().isEmpty(), "Annotated type should have one or more type parameters");
-        RxRpcGenerate meta = typeElement.getAnnotation(RxRpcGenerate.class);
-        checkArgument(meta.value().length > 0, "Meta endpoint instantiations are not defined");
-        Stream.of(meta.value()).forEach(epm -> validateEndpoint(typeElement, meta, epm));
+        try {
+            RxRpcGenerate meta = typeElement.getAnnotation(RxRpcGenerate.class);
+            checkArgument(meta.value().length > 0, "Meta endpoint instantiations are not defined");
+            Stream.of(meta.value()).forEach(epm -> validateEndpoint(typeElement, meta, epm));
+        } catch (AnnotationTypeMismatchException exception) {
+            delayProcessing("");
+        }
     }
 
     private void validateEndpoint(TypeElement typeElement, RxRpcGenerate meta, RxRpcGenerate.Endpoint endpointMeta) {
@@ -117,7 +126,12 @@ public class RxRpcGenerateAnnotationProcessor extends AbstractAnnotationProcesso
             NameTemplateUtils.validateNameTemplate(meta.annotation().value(), typeElement);
         }
 
-        checkArgument(ElementUtils.typesFromAnnotation(endpointMeta, RxRpcGenerate.Endpoint::params).length == typeElement.getTypeParameters().size(), "Parameter number mismatch");
+        TypeMirror[] typeMirrors = ElementUtils.typeMirrorsFromAnnotation(endpointMeta, RxRpcGenerate.Endpoint::params);
+        if (Arrays.stream(typeMirrors).anyMatch(ElementUtils::hasErrors)) {
+            delayProcessing(Arrays.stream(typeMirrors).filter(ElementUtils::hasErrors).collect(Collectors.toList()));
+        }
+
+        checkArgument(typeMirrors.length == typeElement.getTypeParameters().size(), "Parameter number mismatch");
     }
 
     @Override
