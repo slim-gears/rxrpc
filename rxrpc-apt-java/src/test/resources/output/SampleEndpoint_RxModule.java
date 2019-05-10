@@ -1,6 +1,5 @@
 package com.slimgears.rxrpc.sample;
 
-import com.google.auto.service.AutoService;
 import com.slimgears.rxrpc.core.RxRpcModule;
 import com.slimgears.rxrpc.server.EndpointRouter;
 import com.slimgears.rxrpc.server.EndpointRouter.Module;
@@ -18,7 +17,6 @@ import javax.annotation.Generated;
  */
 @Generated("com.slimgears.rxrpc.apt.RxRpcEndpointAnnotationProcessor")
 @RxRpcModule(name = "test", endpointClass = SampleEndpoint.class)
-@AutoService(Module.class)
 public class SampleEndpoint_RxModule implements Module {
     private final static MethodDispatcher<SampleEndpoint, Integer> intMethod = (resolver, target, args) ->
             Publishers.toPublisher(target.intMethod(

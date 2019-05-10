@@ -1,6 +1,7 @@
 package com.slimgears.rxrpc.apt.java;
 
 import com.google.auto.service.AutoService;
+import com.google.common.collect.ImmutableSet;
 import com.slimgears.apt.data.Environment;
 import com.slimgears.apt.util.FileUtils;
 import com.slimgears.rxrpc.apt.ModuleGenerator;
@@ -21,12 +22,18 @@ public class JavaModuleGenerator implements ModuleGenerator {
     @Override
     public void generate(Context context) {
         context.modules().asMap().forEach(this::writeModule);
+        writeIndex(context.modules().values());
+    }
+
+    private void writeIndex(Iterable<ModuleInfo> modules) {
+        writeModule("index", modules);
     }
 
     private void writeModule(String moduleName, Iterable<ModuleInfo> modules) {
         String content = Streams.fromIterable(modules)
                 .filter(moduleInfo -> moduleInfo.endpointMeta().generateServer())
                 .map(module -> JavaEndpointGenerator.rxModuleFromEndpoint(module.endpointClass()).erasureName())
+                .distinct()
                 .collect(Collectors.joining(System.lineSeparator()));
         FileUtils.fileWriter(StandardLocation.CLASS_OUTPUT, "META-INF/rxrpc-modules/" + moduleName).accept(content);
     }

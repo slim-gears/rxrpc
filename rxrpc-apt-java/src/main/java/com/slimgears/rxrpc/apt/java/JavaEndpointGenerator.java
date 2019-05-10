@@ -14,29 +14,16 @@ import javax.annotation.processing.SupportedOptions;
 
 @SuppressWarnings("WeakerAccess")
 @AutoService(EndpointGenerator.class)
-@SupportedOptions({
-        JavaEndpointGenerator.generateClientOption,
-        JavaEndpointGenerator.generateServerOption,
-        JavaEndpointGenerator.useAutoServiceOption
-})
 public class JavaEndpointGenerator implements EndpointGenerator {
     private final static Logger log = LoggerFactory.getLogger(JavaEndpointGenerator.class);
 
     static final String rxModuleClassSuffix = "_RxModule";
     static final String rxClientClassSuffix = "_RxClient";
-    static final String generateClientOption = "rxrpc.java.client";
-    static final String generateServerOption = "rxrpc.java.server";
-    static final String useAutoServiceOption = "rxrpc.java.autoservice";
 
     @Override
     public void generate(Context context) {
-
-        if (context.hasOption(generateClientOption) && context.meta().generateClient()) {
-            generateClass(context, rxClientClassSuffix, "java-client.java.vm");
-        }
-        if (context.hasOption(generateServerOption) && context.meta().generateServer()) {
-            generateClass(context, rxModuleClassSuffix, "java-server.java.vm");
-        }
+        generateClass(context, rxClientClassSuffix, "java-client.java.vm");
+        generateClass(context, rxModuleClassSuffix, "java-server.java.vm");
     }
 
     static TypeInfo rxModuleFromEndpoint(TypeInfo endpointClass) {
@@ -56,7 +43,6 @@ public class JavaEndpointGenerator implements EndpointGenerator {
                 .variable("hasModuleName", context.moduleName() != null)
                 .variable("isInterface", ElementUtils.isInterface(context.sourceTypeElement()))
                 .variable("javaUtils", new JavaUtils())
-                .variable("autoService", context.hasOption(useAutoServiceOption))
                 .variable("targetClass", targetClass)
                 .apply(JavaUtils.imports(importTracker))
                 //.postProcess(JavaUtils.formatter())

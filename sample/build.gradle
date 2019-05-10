@@ -1,13 +1,5 @@
 apply from: "$scriptsDir/java.gradle"
 
-tasks.withType(JavaCompile) {
-    options.compilerArgs = [
-            //"-Averbosity=ALL",
-            "-Arxrpc.java.client",
-            "-Arxrpc.java.server",
-            "-Arxrpc.java.autoservice"]
-}
-
 dependencies {
     //annotationProcessor project(':rxrpc-apt-typescript')
     annotationProcessor project(':rxrpc-apt-java')
@@ -21,9 +13,6 @@ dependencies {
 
     implementation libs.jettyServer, libs.jettyServlet
     implementation libs.logbackClassic, libs.logbackCore
-
-    compileOnly libs.autoService
-    annotationProcessor libs.autoService
 
     compileOnly libs.autoValueAnnotations
     annotationProcessor libs.autoValue

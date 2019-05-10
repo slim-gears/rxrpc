@@ -14,9 +14,6 @@ $imports
 #if ($hasModuleName)
 @$[com.slimgears.rxrpc.core.RxRpcModule](name = "$moduleName", endpointClass = $[$sourceClass.erasureName()].class)
 #end
-#if ($autoService)##
-@$[com.google.auto.service.AutoService]($[com.slimgears.rxrpc.server.EndpointRouter.Module].class)
-#end
 public class $simpleClassName implements $[com.slimgears.rxrpc.server.EndpointRouter.Module] {
 #foreach ($m in $methods)##
     #set ($methodName = $m.name())##
