@@ -67,11 +67,7 @@ public class JettyWebSocketRxTransport implements RxTransport, WebSocketListener
 
     @Override
     public void onWebSocketClose(int statusCode, String reason) {
-        if (statusCode == StatusCode.NORMAL) {
-            completeIfNotTerminated(incoming);
-        } else {
-            errorIfNotTerminated(incoming, new IOException("Connection closed with status: " + statusCode + " (" + reason + ")"));
-        }
+        completeIfNotTerminated(incoming);
     }
 
     @Override
