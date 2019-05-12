@@ -13,6 +13,6 @@ public interface SampleEndpoint extends SampleBaseEndpoint, SampleArrayEndpoint 
     @RxRpcMethod
     public Observable<Boolean> futureBooleanMethod();
 
-    @RxRpcMethod
+    @RxRpcMethod(shared = true)
     public Observable<SampleData> observableDataMethod(SampleRequest request);
 }

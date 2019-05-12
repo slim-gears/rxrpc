@@ -28,7 +28,7 @@ export class SampleEndpointClient implements SampleEndpoint {
     }
 
     public observableDataMethod(request: SampleRequest): Observable<SampleData> {
-        return this.invoker.invoke('sample-endpoint/observableDataMethod', {request: request});
+        return this.invoker.invokeShared('sample-endpoint/observableDataMethod', {request: request});
     }
 
     public static provider(invokerToken: Type<RxRpcInvoker>|InjectionToken<RxRpcInvoker>): FactoryProvider {

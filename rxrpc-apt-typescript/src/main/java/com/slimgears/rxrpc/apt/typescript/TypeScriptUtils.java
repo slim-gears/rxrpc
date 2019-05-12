@@ -3,7 +3,10 @@
  */
 package com.slimgears.rxrpc.apt.typescript;
 
+import com.slimgears.apt.data.AnnotationInfo;
+import com.slimgears.apt.data.AnnotationValueInfo;
 import com.slimgears.apt.data.Environment;
+import com.slimgears.apt.data.MethodInfo;
 import com.slimgears.apt.data.TypeInfo;
 import com.slimgears.apt.util.FileUtils;
 import com.slimgears.apt.util.ImportTracker;
@@ -12,6 +15,7 @@ import com.slimgears.apt.util.TemplateEvaluator;
 import com.slimgears.apt.util.TypeConverter;
 import com.slimgears.apt.util.TypeConverters;
 import com.slimgears.rxrpc.apt.util.TemplateUtils;
+import com.slimgears.rxrpc.core.RxRpcMethod;
 import com.slimgears.util.stream.Safe;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -57,6 +61,15 @@ public class TypeScriptUtils extends TemplateUtils {
 
     public boolean isSupportedType(TypeInfo type) {
         return configuredTypeConverter.canConvert(type);
+    }
+
+    public boolean isShared(MethodInfo method) {
+        return Optional
+                .ofNullable(method.getAnnotation(RxRpcMethod.class))
+                .map(ai -> ai.getValue("shared"))
+                .map(AnnotationValueInfo.Value::asString)
+                .map("true"::equals)
+                .orElse(false);
     }
 
     public TypeInfo toTypeScriptType(TypeInfo type) {

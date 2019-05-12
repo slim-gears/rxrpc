@@ -9,4 +9,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface RxRpcMethod {
     String value() default "";
+    boolean shared() default false;
 }
