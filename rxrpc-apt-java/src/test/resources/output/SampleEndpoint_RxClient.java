@@ -9,6 +9,7 @@ import java.lang.Integer;
 import java.lang.String;
 import java.util.concurrent.Future;
 import javax.annotation.Generated;
+import javax.annotation.Nullable;
 
 /**
  * Generated from com.slimgears.rxrpc.sample.SampleEndpoint
@@ -38,7 +39,7 @@ public class SampleEndpoint_RxClient extends AbstractClient implements SampleEnd
     }
 
     @Override
-    public Future<String> futureStringMethod(String msg, SampleRequest request) {
+    public Future<String> futureStringMethod(String msg, @Nullable SampleRequest request) {
         return invokeFuture(
             TypeToken.of(String.class),
             "sample-endpoint/futureStringMethod",

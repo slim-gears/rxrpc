@@ -24,10 +24,13 @@ $imports
     #end)##
 #end##
 
-#macro (params $method)##
-    #foreach ($p in $m.params())$[$p.type()] $p.name()#if ($foreach.hasNext), #{end}#end
-#end
+#macro (annotate $annotations)##
+    #foreach($a in $annotations)$a.asString()#if ($foreach.hasNext) #end#end##
+#end##
 
+#macro (params $method)##
+    #foreach ($p in $m.params())#annotate($p.annotations()) $[$p.type()] $p.name()#if ($foreach.hasNext), #{end}#end
+#end
 
 /**
  * Generated from $sourceClass.name()
