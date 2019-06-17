@@ -6,5 +6,6 @@ export * from './sample-data';
 export * from './sample-endpoint';
 export * from './sample-endpoint-client';
 export * from './sample-enum';
+export * from './sample-generic-data';
 export * from './sample-request';
 export * from './test-module';
