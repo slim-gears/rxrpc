@@ -1,7 +1,52 @@
 apply from: "$scriptsDir/java.gradle"
+apply from: "$scriptsDir/nodejs.gradle"
+
+node {
+    nodeModulesDir = project.file("$project.projectDir/frontend")
+}
+
+compileJava.options.compilerArgs = [
+        //'-Averbosity=NONE',
+        "-Arxrpc.ts.typemaps=$projectDir/src/main/typemap/types.properties",
+        '-Arxrpc.ts.ngmodule',
+        '-Arxrpc.ts.ngmodule.name=BackendApiModule'
+]
+
+task syncBackendApi(type: Sync) {
+    dependsOn(compileJava)
+    from fileTree(dir: "$project.buildDir/generated/source/apt/main/typescript", include: '*.ts')
+    into file("$node.nodeModulesDir/src/backend-api")
+}
+
+task yarnUninstallRxRpcJs(type: YarnTask) {
+    onlyIf { project.file("$node.nodeModulesDir/node_modules/rxrpc-js").exists() }
+    inputs.dir "$node.nodeModulesDir/node_modules/rxrpc-js"
+    args = ['remove', 'rxrpc-js']
+}
+
+task yarnInstallRxRpcJs(type: YarnTask) {
+    def rxrpcJsProj = project.project(':rxrpc-js')
+    def rxrpcJsTgzPath = rxrpcJsProj.file("${rxrpcJsProj.buildDir}/${rxrpcJsProj.name}.tgz")
+    def rxrpcJsTgzRelativePath = node.nodeModulesDir.toPath()
+            .relativize(rxrpcJsTgzPath.toPath())
+            .toString()
+            .replace('\\', '/')
+
+    inputs.file rxrpcJsTgzPath
+    outputs.dir "$node.nodeModulesDir/node_modules/rxrpc-js"
+    dependsOn(rxrpcJsProj.yarnPack, yarnUninstallRxRpcJs, yarn)
+    args = ['add', "file:$rxrpcJsTgzRelativePath"]
+}
+
+yarnBuild {
+    dependsOn(yarnInstallRxRpcJs, syncBackendApi)
+    inputs.file file("$node.nodeModulesDir/angular.json")
+    inputs.files fileTree("$node.nodeModulesDir/src")
+    outputs.files fileTree("$buildDir/resources/main/web")
+}
 
 dependencies {
-    //annotationProcessor project(':rxrpc-apt-typescript')
+    annotationProcessor project(':rxrpc-apt-typescript')
     annotationProcessor project(':rxrpc-apt-java')
     implementation project(':rxrpc-core')
     implementation project(':rxrpc-jetty-websocket')

@@ -17,10 +17,12 @@ public class SampleGenericMetaDefaultNameEndpoint_Of_String_RxClient extends Abs
 
     @Override
     public String method() {
-        return invokeBlocking(
-            TypeToken.of(String.class),
-            "sample-generic-meta-default-name-endpoint_of_string/method",
-            arguments());
+        return invokeBlocking(InvocationInfo
+            .builder(TypeToken.of(String.class))
+            .method("sample-generic-meta-default-name-endpoint_of_string/method")
+            .shared(false)
+            .sharedReplayCount(0)
+        .build());
     }
 
 }

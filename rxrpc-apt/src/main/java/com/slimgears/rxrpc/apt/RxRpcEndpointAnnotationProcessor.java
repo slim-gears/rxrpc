@@ -36,6 +36,7 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.tools.Diagnostic;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -76,7 +77,13 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
                 .propertiesFrom(getOptions(typeElement))
                 .build()) {
             EndpointGenerator.Context context = createContext(annotationType, typeElement);
-            endpointGenerators.forEach(cg -> cg.generate(context));
+            endpointGenerators.forEach(cg -> {
+                try {
+                    cg.generate(context);
+                } catch (Throwable e) {
+                    Environment.instance().messager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
+                }
+            });
         }
         return true;
     }

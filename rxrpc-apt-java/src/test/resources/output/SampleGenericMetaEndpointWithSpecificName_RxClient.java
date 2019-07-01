@@ -19,30 +19,36 @@ public class SampleGenericMetaEndpointWithSpecificName_RxClient extends Abstract
     }
 
     @Override
-    public Observable<String> genericMethod(String data) {
-        return invokeObservable(
-            TypeToken.of(String.class),
-            "sampleGenericMetaEndpointWithSpecificName/genericMethod",
-            arguments()
-                .put("data", data));
+    public Observable<String> genericMethod( String data) {
+        return invokeObservable(InvocationInfo
+            .builder(TypeToken.of(String.class))
+            .method("sampleGenericMetaEndpointWithSpecificName/genericMethod")
+            .shared(false)
+            .sharedReplayCount(0)
+            .arg("data", data)
+            .build());
     }
 
     @Override
-    public Observable<SampleGenericData<String>> genericDataMethod(String request) {
-        return invokeObservable(
-            new TypeToken<SampleGenericData<String>>(){},
-            "sampleGenericMetaEndpointWithSpecificName/genericDataMethod",
-            arguments()
-                .put("request", request));
+    public Observable<SampleGenericData<String>> genericDataMethod( String request) {
+        return invokeObservable(InvocationInfo
+            .builder(new TypeToken<SampleGenericData<String>>(){})
+            .method("sampleGenericMetaEndpointWithSpecificName/genericDataMethod")
+            .shared(false)
+            .sharedReplayCount(0)
+            .arg("request", request)
+            .build());
     }
 
     @Override
-    public Completable genericInputDataMethod(SampleGenericData<String> data) {
-        return invokeCompletable(
-            TypeToken.of(Void.class),
-            "sampleGenericMetaEndpointWithSpecificName/genericInputDataMethod",
-            arguments()
-                .put("data", data));
+    public Completable genericInputDataMethod( SampleGenericData<String> data) {
+        return invokeCompletable(InvocationInfo
+            .builder(TypeToken.of(Void.class))
+            .method("sampleGenericMetaEndpointWithSpecificName/genericInputDataMethod")
+            .shared(false)
+            .sharedReplayCount(0)
+            .arg("data", data)
+            .build());
     }
 
 }

@@ -16,12 +16,14 @@ public class SampleGenericMetaEndpointClass_Of_Integer_RxClient extends Abstract
         super(session);
     }
 
-    public Observable<Integer> genericMethod(Integer data) {
-        return invokeObservable(
-            TypeToken.of(Integer.class),
-            "sample-generic-meta-endpoint-class_of_integer/genericMethod",
-            arguments()
-                .put("data", data));
+    public Observable<Integer> genericMethod( Integer data) {
+        return invokeObservable(InvocationInfo
+            .builder(TypeToken.of(Integer.class))
+            .method("sample-generic-meta-endpoint-class_of_integer/genericMethod")
+            .shared(false)
+            .sharedReplayCount(0)
+            .arg("data", data)
+            .build());
     }
 
 }

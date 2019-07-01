@@ -5,23 +5,23 @@ $imports
 
 #set ($simpleClassName = $imports.use($targetClass.name()))
 #macro (invoke $method)##
-    #set ($type = $method.returnType())##
-    #if ($utils.isKnownAsyncType($type))##
-        invoke${type.simpleName()}(
-            #classLiteral($type.elementTypeOrVoid()),
-            "$endpointName/$method.name()",
-            arguments()##
-    #else##
-        invokeBlocking(
-            #classLiteral($type),
-            "$endpointName/$method.name()",
-            arguments()##
-    #end##
+    #set ($type = $method.returnType())
+    #set ($asyncType = "Blocking")
+    #set ($returnType = $type)
+    #if ($utils.isKnownAsyncType($type))
+        #set ($asyncType = $type.simpleName())
+        #set ($returnType = $type.elementTypeOrVoid())
+    #end
+        invoke${asyncType}(InvocationInfo
+            .builder(#classLiteral($returnType))
+            .method("$endpointName/$method.name()")
+            .shared($utils.isShared($method))
+            .sharedReplayCount($utils.getSharedReplayCount($method))
 ##
-    #foreach($p in $method.params())##
-
-                .put("$p.name()", $p.name())##
-    #end)##
+    #foreach($p in $method.params())
+            .arg("$p.name()", $p.name())
+    #end
+        .build())##
 #end##
 
 #macro (annotate $annotations)##

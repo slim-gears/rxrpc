@@ -18,12 +18,14 @@ public class SampleMetaSampleMetaEndpointInputEndpoint_RxClient extends Abstract
     }
 
     @Override
-    public Observable<List<SampleMetaEndpointInput>> data(String data) {
-        return invokeObservable(
-            new TypeToken<List<SampleMetaEndpointInput>>(){},
-            "sampleMetaSampleMetaEndpointInputEndpoint/data",
-            arguments()
-                .put("data", data));
+    public Observable<List<SampleMetaEndpointInput>> data( String data) {
+        return invokeObservable(InvocationInfo
+            .builder(new TypeToken<List<SampleMetaEndpointInput>>(){})
+            .method("sampleMetaSampleMetaEndpointInputEndpoint/data")
+            .shared(false)
+            .sharedReplayCount(0)
+            .arg("data", data)
+            .build());
     }
 
 }

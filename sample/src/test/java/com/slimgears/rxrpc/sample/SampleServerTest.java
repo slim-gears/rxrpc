@@ -56,9 +56,9 @@ public class SampleServerTest {
     @Test
     public void testClientServer() throws Exception {
         SampleEndpoint sampleEndpointClient = clientResolver.resolve(SampleEndpoint_RxClient.class);
-        String msgFromServer = sampleEndpointClient.futureStringMethod("Test", new SampleRequest(3, "sampleName")).get();
+        String msgFromServer = sampleEndpointClient.futureStringMethod("Test", new SampleRequest(3, "sampleName", SampleRequest.class)).get();
         Assert.assertEquals("Server received from client: Test (id: 3, name: sampleName)", msgFromServer);
-        int intFromServer = sampleEndpointClient.blockingMethod(new SampleRequest(4, "sampleName"));
+        int intFromServer = sampleEndpointClient.blockingMethod(new SampleRequest(4, "sampleName", SampleRequest.class));
         Assert.assertEquals(5, intFromServer);
         testObservableMethod(sampleEndpointClient, 5);
     }
@@ -86,7 +86,7 @@ public class SampleServerTest {
     public void testMetaEndpoint() {
         SampleMetaRequestEndpoint integerEndpoint = clientResolver.resolve(SampleMetaRequestEndpoint_RxClient.class);
         integerEndpoint
-                .echoData(new SampleMetaEndpoint.SampleData<>(new SampleRequest(1, "Alice")))
+                .echoData(new SampleMetaEndpoint.SampleData<>(new SampleRequest(1, "Alice", SampleRequest.class)))
                 .map(data -> data.value.name)
                 .test()
                 .awaitDone(20, TimeUnit.SECONDS)
@@ -95,7 +95,7 @@ public class SampleServerTest {
 
     @Test
     public void testObjectMapper() throws IOException {
-        SampleMetaEndpoint.SampleData<SampleRequest> data = new SampleMetaEndpoint.SampleData<>(new SampleRequest(3, "Bob"));
+        SampleMetaEndpoint.SampleData<SampleRequest> data = new SampleMetaEndpoint.SampleData<>(new SampleRequest(3, "Bob", SampleRequest.class));
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(data);
         SampleMetaEndpoint.SampleData<SampleRequest> newData = objectMapper.readValue(
@@ -119,7 +119,7 @@ public class SampleServerTest {
 
     private void testObservableMethod(SampleEndpoint client, int count) {
         client
-                .observableMethod(new SampleRequest(count, "Test"))
+                .observableMethod(new SampleRequest(count, "Test", SampleRequest.class))
                 .map(n -> n.data)
                 .test()
                 .awaitDone(20, TimeUnit.SECONDS)

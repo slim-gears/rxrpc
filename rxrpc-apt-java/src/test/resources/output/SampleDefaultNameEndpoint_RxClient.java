@@ -17,10 +17,12 @@ public class SampleDefaultNameEndpoint_RxClient extends AbstractClient implement
 
     @Override
     public int method() {
-        return invokeBlocking(
-            TypeToken.of(Integer.class),
-            "sample-default-name-endpoint/method",
-            arguments());
+        return invokeBlocking(InvocationInfo
+            .builder(TypeToken.of(Integer.class))
+            .method("sample-default-name-endpoint/method")
+            .shared(false)
+            .sharedReplayCount(0)
+        .build());
     }
 
 }

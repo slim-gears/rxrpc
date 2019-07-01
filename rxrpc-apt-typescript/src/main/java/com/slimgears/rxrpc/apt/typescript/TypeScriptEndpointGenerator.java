@@ -31,9 +31,13 @@ import java.util.stream.Stream;
 import static com.slimgears.util.stream.Streams.ofType;
 
 @AutoService(EndpointGenerator.class)
-@SupportedOptions(TypeScriptEndpointGenerator.generateNgModuleOption)
+@SupportedOptions({
+        TypeScriptEndpointGenerator.generateNgModuleOption,
+        TypeScriptEndpointGenerator.typeMapsOption
+})
 public class TypeScriptEndpointGenerator implements EndpointGenerator {
     static final String generateNgModuleOption = "rxrpc.ts.ngmodule";
+    static final String typeMapsOption = "rxrpc.ts.typemaps";
 
     private final static Logger log = LoggerFactory.getLogger(TypeScriptEndpointGenerator.class);
     private final Collection<TypeElement> generatedInterfaces = new HashSet<>();

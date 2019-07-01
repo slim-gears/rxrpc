@@ -21,48 +21,58 @@ public class SampleEndpoint_RxClient extends AbstractClient implements SampleEnd
     }
 
     @Override
-    public int intMethod(SampleRequest request) {
-        return invokeBlocking(
-            TypeToken.of(Integer.class),
-            "sample-endpoint/intMethod",
-            arguments()
-                .put("request", request));
+    public int intMethod( SampleRequest request) {
+        return invokeBlocking(InvocationInfo
+            .builder(TypeToken.of(Integer.class))
+            .method("sample-endpoint/intMethod")
+            .shared(false)
+            .sharedReplayCount(0)
+            .arg("request", request)
+            .build());
     }
 
     @Override
-    public Observable<SampleArray[]> arrayObservableMethod(SampleData sampleData) {
-        return invokeObservable(
-            TypeToken.of(SampleArray[].class),
-            "sample-endpoint/arrayObservableMethod",
-            arguments()
-                .put("sampleData", sampleData));
+    public Observable<SampleArray[]> arrayObservableMethod( SampleData sampleData) {
+        return invokeObservable(InvocationInfo
+            .builder(TypeToken.of(SampleArray[].class))
+            .method("sample-endpoint/arrayObservableMethod")
+            .shared(false)
+            .sharedReplayCount(0)
+            .arg("sampleData", sampleData)
+            .build());
     }
 
     @Override
-    public Future<String> futureStringMethod(String msg, @Nullable SampleRequest request) {
-        return invokeFuture(
-            TypeToken.of(String.class),
-            "sample-endpoint/futureStringMethod",
-            arguments()
-                .put("msg", msg)
-                .put("request", request));
+    public Future<String> futureStringMethod( String msg, @Nullable SampleRequest request) {
+        return invokeFuture(InvocationInfo
+            .builder(TypeToken.of(String.class))
+            .method("sample-endpoint/futureStringMethod")
+            .shared(false)
+            .sharedReplayCount(0)
+            .arg("msg", msg)
+                .arg("request", request)
+            .build());
     }
 
     @Override
     public Observable<Boolean> futureBooleanMethod() {
-        return invokeObservable(
-            TypeToken.of(Boolean.class),
-            "sample-endpoint/futureBooleanMethod",
-            arguments());
+        return invokeObservable(InvocationInfo
+            .builder(TypeToken.of(Boolean.class))
+            .method("sample-endpoint/futureBooleanMethod")
+            .shared(false)
+            .sharedReplayCount(0)
+        .build());
     }
 
     @Override
-    public Observable<SampleData> observableDataMethod(SampleRequest request) {
-        return invokeObservable(
-            TypeToken.of(SampleData.class),
-            "sample-endpoint/observableDataMethod",
-            arguments()
-                .put("request", request));
+    public Observable<SampleData> observableDataMethod( SampleRequest request) {
+        return invokeObservable(InvocationInfo
+            .builder(TypeToken.of(SampleData.class))
+            .method("sample-endpoint/observableDataMethod")
+            .shared(true)
+            .sharedReplayCount(0)
+            .arg("request", request)
+            .build());
     }
 
 }

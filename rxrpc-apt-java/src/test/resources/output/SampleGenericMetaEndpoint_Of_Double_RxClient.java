@@ -20,30 +20,36 @@ public class SampleGenericMetaEndpoint_Of_Double_RxClient extends AbstractClient
     }
 
     @Override
-    public Observable<Double> genericMethod(Double data) {
-        return invokeObservable(
-            TypeToken.of(Double.class),
-            "sampleGenericMetaEndpoint_of_Double/genericMethod",
-            arguments()
-                .put("data", data));
+    public Observable<Double> genericMethod( Double data) {
+        return invokeObservable(InvocationInfo
+            .builder(TypeToken.of(Double.class))
+            .method("sampleGenericMetaEndpoint_of_Double/genericMethod")
+            .shared(false)
+            .sharedReplayCount(0)
+            .arg("data", data)
+            .build());
     }
 
     @Override
-    public Observable<SampleGenericData<Double>> genericDataMethod(String request) {
-        return invokeObservable(
-            new TypeToken<SampleGenericData<Double>>(){},
-            "sampleGenericMetaEndpoint_of_Double/genericDataMethod",
-            arguments()
-                .put("request", request));
+    public Observable<SampleGenericData<Double>> genericDataMethod( String request) {
+        return invokeObservable(InvocationInfo
+            .builder(new TypeToken<SampleGenericData<Double>>(){})
+            .method("sampleGenericMetaEndpoint_of_Double/genericDataMethod")
+            .shared(false)
+            .sharedReplayCount(0)
+            .arg("request", request)
+            .build());
     }
 
     @Override
-    public Completable genericInputDataMethod(SampleGenericData<Double> data) {
-        return invokeCompletable(
-            TypeToken.of(Void.class),
-            "sampleGenericMetaEndpoint_of_Double/genericInputDataMethod",
-            arguments()
-                .put("data", data));
+    public Completable genericInputDataMethod( SampleGenericData<Double> data) {
+        return invokeCompletable(InvocationInfo
+            .builder(TypeToken.of(Void.class))
+            .method("sampleGenericMetaEndpoint_of_Double/genericInputDataMethod")
+            .shared(false)
+            .sharedReplayCount(0)
+            .arg("data", data)
+            .build());
     }
 
 }

@@ -1,5 +1,6 @@
 package com.slimgears.rxrpc;
 
+import com.google.common.collect.ImmutableMap;
 import com.slimgears.rxrpc.client.AbstractClient;
 import com.slimgears.rxrpc.client.RxClient;
 import com.slimgears.rxrpc.server.EndpointRouter;
@@ -24,6 +25,7 @@ import java.net.URI;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -39,25 +41,18 @@ public class ClientServerTest {
     private MockTransport mockTransport;
 
     public static class EndpointClient extends AbstractClient {
-        interface InvocationArgs {
-            InvocationArgs put(String name, Object value);
-        }
-
         public EndpointClient(RxClient.Session session) {
             super(session);
         }
 
-        public <T> Observable<T> invokeObservable(TypeToken<T> responseType, String method, Function<InvocationArgs, InvocationArgs> args) {
-            InvocationArguments arguments = arguments();
-            InvocationArgs invocationArgs = new InvocationArgs() {
-                @Override
-                public InvocationArgs put(String name, Object value) {
-                    arguments.put(name, value);
-                    return this;
-                }
-            };
-            args.apply(invocationArgs);
-            return super.invokeObservable(responseType, method, arguments);
+        public <T> Observable<T> invokeObservable(TypeToken<T> responseType, String method, Consumer<ImmutableMap.Builder<String, Object>> argConfig) {
+            InvocationInfo.Builder<T> builder = InvocationInfo
+                    .builder(responseType)
+                    .method(method)
+                    .shared(false)
+                    .sharedReplayCount(0);
+            argConfig.accept(builder.argsBuilder());
+            return super.invokeObservable(builder.build());
         }
     }
 
