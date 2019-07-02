@@ -31,6 +31,22 @@ task yarnInstallRxRpcJs(type: YarnTask) {
     outputs.dir "$node.nodeModulesDir/node_modules/rxrpc-js"
     dependsOn(rxrpcJsProj.yarnPack)
     args = ['add', "file:$rxrpcJsProj.packageFile"]
+
+    doFirst {
+        copy {
+            from ("${node.nodeModulesDir}/yarn.lock", "${node.nodeModulesDir}/package.json")
+            into "${node.nodeModulesDir}"
+            rename { name -> "${name}.tmp" }
+        }
+    }
+
+    doLast {
+        copy {
+            from ("${node.nodeModulesDir}/yarn.lock.tmp", "${node.nodeModulesDir}/package.json.tmp")
+            into "${node.nodeModulesDir}"
+            rename { name -> name.replace("\\.tmp\$", "") }
+        }
+    }
 }
 
 yarn.dependsOn(yarnInstallRxRpcJs)
