@@ -6,7 +6,6 @@ node {
 }
 
 compileJava.options.compilerArgs = [
-        //'-Averbosity=NONE',
         "-Arxrpc.ts.typemaps=$projectDir/src/main/typemap/types.properties",
         '-Arxrpc.ts.ngmodule',
         '-Arxrpc.ts.ngmodule.name=BackendApiModule'
@@ -34,12 +33,14 @@ task yarnInstallRxRpcJs(type: YarnTask) {
 
     inputs.file rxrpcJsTgzPath
     outputs.dir "$node.nodeModulesDir/node_modules/rxrpc-js"
-    dependsOn(rxrpcJsProj.yarnPack, yarnUninstallRxRpcJs, yarn)
+    dependsOn(rxrpcJsProj.yarnPack, yarnUninstallRxRpcJs)
     args = ['add', "file:$rxrpcJsTgzRelativePath"]
 }
 
+yarn.dependsOn(yarnInstallRxRpcJs)
+
 yarnBuild {
-    dependsOn(yarnInstallRxRpcJs, syncBackendApi)
+    dependsOn(yarnInstallRxRpcJs, yarn, syncBackendApi)
     inputs.file file("$node.nodeModulesDir/angular.json")
     inputs.files fileTree("$node.nodeModulesDir/src")
     outputs.files fileTree("$buildDir/resources/main/web")
