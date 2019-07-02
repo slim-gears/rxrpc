@@ -1,3 +1,5 @@
+import java.util.concurrent.Callable
+
 apply from: "$scriptsDir/java.gradle"
 apply from: "$scriptsDir/nodejs.gradle"
 
@@ -17,24 +19,18 @@ task syncBackendApi(type: Sync) {
     into file("$node.nodeModulesDir/src/backend-api")
 }
 
-task yarnUninstallRxRpcJs(type: YarnTask) {
-    onlyIf { project.file("$node.nodeModulesDir/node_modules/rxrpc-js").exists() }
-    inputs.dir "$node.nodeModulesDir/node_modules/rxrpc-js"
-    args = ['remove', 'rxrpc-js']
+task yarnCleanCache(type: YarnTask) {
+    args = ['cache', 'clean']
 }
+
+clean.dependsOn(yarnCleanCache)
 
 task yarnInstallRxRpcJs(type: YarnTask) {
     def rxrpcJsProj = project.project(':rxrpc-js')
-    def rxrpcJsTgzPath = rxrpcJsProj.file("${rxrpcJsProj.buildDir}/${rxrpcJsProj.name}.tgz")
-    def rxrpcJsTgzRelativePath = node.nodeModulesDir.toPath()
-            .relativize(rxrpcJsTgzPath.toPath())
-            .toString()
-            .replace('\\', '/')
-
-    inputs.file rxrpcJsTgzPath
+    inputs.file rxrpcJsProj.packageFile
     outputs.dir "$node.nodeModulesDir/node_modules/rxrpc-js"
-    dependsOn(rxrpcJsProj.yarnPack, yarnUninstallRxRpcJs)
-    args = ['add', "file:$rxrpcJsTgzRelativePath"]
+    dependsOn(rxrpcJsProj.yarnPack)
+    args = ['add', "file:$rxrpcJsProj.packageFile"]
 }
 
 yarn.dependsOn(yarnInstallRxRpcJs)
@@ -58,8 +54,8 @@ dependencies {
     implementation libs.jacksonAnnotations
 
     implementation libs.jettyServer, libs.jettyServlet
-    implementation libs.logbackClassic, libs.logbackCore
 
+    testImplementation libs.commonsIo
     compileOnly libs.autoValueAnnotations
     annotationProcessor libs.autoValue
 }

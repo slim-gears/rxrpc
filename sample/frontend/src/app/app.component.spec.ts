@@ -1,31 +1,41 @@
-import { TestBed, async } from '@angular/core/testing';
-import { AppComponent } from './app.component';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {AppComponent} from './app.component';
+import {AppModule} from "./app.module";
+import {RxRpcInvoker} from "rxrpc-js";
+import {concat, NEVER, of} from "rxjs";
+import {BackendApiModuleRXRPC_INVOKER} from "../backend-api";
 
 describe('AppComponent', () => {
-  beforeEach(async(() => {
+  let fixture: ComponentFixture<AppComponent>;
+  beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [
-        AppComponent
+      imports: [
+        AppModule
       ],
+      providers: [
+        { provide: BackendApiModuleRXRPC_INVOKER, useValue: <RxRpcInvoker> {
+            invoke: () => {
+              return of();
+            },
+            invokeShared<T>() {
+              return concat(of("Test response"), NEVER)
+            }
+          }
+        }
+      ]
     }).compileComponents();
-  }));
+    fixture = TestBed.createComponent(AppComponent);
+  });
 
   it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.debugElement.componentInstance;
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title 'sample'`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.debugElement.componentInstance;
-    expect(app.title).toEqual('sample');
-  });
-
-  it('should render title in a h1 tag', () => {
-    const fixture = TestBed.createComponent(AppComponent);
+  it('should display returned text', () => {
     fixture.detectChanges();
     const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('h1').textContent).toContain('Welcome to sample!');
+    expect(compiled.querySelector('p').textContent)
+      .toContain('Test response');
   });
 });

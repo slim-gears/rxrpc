@@ -6231,9 +6231,9 @@ rxjs@^6.4.0:
   dependencies:
     tslib "^1.9.0"
 
-"rxrpc-js@file:../../rxrpc-js/build/rxrpc-js.tgz":
+"rxrpc-js@file:../../rxrpc-js/build/rxrpc-js-19062ed1.tgz":
   version "0.0.0"
-  resolved "file:../../rxrpc-js/build/rxrpc-js.tgz#a5975d80259e235cd0d26eeb0a467ac3d8c5961d"
+  resolved "file:../../rxrpc-js/build/rxrpc-js-19062ed1.tgz#9c46e6ff56e1f8ccd6c6a170d72a3e9bd59c8be0"
 
 safe-buffer@5.1.2, safe-buffer@>=5.1.0, safe-buffer@^5.0.1, safe-buffer@^5.1.0, safe-buffer@^5.1.1, safe-buffer@^5.1.2, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.2"

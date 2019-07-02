@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.slimgears.rxrpc.sample;
 
 import com.slimgears.rxrpc.core.RxRpcEndpoint;
@@ -11,6 +8,9 @@ import java.util.concurrent.Future;
 
 @RxRpcEndpoint(module = "sampleModule")
 public interface SampleEndpoint {
+    @RxRpcMethod(shared = true, sharedReplayCount = 3)
+    Observable<String> sayHello(String name);
+
     @RxRpcMethod
     Future<String> futureStringMethod(String msg, SampleRequest request);
 

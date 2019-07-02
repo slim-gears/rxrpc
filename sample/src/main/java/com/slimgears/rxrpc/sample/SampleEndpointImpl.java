@@ -8,6 +8,13 @@ import java.util.concurrent.TimeUnit;
 
 
 public class SampleEndpointImpl implements SampleEndpoint {
+
+    @Override
+    public Observable<String> sayHello(String name) {
+        return Observable.interval(1000, TimeUnit.MILLISECONDS)
+                .map(i -> "Hello, " + name + " #" + i);
+    }
+
     @Override
     public Future<String> futureStringMethod(String msg, SampleRequest request) {
         return Single

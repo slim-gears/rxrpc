@@ -1,20 +1,25 @@
 package com.slimgears.rxrpc.sample;
 
-import ch.qos.logback.classic.Level;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.slimgears.rxrpc.client.RxClient;
 import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketRxTransport;
 import com.slimgears.util.generic.ServiceResolver;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.http.HttpStatus;
+import org.junit.*;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static org.hamcrest.CoreMatchers.containsString;
 
 public class SampleServerTest {
     private final static int port = 9000;
@@ -24,8 +29,7 @@ public class SampleServerTest {
 
     @BeforeClass
     public static void init() {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
-        root.setLevel(Level.INFO);
+        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).setLevel(Level.WARNING);
     }
 
     @Before
@@ -115,6 +119,25 @@ public class SampleServerTest {
                 .await()
                 .assertValueCount(1)
                 .assertValue("test1");
+    }
+
+    private String invokeHttpGet(String path) throws IOException {
+        HttpURLConnection http = (HttpURLConnection)new URL("http://localhost:" + port)
+                .openConnection();
+
+        http.connect();
+        Assert.assertEquals(HttpStatus.OK_200, http.getResponseCode());
+
+        Object content = http.getContent();
+        if (content instanceof InputStream) {
+            return IOUtils.toString((InputStream)content, StandardCharsets.UTF_8);
+        }
+        return http.getResponseMessage();
+    }
+
+    @Test
+    public void testStaticContentRetrieval() throws IOException {
+        Assert.assertThat(invokeHttpGet(""), containsString("<app-root></app-root>"));
     }
 
     private void testObservableMethod(SampleEndpoint client, int count) {
