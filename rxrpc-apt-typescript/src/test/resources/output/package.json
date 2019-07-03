@@ -13,9 +13,9 @@
     "typescript": "^3.0.1"
   },
   "dependencies": {
-    "@angular/core": "^6.0.3",
+    "@angular/core": "^7.0.0",
     "rxjs": "^6.0.0",
-    "rxrpc-js": "^0.3.22"
+    "rxrpc-js": "^0.5.2"
   },
   "files": ["*.ts", "*.json", "dist/*"]
 }

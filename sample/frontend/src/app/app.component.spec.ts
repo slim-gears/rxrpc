@@ -3,7 +3,7 @@ import {AppComponent} from './app.component';
 import {AppModule} from "./app.module";
 import {RxRpcInvoker} from "rxrpc-js";
 import {concat, NEVER, of} from "rxjs";
-import {BackendApiModuleRXRPC_INVOKER} from "../backend-api";
+import {BackendApiModule} from "../backend-api";
 
 describe('AppComponent', () => {
   let fixture: ComponentFixture<AppComponent>;
@@ -13,7 +13,7 @@ describe('AppComponent', () => {
         AppModule
       ],
       providers: [
-        { provide: BackendApiModuleRXRPC_INVOKER, useValue: <RxRpcInvoker> {
+        { provide: BackendApiModule.RxRpcInvoker, useValue: <RxRpcInvoker> {
             invoke: () => {
               return of();
             },

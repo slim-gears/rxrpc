@@ -1,31 +1,27 @@
-import {InjectionToken, Injector, ModuleWithProviders, NgModule, Type} from '@angular/core';
+import {InjectionToken, ModuleWithProviders, NgModule, Type} from '@angular/core';
 import {RxRpcClient, RxRpcInvoker, RxRpcTransport} from 'rxrpc-js';
 import { SampleEndpointClient } from './sample-endpoint-client';
 
-export const TestModuleRXRPC_INVOKER = new InjectionToken<RxRpcInvoker>('TestModule.RxRpcInvoker');
-
 @NgModule({
     providers: [
-        SampleEndpointClient.provider(TestModuleRXRPC_INVOKER)
+        SampleEndpointClient.provider(TestModule.RxRpcInvoker)
     ]
 })
 export class TestModule {
+    public static readonly RxRpcInvoker = new InjectionToken<RxRpcInvoker>('TestModule.RxRpcInvoker');
 
-    public static withTransport(transport: Type<RxRpcTransport>|InjectionToken<RxRpcTransport>): ModuleWithProviders<TestModule> {
+    public static withTransport(transportToken: Type<RxRpcTransport>|InjectionToken<RxRpcTransport>): ModuleWithProviders<TestModule> {
         return {
             ngModule: TestModule,
             providers: [{
-                provide: TestModuleRXRPC_INVOKER,
-                useFactory: TestModuleRxRpcInvokerFactory,
-                deps: [transport]
+                provide: TestModule.RxRpcInvoker,
+                useFactory: TestModule.invokerFactory,
+                deps: [transportToken]
             }]
         };
     }
-}
 
-export function TestModuleRxRpcInvokerFactory(t: RxRpcTransport) {
-    return new RxRpcClient(t);
-}
-: RxRpcTransport) {
-    return new RxRpcClient(t);
+    public static invokerFactory(transport: RxRpcTransport) {
+        return new RxRpcClient(transport);
+    }
 }
