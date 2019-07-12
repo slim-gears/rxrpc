@@ -3,19 +3,25 @@
  */
 package com.slimgears.rxrpc.apt.internal;
 
+import com.google.common.collect.ImmutableList;
 import com.slimgears.apt.data.Environment;
+import com.slimgears.apt.data.MethodInfo;
 import com.slimgears.apt.data.TypeInfo;
 import com.slimgears.apt.util.ElementUtils;
 import com.slimgears.rxrpc.apt.util.TemplateUtils;
+import com.slimgears.util.stream.Streams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedOptions;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public interface CodeGenerator<C extends CodeGenerator.Context> {
     void generate(C context);
@@ -27,6 +33,7 @@ public interface CodeGenerator<C extends CodeGenerator.Context> {
                 .orElseGet(() -> new String[0]);
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     abstract class Context {
         private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -47,6 +54,13 @@ public interface CodeGenerator<C extends CodeGenerator.Context> {
 
         public String option(String option) {
             return Environment.instance().properties().get(option);
+        }
+        public Iterable<MethodInfo> sourceMethods() {
+            return sourceTypeElement().getEnclosedElements()
+                    .stream()
+                    .flatMap(Streams.ofType(ExecutableElement.class))
+                    .map(MethodInfo::of)
+                    .collect(ImmutableList.toImmutableList());
         }
 
         public boolean hasOption(String option) {

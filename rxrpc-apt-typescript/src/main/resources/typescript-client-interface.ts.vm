@@ -8,7 +8,7 @@ $imports
  */
 export interface $targetClass.simpleName()#typeParams($sourceClass)#interfaces($interfaces)
  {
-#foreach ($m in $sourceClass.methods())
+#foreach ($m in $sourceMethods)
     $m.name()(##
     #foreach ($p in $m.params())##
         $p.name()#if ($p.isOptional())${questionMark}#end: $[$tsUtils.toTypeScriptType($p.type())]##

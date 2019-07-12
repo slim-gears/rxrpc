@@ -21,7 +21,7 @@ public class TypeScriptTypeConverterTest {
 
     @Test
     public void testGenericArrayConversion() {
-        try (Safe.Closable ignored = Environment.withEnvironment(processingEnvironment, roundEnvironment)) {
+        try (Safe.Closeable ignored = Environment.withEnvironment(processingEnvironment, roundEnvironment)) {
             TypeInfo sourceType = TypeInfo.arrayOf(TypeInfo.builder().name("Item").typeParam("T", TypeInfo.of("T")).build());
             TypeInfo tsType = TypeScriptUtils
                     .create()
@@ -34,7 +34,7 @@ public class TypeScriptTypeConverterTest {
 
     @Test
     public void testGenericListConversion() {
-        try (Safe.Closable ignored = Environment.withEnvironment(processingEnvironment, roundEnvironment)) {
+        try (Safe.Closeable ignored = Environment.withEnvironment(processingEnvironment, roundEnvironment)) {
             TypeInfo sourceType = TypeInfo.of("com.google.common.collect.ImmutableList<Item<T>>");
             TypeInfo tsType = TypeScriptUtils
                     .create()
@@ -42,6 +42,19 @@ public class TypeScriptTypeConverterTest {
             System.out.println(sourceType.name());
             System.out.println(tsType.name());
             Assert.assertEquals("Item<T>[]", tsType.toString());
+        }
+    }
+
+    @Test
+    public void testNestedClassCoversionToTypeScript() {
+        TypeInfo nestedType = TypeInfo.of("com.slimgears.rxrpc.apt.typescript.TypeScriptTypeConverterTest$Nested$Nested2");
+        try (Safe.Closeable ignored = Environment.withEnvironment(processingEnvironment, roundEnvironment)) {
+            TypeInfo tsType = TypeScriptUtils
+                    .create()
+                    .toTypeScriptType(nestedType);
+            System.out.println(nestedType);
+            System.out.println(tsType.name());
+            Assert.assertEquals(nestedType.nameWithoutPackage().replace("$", ""), tsType.toString());
         }
     }
 }

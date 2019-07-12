@@ -104,7 +104,7 @@ public class TypeScriptUtils extends TemplateUtils {
         if (typeInfo.hasEnclosingType()) {
             typeInfo = typeInfo
                     .toBuilder()
-                    .name(typeInfo.name().replaceAll("\\$", "."))
+                    .name(typeInfo.name().replace("$", ""))
                     .build();
         }
 

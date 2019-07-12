@@ -1,11 +1,11 @@
-package com.slimgears.rxrpc.apt.typescript; /**
- *
- */
+package com.slimgears.rxrpc.apt.typescript;
 
 import com.slimgears.apt.util.AnnotationProcessingTester;
 import com.slimgears.apt.util.StoreWrittenFilesRule;
 import com.slimgears.rxrpc.apt.TestBundles;
 import com.slimgears.util.generic.ScopedInstance;
+import com.slimgears.util.test.logging.LogLevel;
+import com.slimgears.util.test.logging.UseLogLevel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -71,6 +71,7 @@ public class TypeScriptEndpointGenerationTest {
     }
 
     @Test
+    @UseLogLevel(LogLevel.TRACE)
     public void testNestedDataGeneration() {
         TestBundles.sampleNestedDataEndpointTester()
                 .apply(this::typeScriptOptions)
