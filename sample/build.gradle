@@ -69,6 +69,7 @@ dependencies {
     implementation libs.jacksonCore
     implementation libs.jacksonDataBind
     implementation libs.jacksonAnnotations
+    implementation libs.slimGenericUtils
 
     implementation libs.jettyServer, libs.jettyServlet
 

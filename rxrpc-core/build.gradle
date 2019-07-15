@@ -1,7 +1,5 @@
 dependencies {
-    bundledImplementation libs.slimStreamUtils
-    bundledImplementation libs.slimGenericUtils
-    bundledImplementation libs.slimReflectUtils
+    implementation libs.slimStreamUtils, libs.slimGenericUtils, libs.slimReflectUtils
 
     implementation libs.rxJava
     implementation libs.jacksonCore

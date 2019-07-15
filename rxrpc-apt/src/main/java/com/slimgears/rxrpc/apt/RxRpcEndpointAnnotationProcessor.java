@@ -1,10 +1,10 @@
 package com.slimgears.rxrpc.apt;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
 import com.google.auto.service.AutoService;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.slimgears.apt.AbstractAnnotationProcessor;
@@ -26,25 +26,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.Name;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
+import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
-import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -171,7 +158,9 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
                                 .filter(ElementUtils::isPublic)
                                 .filter(element -> element.getParameters().isEmpty())
                                 .filter(element -> !ElementUtils.hasAnnotation(element, JsonIgnore.class))
-                                .filter(element -> !element.getModifiers().contains(Modifier.DEFAULT))
+                                .filter(element ->
+                                        !element.getModifiers().contains(Modifier.DEFAULT) ||
+                                        ElementUtils.hasAnnotation(element, JsonProperty.class))
                                 .filter(element -> !element.getReturnType().toString().equals(Void.class.getName()))
                                 .filter(element -> !element.getReturnType().toString().equals(void.class.getName())),
                 typeElement
