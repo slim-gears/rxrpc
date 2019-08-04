@@ -1,7 +1,7 @@
 #macro (classLiteral $type)##
     #if ($type.hasTypeParams())##
-        new $[com.slimgears.util.reflect.TypeToken]<$[$type]>(){}##
+        new $[com.google.common.reflect.TypeToken]<$[$type]>(){}##
     #else##
-        $[com.slimgears.util.reflect.TypeToken].of($[$type.asBoxed()].class)##
+        $[com.google.common.reflect.TypeToken].of($[$type.asBoxed()].class)##
     #end##
 #end##

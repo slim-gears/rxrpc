@@ -1,11 +1,11 @@
 package com.slimgears.rxrpc.sample;
 
+import com.google.common.reflect.TypeToken;
 import com.slimgears.rxrpc.server.EndpointRouter;
 import com.slimgears.rxrpc.server.EndpointRouter.Module;
 import com.slimgears.rxrpc.server.EndpointRouters;
 import com.slimgears.rxrpc.server.internal.MethodDispatcher;
 import com.slimgears.rxrpc.server.internal.Publishers;
-import com.slimgears.util.reflect.TypeToken;
 import java.lang.String;
 import java.util.List;
 import javax.annotation.Generated;

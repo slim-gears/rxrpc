@@ -1,7 +1,7 @@
 package com.slimgears.rxrpc.server.internal;
 
 import com.slimgears.util.generic.ServiceResolver;
-import com.slimgears.util.reflect.TypeToken;
+import com.google.common.reflect.TypeToken;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;

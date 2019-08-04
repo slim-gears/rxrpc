@@ -1,8 +1,8 @@
 package com.slimgears.rxrpc.sample;
 
+import com.google.common.reflect.TypeToken;
 import com.slimgears.rxrpc.client.AbstractClient;
 import com.slimgears.rxrpc.client.RxClient.Session;
-import com.slimgears.util.reflect.TypeToken;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import java.lang.Integer;

@@ -7,7 +7,7 @@ import com.slimgears.rxrpc.server.EndpointRouter;
 import com.slimgears.rxrpc.server.EndpointRouters;
 import com.slimgears.rxrpc.server.RxServer;
 import com.slimgears.util.generic.ServiceResolver;
-import com.slimgears.util.reflect.TypeToken;
+import com.google.common.reflect.TypeToken;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;

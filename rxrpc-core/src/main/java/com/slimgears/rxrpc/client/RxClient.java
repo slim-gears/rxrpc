@@ -12,7 +12,7 @@ import com.slimgears.rxrpc.core.data.Result;
 import com.slimgears.rxrpc.core.util.HasObjectMapper;
 import com.slimgears.rxrpc.core.util.MoreDisposables;
 import com.slimgears.util.generic.ServiceResolver;
-import com.slimgears.util.reflect.TypeToken;
+import com.google.common.reflect.TypeToken;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
 import io.reactivex.Observer;

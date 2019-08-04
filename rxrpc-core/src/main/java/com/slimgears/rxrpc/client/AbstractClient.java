@@ -3,24 +3,15 @@ package com.slimgears.rxrpc.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
-import com.slimgears.rxrpc.core.data.Invocation;
+import com.google.common.reflect.TypeToken;
 import com.slimgears.rxrpc.core.data.Result;
-import com.slimgears.util.reflect.TypeToken;
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.FlowableEmitter;
-import io.reactivex.FlowableTransformer;
-import io.reactivex.Maybe;
-import io.reactivex.Observable;
-import io.reactivex.Single;
+import io.reactivex.*;
 import io.reactivex.disposables.Disposable;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -28,6 +19,7 @@ import java.util.concurrent.Future;
 import static com.slimgears.rxrpc.core.util.ObjectMappers.toReference;
 import static java.util.Objects.requireNonNull;
 
+@SuppressWarnings("UnstableApiUsage")
 public abstract class AbstractClient implements AutoCloseable {
     private final static Logger log = LoggerFactory.getLogger(AbstractClient.class);
     protected final static TypeToken<Void> voidType = TypeToken.of(Void.class);

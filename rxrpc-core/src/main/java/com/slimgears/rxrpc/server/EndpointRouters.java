@@ -6,7 +6,7 @@ import com.slimgears.rxrpc.server.internal.CompositeEndpointRouter;
 import com.slimgears.rxrpc.server.internal.InvocationArguments;
 import com.slimgears.rxrpc.server.internal.MethodDispatcher;
 import com.slimgears.util.generic.ServiceResolver;
-import com.slimgears.util.reflect.TypeToken;
+import com.google.common.reflect.TypeToken;
 import com.slimgears.util.stream.Safe;
 import com.slimgears.util.stream.Streams;
 import org.reactivestreams.Publisher;
@@ -196,7 +196,7 @@ public class EndpointRouters {
 
         public DecoratorBuilder<T> method(String name, Class... args) {
             try {
-                Method method = endpointType.asClass().getMethod(name, args);
+                Method method = endpointType.getRawType().getMethod(name, args);
                 Arrays.stream(method.getAnnotations())
                         .flatMap(a -> Optional
                                 .ofNullable(a.annotationType().getAnnotation(RxRpcDecorator.class))

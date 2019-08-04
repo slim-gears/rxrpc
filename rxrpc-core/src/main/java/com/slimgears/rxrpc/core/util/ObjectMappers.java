@@ -7,12 +7,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.slimgears.util.reflect.TypeToken;
+import com.google.common.reflect.TypeToken;
 import com.slimgears.util.stream.Lazy;
 
 import java.lang.reflect.Type;
 import java.util.function.Supplier;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ObjectMappers {
     public static ObjectMapper create() {
         return new ObjectMapper();
@@ -28,7 +29,7 @@ public class ObjectMappers {
         return new TypeReference<T>() {
             @Override
             public Type getType() {
-                return token.type();
+                return token.getType();
             }
         };
     }

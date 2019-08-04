@@ -1,8 +1,8 @@
 package com.slimgears.rxrpc.sample;
 
+import com.google.common.reflect.TypeToken;
 import com.slimgears.rxrpc.client.AbstractClient;
 import com.slimgears.rxrpc.client.RxClient.Session;
-import com.slimgears.util.reflect.TypeToken;
 import java.lang.String;
 import javax.annotation.Generated;
 
