@@ -3,6 +3,7 @@ package com.slimgears.rxrpc.sample;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.slimgears.rxrpc.client.RxClient;
+import com.slimgears.rxrpc.core.data.RxRpcRemoteException;
 import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketRxTransport;
 import com.slimgears.util.generic.ServiceResolver;
 import org.apache.commons.io.IOUtils;
@@ -22,7 +23,7 @@ import java.util.logging.Logger;
 import static org.hamcrest.CoreMatchers.containsString;
 
 public class SampleServerTest {
-    private final static int port = 9000;
+    private final static int port = 11001;
     private final static URI uri = URI.create("ws://localhost:" + port + "/api/");
     private SampleServer server;
     private ServiceResolver clientResolver;
@@ -75,6 +76,21 @@ public class SampleServerTest {
                 .test()
                 .await()
                 .assertError(IllegalStateException.class)
+                .assertErrorMessage("Test error");
+        testObservableMethod(sampleEndpoint, 1);
+    }
+
+    @Test
+    public void testServerMethodReturnsCustomErrorAsync() throws InterruptedException {
+        SampleEndpoint sampleEndpoint = clientResolver.resolve(SampleEndpoint_RxClient.class);
+        sampleEndpoint
+                .customErrorProducingMethod("Test error")
+                .test()
+                .await()
+                .assertError(RxRpcRemoteException.class)
+                .assertError(e -> ((RxRpcRemoteException)e).getErrorInfo().properties().containsKey("customInt"))
+                .assertError(e -> ((RxRpcRemoteException)e).getErrorInfo().properties().containsKey("customDoubleProp"))
+                .assertError(e -> ((RxRpcRemoteException)e).getErrorInfo().properties().containsKey("customString"))
                 .assertErrorMessage("Test error");
         testObservableMethod(sampleEndpoint, 1);
     }

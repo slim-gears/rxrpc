@@ -36,7 +36,7 @@ public abstract class Result {
     }
 
     public static Result ofError(Throwable error) {
-        return ofError(ErrorInfo.fromException(error));
+        return ofError(ErrorInfos.fromException(error));
     }
 
     public static Result ofError(ErrorInfo error) {

@@ -1,5 +1,7 @@
 package com.slimgears.rxrpc.sample;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 
@@ -8,6 +10,33 @@ import java.util.concurrent.TimeUnit;
 
 
 public class SampleEndpointImpl implements SampleEndpoint {
+    public static class CustomException extends Exception {
+        private final int customInt;
+        private final String customString;
+        private final double customDouble;
+
+        public CustomException(String message, int customInt, String customString, double customDouble, Throwable cause) {
+            super(message, cause);
+            this.customInt = customInt;
+            this.customString = customString;
+            this.customDouble = customDouble;
+        }
+
+        @JsonProperty
+        public int getCustomInt() {
+            return customInt;
+        }
+
+        @JsonProperty
+        public String customString() {
+            return customString;
+        }
+
+        @JsonProperty("customDoubleProp")
+        public double getCustomDouble() {
+            return customDouble;
+        }
+    }
 
     @Override
     public Observable<String> sayHello(String name) {
@@ -44,6 +73,11 @@ public class SampleEndpointImpl implements SampleEndpoint {
     public Observable<String> observeDecoratedMethod() {
         String name = SampleDecorator.Decorator.currentName();
         return Observable.fromCallable(() -> name);
+    }
+
+    @Override
+    public Completable customErrorProducingMethod(String message) {
+        return Completable.error(new CustomException(message, 23, "Test str", 29.7, null));
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.slimgears.rxrpc.sample;
 
 import com.slimgears.rxrpc.core.RxRpcEndpoint;
 import com.slimgears.rxrpc.core.RxRpcMethod;
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 
 import java.util.concurrent.Future;
@@ -28,4 +29,7 @@ public interface SampleEndpoint {
 
     @RxRpcMethod @SampleDecorator(name = "test1")
     Observable<String> observeDecoratedMethod();
+
+    @RxRpcMethod
+    Completable customErrorProducingMethod(String message);
 }
