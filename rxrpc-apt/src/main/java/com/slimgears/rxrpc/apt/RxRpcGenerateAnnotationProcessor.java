@@ -39,9 +39,13 @@ public class RxRpcGenerateAnnotationProcessor extends AbstractAnnotationProcesso
             ServiceProviders.loadServices(MetaEndpointGenerator.class);
 
     protected boolean processType(TypeElement annotationType, TypeElement typeElement) {
-        log.info("Processing type: {} ({} generators)", typeElement.getQualifiedName(), metaEndpointGenerators.size());
-        MetaEndpointGenerator.Context context = createContext(annotationType, typeElement);
-        metaEndpointGenerators.forEach(cg -> cg.generate(context));
+        try {
+            log.info("Processing type: {} ({} generators)", typeElement.getQualifiedName(), metaEndpointGenerators.size());
+            MetaEndpointGenerator.Context context = createContext(annotationType, typeElement);
+            metaEndpointGenerators.forEach(cg -> cg.generate(context));
+        } catch (AnnotationTypeMismatchException e) {
+            delayProcessing("Could not resolve: " + e.foundType());
+        }
         return true;
     }
 
