@@ -2,6 +2,7 @@ package com.slimgears.rxrpc.apt.typescript;
 
 import com.slimgears.apt.data.Environment;
 import com.slimgears.apt.data.TypeInfo;
+import com.slimgears.util.generic.MoreStrings;
 import com.slimgears.util.stream.Safe;
 import org.junit.Assert;
 import org.junit.Test;
@@ -21,40 +22,45 @@ public class TypeScriptTypeConverterTest {
 
     @Test
     public void testGenericArrayConversion() {
-        try (Safe.Closeable ignored = Environment.withEnvironment(processingEnvironment, roundEnvironment)) {
-            TypeInfo sourceType = TypeInfo.arrayOf(TypeInfo.builder().name("Item").typeParam("T", TypeInfo.of("T")).build());
-            TypeInfo tsType = TypeScriptUtils
-                    .create()
-                    .toTypeScriptType(sourceType);
-            System.out.println(sourceType.name());
-            System.out.println(tsType.name());
-            Assert.assertEquals("Item<T>[]", tsType.toString());
-        }
+        assertConversion(
+                TypeInfo.arrayOf(TypeInfo.builder().name("Item").typeParam("T", TypeInfo.of("T")).build()),
+                "Item<T>[]");
     }
 
     @Test
     public void testGenericListConversion() {
-        try (Safe.Closeable ignored = Environment.withEnvironment(processingEnvironment, roundEnvironment)) {
-            TypeInfo sourceType = TypeInfo.of("com.google.common.collect.ImmutableList<Item<T>>");
-            TypeInfo tsType = TypeScriptUtils
-                    .create()
-                    .toTypeScriptType(sourceType);
-            System.out.println(sourceType.name());
-            System.out.println(tsType.name());
-            Assert.assertEquals("Item<T>[]", tsType.toString());
-        }
+        assertConversion("com.google.common.collect.ImmutableList<Item<T>>", "Item<T>[]");
     }
 
     @Test
     public void testNestedClassCoversionToTypeScript() {
         TypeInfo nestedType = TypeInfo.of("com.slimgears.rxrpc.apt.typescript.TypeScriptTypeConverterTest$Nested$Nested2");
+        assertConversion(nestedType, nestedType.nameWithoutPackage().replace("$", ""));
+    }
+
+    @Test
+    public void testMapConversion() {
+        assertConversion("java.util.Map<java.lang.String, com.slimgears.rxrpc.sample.SampleData>",
+                "rxrpcJs.StringKeyMap<SampleData>");
+        assertConversion("java.util.Map<java.lang.Float, com.slimgears.rxrpc.sample.SampleData>",
+                "rxrpcJs.NumberKeyMap<SampleData>");
+    }
+
+    private void assertConversion(TypeInfo source, TypeInfo expected) {
+        assertConversion(source, expected.toString());
+    }
+
+    private void assertConversion(String source, String expected) {
+        assertConversion(TypeInfo.of(source), expected);
+    }
+
+    private void assertConversion(TypeInfo source, String expected) {
         try (Safe.Closeable ignored = Environment.withEnvironment(processingEnvironment, roundEnvironment)) {
             TypeInfo tsType = TypeScriptUtils
                     .create()
-                    .toTypeScriptType(nestedType);
-            System.out.println(nestedType);
-            System.out.println(tsType.name());
-            Assert.assertEquals(nestedType.nameWithoutPackage().replace("$", ""), tsType.toString());
+                    .toTypeScriptType(source);
+            System.out.println(MoreStrings.format("Converted type {} -> {}", source, tsType));
+            Assert.assertEquals(expected, tsType.toString());
         }
     }
 }
