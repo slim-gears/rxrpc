@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import {BackendApiModule} from "../backend-api";
-import {RxRpcWebSocketTransport} from "rxrpc-js";
+import {RxRpcWebSocketTransport, RxRpcReconnectableTransport} from "rxrpc-js";
 import {APP_BASE_HREF} from "@angular/common";
 
 @NgModule({
@@ -12,10 +12,11 @@ import {APP_BASE_HREF} from "@angular/common";
   ],
   imports: [
     BrowserModule,
-    BackendApiModule.withTransport(RxRpcWebSocketTransport)
+    BackendApiModule.withTransport(RxRpcReconnectableTransport)
   ],
   providers: [
     {provide: RxRpcWebSocketTransport, useFactory: () => new RxRpcWebSocketTransport(`ws://${location.host}/api/`)},
+    {provide: RxRpcReconnectableTransport, useFactory: (transport) => RxRpcReconnectableTransport.of(transport), deps: [RxRpcWebSocketTransport]},
     {provide: APP_BASE_HREF, useValue: '/'}
   ],
   bootstrap: [AppComponent]

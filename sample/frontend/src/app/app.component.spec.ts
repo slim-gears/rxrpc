@@ -19,6 +19,9 @@ describe('AppComponent', () => {
             },
             invokeShared<T>() {
               return concat(of("Test response"), NEVER)
+            },
+            observeConnected() {
+              return concat(of(true), NEVER);
             }
           }
         }
