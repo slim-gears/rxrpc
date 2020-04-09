@@ -1,3 +1,5 @@
+import org.gradle.internal.jvm.Jvm
+
 configurations {
     testOutput.extendsFrom testImplementation
 }
@@ -40,4 +42,8 @@ dependencies {
     implementation libs.slimGuiceUtils
     implementation libs.slimAptUtils
     testImplementation libs.slimAptTestUtils
+
+    if (Jvm.current().javaVersion.java8) {
+        testImplementation files(Jvm.current().getToolsJar())
+    }
 }
