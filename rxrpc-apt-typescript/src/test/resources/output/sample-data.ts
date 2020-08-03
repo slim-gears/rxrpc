@@ -1,4 +1,5 @@
-import { SampleEnum, SampleGenericData } from './index';
+import { SampleEnum } from './sample-enum';
+import { SampleGenericData } from './sample-generic-data';
 
 /**
  * Generated from com.slimgears.rxrpc.sample.SampleData

@@ -81,19 +81,26 @@ public class TypeScriptUtils extends TemplateUtils {
                     String packagePath = Optional
                             .of(camelCaseToDash(entry.getKey()).replace('.', '/'))
                             .filter(str -> !str.isEmpty())
-                            .orElse("./index");
+                            .orElse(null);
 
-                    if (packagePath.startsWith("/")) {
-                        packagePath = "." + packagePath;
+                    if (packagePath != null) {
+                        if (packagePath.startsWith("/")) {
+                            packagePath = "." + packagePath;
+                        }
+                        return entry.getValue()
+                                .stream()
+                                .sorted()
+                                .collect(Collectors.joining(
+                                        ", ",
+                                        "import { ",
+                                        " } from '" + packagePath.replace("___at___", "@") + "';"));
+                    } else {
+                        return entry.getValue()
+                                .stream()
+                                .sorted()
+                                .map(el -> "import { "  + el + " } from './" + camelCaseToDash(el) + "';")
+                                .collect(Collectors.joining("\n"));
                     }
-
-                    return entry.getValue()
-                            .stream()
-                            .sorted()
-                            .collect(Collectors.joining(
-                                    ", ",
-                                    "import { ",
-                                    " } from '" + packagePath.replace("___at___", "@") + "';"));
                 })
                 .collect(Collectors.joining("\n"));
         return code.replace(importTracker.toString(), importsStr);

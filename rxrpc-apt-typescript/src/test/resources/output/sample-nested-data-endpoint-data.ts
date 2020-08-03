@@ -1,4 +1,4 @@
-import { SampleNestedDataEndpointDataType } from './index';
+import { SampleNestedDataEndpointDataType } from './sample-nested-data-endpoint-data-type';
 
 /**
  * Generated from com.slimgears.rxrpc.sample.SampleNestedDataEndpoint$Data

@@ -1,4 +1,5 @@
-import { SampleNestedDataEndpoint, SampleNestedDataEndpointData } from './index';
+import { SampleNestedDataEndpoint } from './sample-nested-data-endpoint';
+import { SampleNestedDataEndpointData } from './sample-nested-data-endpoint-data';
 import { FactoryProvider, Injectable, InjectionToken, Type } from '@angular/core';
 import { Observable } from 'rxjs';
 import { RxRpcInvoker } from 'rxrpc-js';

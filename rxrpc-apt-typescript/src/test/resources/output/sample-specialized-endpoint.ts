@@ -1,4 +1,5 @@
-import { SampleGenericEndpoint, SampleSpecializedData } from './index';
+import { SampleGenericEndpoint } from './sample-generic-endpoint';
+import { SampleSpecializedData } from './sample-specialized-data';
 import { Observable } from 'rxjs';
 
 /**

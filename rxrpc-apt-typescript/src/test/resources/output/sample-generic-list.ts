@@ -1,4 +1,4 @@
-import { SampleGenericData } from './index';
+import { SampleGenericData } from './sample-generic-data';
 
 /**
  * Generated from com.slimgears.rxrpc.sample.SampleGenericList

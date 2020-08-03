@@ -1,4 +1,5 @@
-import { SampleMapData, SampleMapEndpoint } from './index';
+import { SampleMapData } from './sample-map-data';
+import { SampleMapEndpoint } from './sample-map-endpoint';
 import { FactoryProvider, Injectable, InjectionToken, Type } from '@angular/core';
 import { Observable } from 'rxjs';
 import { RxRpcInvoker, StringKeyMap } from 'rxrpc-js';

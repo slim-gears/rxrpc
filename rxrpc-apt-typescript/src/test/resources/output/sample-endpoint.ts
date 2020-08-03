@@ -1,4 +1,7 @@
-import { SampleArrayEndpoint, SampleBaseEndpoint, SampleData, SampleRequest } from './index';
+import { SampleArrayEndpoint } from './sample-array-endpoint';
+import { SampleBaseEndpoint } from './sample-base-endpoint';
+import { SampleData } from './sample-data';
+import { SampleRequest } from './sample-request';
 import { Observable } from 'rxjs';
 
 /**

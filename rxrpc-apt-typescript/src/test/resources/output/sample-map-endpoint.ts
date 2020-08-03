@@ -1,4 +1,4 @@
-import { SampleMapData } from './index';
+import { SampleMapData } from './sample-map-data';
 import { Observable } from 'rxjs';
 import { StringKeyMap } from 'rxrpc-js';
 

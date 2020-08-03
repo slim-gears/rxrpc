@@ -1,4 +1,5 @@
-import { SampleGenericData, SampleGenericList } from './index';
+import { SampleGenericData } from './sample-generic-data';
+import { SampleGenericList } from './sample-generic-list';
 import { Observable } from 'rxjs';
 
 /**

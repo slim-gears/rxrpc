@@ -1,4 +1,4 @@
-import { SampleDefaultNameEndpoint } from './index';
+import { SampleDefaultNameEndpoint } from './sample-default-name-endpoint';
 import { FactoryProvider, Injectable, InjectionToken, Type } from '@angular/core';
 import { Observable } from 'rxjs';
 import { RxRpcInvoker } from 'rxrpc-js';

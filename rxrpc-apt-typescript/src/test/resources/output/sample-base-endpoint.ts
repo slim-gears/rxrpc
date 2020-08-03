@@ -1,4 +1,4 @@
-import { SampleRequest } from './index';
+import { SampleRequest } from './sample-request';
 import { Observable } from 'rxjs';
 
 /**
