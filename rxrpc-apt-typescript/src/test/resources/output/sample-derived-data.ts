@@ -1,4 +1,4 @@
-import { SampleBaseData } from './index';
+import { SampleBaseData } from './sample-base-data';
 
 /**
  * Generated from com.slimgears.rxrpc.sample.SampleDerivedData

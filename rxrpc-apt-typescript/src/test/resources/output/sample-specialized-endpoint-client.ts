@@ -1,4 +1,7 @@
-import { SampleGenericData, SampleGenericList, SampleSpecializedData, SampleSpecializedEndpoint } from './index';
+import { SampleGenericData } from './sample-generic-data';
+import { SampleGenericList } from './sample-generic-list';
+import { SampleSpecializedData } from './sample-specialized-data';
+import { SampleSpecializedEndpoint } from './sample-specialized-endpoint';
 import { FactoryProvider, Injectable, InjectionToken, Type } from '@angular/core';
 import { Observable } from 'rxjs';
 import { RxRpcInvoker } from 'rxrpc-js';

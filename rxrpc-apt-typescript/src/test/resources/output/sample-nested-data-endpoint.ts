@@ -1,4 +1,4 @@
-import { SampleNestedDataEndpointData } from './index';
+import { SampleNestedDataEndpointData } from './sample-nested-data-endpoint-data';
 import { Observable } from 'rxjs';
 
 /**

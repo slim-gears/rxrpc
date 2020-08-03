@@ -1,4 +1,4 @@
-import { SampleCircularReferenceData } from './index';
+import { SampleCircularReferenceData } from './sample-circular-reference-data';
 import { Observable } from 'rxjs';
 
 /**

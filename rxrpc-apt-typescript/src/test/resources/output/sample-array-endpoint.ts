@@ -1,4 +1,5 @@
-import { SampleArray, SampleData } from './index';
+import { SampleArray } from './sample-array';
+import { SampleData } from './sample-data';
 import { Observable } from 'rxjs';
 
 /**

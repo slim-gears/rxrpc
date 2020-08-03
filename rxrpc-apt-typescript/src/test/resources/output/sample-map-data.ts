@@ -1,4 +1,4 @@
-import { SampleData } from './index';
+import { SampleData } from './sample-data';
 import { StringKeyMap } from 'rxrpc-js';
 
 /**

@@ -1,6 +1,6 @@
 import {InjectionToken, ModuleWithProviders, NgModule, Type} from '@angular/core';
 import {RxRpcClient, RxRpcInvoker, RxRpcTransport} from 'rxrpc-js';
-import { SampleEndpointClient } from './sample-endpoint-client';
+import {SampleEndpointClient} from './sample-endpoint-client';
 
 @NgModule({
     providers: [

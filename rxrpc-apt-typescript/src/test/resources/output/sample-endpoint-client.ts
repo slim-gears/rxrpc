@@ -1,4 +1,7 @@
-import { SampleArray, SampleData, SampleEndpoint, SampleRequest } from './index';
+import { SampleArray } from './sample-array';
+import { SampleData } from './sample-data';
+import { SampleEndpoint } from './sample-endpoint';
+import { SampleRequest } from './sample-request';
 import { FactoryProvider, Injectable, InjectionToken, Type } from '@angular/core';
 import { Observable } from 'rxjs';
 import { RxRpcInvoker } from 'rxrpc-js';
