@@ -3,30 +3,32 @@ package com.slimgears.rxrpc.sample;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.slimgears.rxrpc.client.RxClient;
+import com.slimgears.rxrpc.core.RxTransport;
 import com.slimgears.rxrpc.core.data.RxRpcRemoteException;
-import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketRxTransport;
 import com.slimgears.util.generic.ServiceResolver;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.*;
 
+import javax.servlet.Servlet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.hamcrest.CoreMatchers.containsString;
 
-public class SampleServerTest {
-    private final static int port = 11001;
-    private final static URI uri = URI.create("ws://localhost:" + port + "/api/");
-    private SampleServer server;
-    private ServiceResolver clientResolver;
+public abstract class AbstractServerTest<T extends RxTransport.Server & Servlet> {
+    protected final static int port = 11001;
+    private SampleServer<T> server;
+    ServiceResolver clientResolver;
 
     @BeforeClass
     public static void init() {
@@ -35,17 +37,25 @@ public class SampleServerTest {
 
     @Before
     public void setUp() throws Exception {
-        server = new SampleServer(port);
+        server = SampleServer.forTransport(port, createServer());
         server.start();
-        RxClient rxClient = RxClient.forClient(JettyWebSocketRxTransport.builder().buildClient());
-        clientResolver = rxClient.connect(uri).blockingGet();
+        RxClient rxClient = RxClient.forClient(createClient());
+        clientResolver = rxClient.connect(getUri()).timeout(1000, TimeUnit.MILLISECONDS).blockingGet();
     }
 
     @After
     public void tearDown() throws Exception {
-        clientResolver.close();
+        Optional.ofNullable(clientResolver).ifPresent(ServiceResolver::close);
         server.stop();
     }
+
+    protected URI getUri() {
+        return URI.create(getUriScheme() + "localhost:" + port + "/api/");
+    }
+
+    protected abstract String getUriScheme();
+    protected abstract RxTransport.Client createClient();
+    protected abstract T createServer();
 
     @Test
     public void testSayHello() {
@@ -88,9 +98,9 @@ public class SampleServerTest {
                 .test()
                 .await()
                 .assertError(RxRpcRemoteException.class)
-                .assertError(e -> ((RxRpcRemoteException)e).getErrorInfo().properties().containsKey("customInt"))
-                .assertError(e -> ((RxRpcRemoteException)e).getErrorInfo().properties().containsKey("customDoubleProp"))
-                .assertError(e -> ((RxRpcRemoteException)e).getErrorInfo().properties().containsKey("customString"))
+                .assertError(e -> Objects.requireNonNull(((RxRpcRemoteException) e).getErrorInfo().properties()).containsKey("customInt"))
+                .assertError(e -> Objects.requireNonNull(((RxRpcRemoteException) e).getErrorInfo().properties()).containsKey("customDoubleProp"))
+                .assertError(e -> Objects.requireNonNull(((RxRpcRemoteException) e).getErrorInfo().properties()).containsKey("customString"))
                 .assertErrorMessage("Test error");
         testObservableMethod(sampleEndpoint, 1);
     }
@@ -120,7 +130,8 @@ public class SampleServerTest {
         String json = objectMapper.writeValueAsString(data);
         SampleMetaEndpoint.SampleData<SampleRequest> newData = objectMapper.readValue(
                 json,
-                new TypeReference<SampleMetaEndpoint.SampleData<SampleRequest>>(){});
+                new TypeReference<SampleMetaEndpoint.SampleData<SampleRequest>>() {
+                });
 
         Assert.assertNotNull(newData);
         Assert.assertEquals(data.value.id, newData.value.id);
@@ -138,7 +149,7 @@ public class SampleServerTest {
     }
 
     private String invokeHttpGet(String path) throws IOException {
-        HttpURLConnection http = (HttpURLConnection)new URL("http://localhost:" + port)
+        HttpURLConnection http = (HttpURLConnection) new URL("http://localhost:" + port)
                 .openConnection();
 
         http.connect();
@@ -146,7 +157,7 @@ public class SampleServerTest {
 
         Object content = http.getContent();
         if (content instanceof InputStream) {
-            return IOUtils.toString((InputStream)content, StandardCharsets.UTF_8);
+            return IOUtils.toString((InputStream) content, StandardCharsets.UTF_8);
         }
         return http.getResponseMessage();
     }

@@ -1,5 +1,6 @@
 package com.slimgears.rxrpc.sample;
 
+import com.slimgears.rxrpc.core.RxTransport;
 import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketRxTransport;
 import com.slimgears.rxrpc.server.EndpointRouters;
 import com.slimgears.rxrpc.server.RxServer;
@@ -11,28 +12,37 @@ import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
+import javax.servlet.Servlet;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class SampleServer {
+public class SampleServer<T extends RxTransport.Server & Servlet> {
     private final Server jetty;
-    private final JettyWebSocketRxTransport.Server transportServer = JettyWebSocketRxTransport.builder().buildServer();
     private final RxServer rxServer;
+    private final T transportServer;
 
-    public SampleServer(int port) {
+    public static SampleServer<JettyWebSocketRxTransport.Server> forWebSocket(int port) {
+        return new SampleServer<>(port, JettyWebSocketRxTransport.builder().buildServer());
+    }
+
+    public static <T extends RxTransport.Server & Servlet> SampleServer<T> forTransport(int port, T transport) {
+        return new SampleServer<>(port, transport);
+    }
+
+    private SampleServer(int port, T transportServer) {
+        this.transportServer = transportServer;
         this.jetty = createJetty(port);
         this.rxServer = RxServer.configBuilder()
-                .server(transportServer) // Use jetty WebSocket-servlet based transport
+                .server(transportServer) // Use jetty [WebSocket | Http]-servlet based transport
                 .modules(
                         EndpointRouters.moduleByName("sampleModule"),
-                        new SayHelloEndpoint_RxModule(),
-                        new SampleMetaEndpointImplInteger_RxModule(),
-                        new SampleMetaEndpointImplSampleRequest_RxModule())
+                        EndpointRouters.discover())
                 .resolver(ServiceResolvers
                         .builder()
                         .bind(SampleEndpoint.class).to(SampleEndpointImpl.class)
                         .bind(SayHelloEndpoint.class).to(SayHelloEndpointImpl.class)
+                        .bind(RepetitionSayHelloEndpoint.class).to(RepetitionSayHelloEndpointImpl.class)
                         .build())
                 .createServer();
     }
@@ -51,7 +61,7 @@ public class SampleServer {
         Server jetty = new Server(port);
         ServletContextHandler context = new ServletContextHandler();
         context.setContextPath("/");
-        context.addServlet(new ServletHolder(transportServer), "/api/");
+        context.addServlet(new ServletHolder(transportServer), "/api/*");
         context.addServlet(new ServletHolder(new DefaultServlet()), "/*");
         URL webResourceUrl = getClass().getResource("/web");
         String resourceBasePath = webResourceUrl.toExternalForm();
@@ -70,10 +80,10 @@ public class SampleServer {
     public static void main(String... args) {
         Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).setLevel(Level.WARNING);
         int port = 8000;
-        SampleServer server = new SampleServer(port);
+        SampleServer<?> server = SampleServer.forWebSocket(port);
         try {
             server.start();
-            System.out.println(String.format("Server started and listening at: http://localhost:%d\nPress <Enter> to stop.", port));
+            System.out.printf("Server started and listening at: http://localhost:%d\nPress <Enter> to stop.%n", port);
             System.in.read();
             server.stop();
         } catch (Exception e) {
