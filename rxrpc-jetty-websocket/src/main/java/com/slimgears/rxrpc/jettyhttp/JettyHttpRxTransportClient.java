@@ -3,7 +3,6 @@ package com.slimgears.rxrpc.jettyhttp;
 import com.slimgears.rxrpc.core.RxTransport;
 import com.slimgears.rxrpc.core.util.Emitters;
 import com.slimgears.util.rx.Completables;
-import com.sun.org.apache.xpath.internal.axes.PredicatedNodeTest;
 import io.reactivex.Completable;
 import io.reactivex.Emitter;
 import io.reactivex.Observable;
@@ -20,9 +19,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class JettyHttpRxTransportClient implements RxTransport {
     private final static Logger log = LoggerFactory.getLogger(JettyHttpRxTransportClient.class);
@@ -52,15 +49,14 @@ public class JettyHttpRxTransportClient implements RxTransport {
     }
 
     private void sendMessage(String message) {
-        try {
-            httpClient.POST(URI.create(uri + "/message"))
-                    .header(JettyHttpAttributes.ClientIdAttribute, clientId)
-                    .content(new StringContentProvider(message), "text/plain")
-                    .onResponseFailure((response, failure) -> outgoingEmitter.onError(failure))
-                    .send();
-        } catch (InterruptedException | TimeoutException | ExecutionException e) {
-            outgoingEmitter.onError(e);
-        }
+        httpClient.POST(URI.create(uri + "/message"))
+                .header(JettyHttpAttributes.ClientIdAttribute, clientId)
+                .content(new StringContentProvider(message), "text/plain")
+                .send(result -> {
+                    if (result.isFailed()) {
+                        outgoingEmitter.onError(result.getFailure());
+                    }
+                });
     }
 
     @Override
@@ -118,18 +114,18 @@ public class JettyHttpRxTransportClient implements RxTransport {
                             .onResponseHeader((response, field) -> {
                                 if (field.getName().equals(JettyHttpAttributes.ClientIdAttribute)) {
                                     String clientId = field.getValue();
-                                    JettyHttpRxTransportClient transportClient = new JettyHttpRxTransportClient(httpClient, uri, clientId);
-                                    emitter.onSuccess(transportClient);
+                                    emitter.onSuccess(new JettyHttpRxTransportClient(httpClient, uri, clientId));
                                 }
                                 return true;
                             })
-                            .onResponseFailure((response, failure) -> {
-                                log.error("Could not connect to: " + uri, failure);
-                                emitter.onError(failure);
-                            })
-                            .send();
+                            .send(result -> {
+                                if (result.isFailed()) {
+                                    log.error("Could not connect to: " + uri, result.getFailure());
+                                    emitter.onError(result.getFailure());
+                                }
+                            });
                 } catch (Exception e) {
-                    log.error("Could not connect to: " + uri, e);
+                    log.error("Could not start the httpClient", e);
                     emitter.onError(e);
                 }
             });

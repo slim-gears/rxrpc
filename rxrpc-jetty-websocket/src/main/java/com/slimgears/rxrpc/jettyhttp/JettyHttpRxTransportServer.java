@@ -33,7 +33,7 @@ public class JettyHttpRxTransportServer implements RxTransport {
     private final AtomicReference<Disposable> disconnectSubscription = new AtomicReference<>(Disposables.empty());
 
     public JettyHttpRxTransportServer() {
-         this.outgoingSubscription = outgoingSubject
+        this.outgoingSubscription = outgoingSubject
                 .subscribe(this::onMessage,
                         incoming::onError);
     }
@@ -139,8 +139,11 @@ public class JettyHttpRxTransportServer implements RxTransport {
         }
 
         private void doDisconnect(String clientId, HttpServletResponse response) {
-            if (transportMap.remove(clientId) == null) {
+            JettyHttpRxTransportServer transport = transportMap.remove(clientId);
+            if ( transport == null) {
                 response.setStatus(HttpStatus.BAD_REQUEST_400);
+            } else {
+                transport.close();
             }
         }
 
