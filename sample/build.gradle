@@ -13,6 +13,10 @@ compileJava.options.compilerArgs = [
         '-Arxrpc.ts.ngmodule.name=BackendApiModule'
 ]
 
+yarn {
+    args += ["--network-timeout", 600_000]
+}
+
 task syncBackendApi(type: Sync) {
     dependsOn(compileJava)
     from fileTree(dir: "$project.buildDir/generated/source/apt/main/typescript", include: '*.ts')

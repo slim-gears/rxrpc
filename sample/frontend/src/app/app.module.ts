@@ -3,8 +3,32 @@ import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import {BackendApiModule} from "../backend-api";
-import {RxRpcWebSocketTransport, RxRpcReconnectableTransport} from "rxrpc-js";
+import {RxRpcHttpTransport, RxRpcWebSocketTransport, RxRpcReconnectableTransport} from "rxrpc-js";
 import {APP_BASE_HREF} from "@angular/common";
+import {environment} from "../environments/environment";
+
+const transports = {
+  http: RxRpcHttpTransport,
+  ws: RxRpcReconnectableTransport
+}
+
+function getCookie(name: string): string {
+  const nameLenPlus = (name.length + 1);
+  return document.cookie
+    .split(';')
+    .map(c => c.trim())
+    .filter(cookie => {
+      return cookie.substring(0, nameLenPlus) === `${name}=`;
+    })
+    .map(cookie => {
+      return decodeURIComponent(cookie.substring(nameLenPlus));
+    })[0] || null;
+}
+
+function getTransportToken() {
+  const transport = getCookie("RxRpcTransport") || environment.transport;
+  return transports[transport];
+}
 
 @NgModule({
   declarations: [
@@ -12,11 +36,12 @@ import {APP_BASE_HREF} from "@angular/common";
   ],
   imports: [
     BrowserModule,
-    BackendApiModule.withTransport(RxRpcReconnectableTransport)
+    BackendApiModule.withTransport(getTransportToken())
   ],
   providers: [
     {provide: RxRpcWebSocketTransport, useFactory: () => new RxRpcWebSocketTransport(`ws://${location.host}/api/`)},
     {provide: RxRpcReconnectableTransport, useFactory: (transport) => RxRpcReconnectableTransport.of(transport), deps: [RxRpcWebSocketTransport]},
+    {provide: RxRpcHttpTransport, useFactory: () => new RxRpcHttpTransport(`http://${location.host}/api`)},
     {provide: APP_BASE_HREF, useValue: '/'}
   ],
   bootstrap: [AppComponent]
