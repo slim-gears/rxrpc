@@ -18,4 +18,9 @@ public class WebSocketServerTest extends AbstractServerTest<JettyWebSocketRxTran
     protected JettyWebSocketRxTransport.Server createServer() {
         return JettyWebSocketRxTransport.builder().buildServer();
     }
+
+    @Override
+    protected String getTransportType() {
+        return "ws";
+    }
 }

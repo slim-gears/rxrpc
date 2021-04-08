@@ -30,6 +30,11 @@ public class HttpServerTest extends AbstractServerTest<JettyHttpRxTransportServe
         return JettyHttpRxTransportServer.builder().buildServer();
     }
 
+    @Override
+    protected String getTransportType() {
+        return "http";
+    }
+
     public static Boolean invokeClientTask(SayHelloEndpoint endPoint, String value) {
         endPoint
                 .sayHello(value)

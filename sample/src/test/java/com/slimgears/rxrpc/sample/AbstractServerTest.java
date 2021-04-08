@@ -37,7 +37,7 @@ public abstract class AbstractServerTest<T extends RxTransport.Server & Servlet>
 
     @Before
     public void setUp() throws Exception {
-        server = SampleServer.forTransport(port, createServer());
+        server = SampleServer.forTransport(port, createServer(), getTransportType());
         server.start();
         RxClient rxClient = RxClient.forClient(createClient());
         clientResolver = rxClient.connect(getUri()).timeout(1000, TimeUnit.MILLISECONDS).blockingGet();
@@ -56,6 +56,7 @@ public abstract class AbstractServerTest<T extends RxTransport.Server & Servlet>
     protected abstract String getUriScheme();
     protected abstract RxTransport.Client createClient();
     protected abstract T createServer();
+    protected abstract String getTransportType();
 
     @Test
     public void testSayHello() {
