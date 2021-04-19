@@ -26,7 +26,7 @@ task yarnCleanCache(type: YarnTask) {
 
 clean.dependsOn(yarnCleanCache)
 
-yarn.dependsOn project(':rxrpc-js').tasks.yarn
+yarn.dependsOn project(':rxrpc-js').tasks.yarnPack
 
 yarnBuild {
     it.dependsOn(yarn, syncBackendApi)
