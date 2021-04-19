@@ -6243,9 +6243,9 @@ rxjs@^6.4.0:
   dependencies:
     tslib "^1.9.0"
 
-rxrpc-js@../../rxrpc-js/build/rxrpc-js.tgz:
+"rxrpc-js@file:../../rxrpc-js/build/rxrpc-js.tgz":
   version "0.0.0"
-  resolved "../../rxrpc-js/build/rxrpc-js.tgz#48e680851ced96f2bf1393a850800f202780494e"
+  resolved "file:../../rxrpc-js/build/rxrpc-js.tgz#48e680851ced96f2bf1393a850800f202780494e"
   dependencies:
     axios "^0.21.1"
 
