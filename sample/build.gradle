@@ -3,8 +3,9 @@ import java.util.concurrent.Callable
 apply from: "$scriptsDir/java.gradle"
 apply from: "$scriptsDir/nodejs.gradle"
 
+def nodeProjectDir = project.file("$project.projectDir/frontend")
 node {
-    nodeModulesDir = project.file("$project.projectDir/frontend")
+    it.nodeProjectDir = nodeProjectDir
 }
 
 compileJava.options.compilerArgs = [
@@ -16,7 +17,7 @@ compileJava.options.compilerArgs = [
 task syncBackendApi(type: Sync) {
     dependsOn(compileJava)
     from fileTree(dir: "$project.buildDir/generated/source/apt/main/typescript", include: '*.ts')
-    into file("$node.nodeModulesDir/src/backend-api")
+    into file("$nodeProjectDir/src/backend-api")
 }
 
 task yarnCleanCache(type: YarnTask) {
@@ -25,38 +26,13 @@ task yarnCleanCache(type: YarnTask) {
 
 clean.dependsOn(yarnCleanCache)
 
-task yarnInstallRxRpcJs(type: YarnTask, dependsOn: yarn) {
-    def rxrpcJsProj = project.project(':rxrpc-js')
-    inputs.file rxrpcJsProj.packageFile
-    outputs.dir "$node.nodeModulesDir/node_modules/rxrpc-js"
-    dependsOn(rxrpcJsProj.yarnPack)
-    args = ['add', "file:$rxrpcJsProj.packageFile"]
-
-    doFirst {
-        copy {
-            from ("${node.nodeModulesDir}/yarn.lock", "${node.nodeModulesDir}/package.json")
-            into "${node.nodeModulesDir}"
-            rename { name -> "${name}.tmp" }
-        }
-    }
-
-    doLast {
-        copy {
-            from ("${node.nodeModulesDir}/yarn.lock.tmp", "${node.nodeModulesDir}/package.json.tmp")
-            into "${node.nodeModulesDir}"
-            rename { name -> name.replace(".tmp", "") }
-        }
-        delete {
-            delete "${node.nodeModulesDir}/yarn.lock.tmp", "${node.nodeModulesDir}/package.json.tmp"
-        }
-    }
-}
+yarn.dependsOn project(':rxrpc-js').tasks.yarn
 
 yarnBuild {
-    dependsOn(yarnInstallRxRpcJs, yarn, syncBackendApi)
-    inputs.file file("$node.nodeModulesDir/angular.json")
-    inputs.files fileTree("$node.nodeModulesDir/src")
-    outputs.files fileTree("$buildDir/resources/main/web")
+    it.dependsOn(yarn, syncBackendApi)
+    it.inputs.file file("$nodeProjectDir/angular.json")
+    it.inputs.files fileTree("$nodeProjectDir/src")
+    it.outputs.files fileTree("$buildDir/resources/main/web")
 }
 
 dependencies {
@@ -73,7 +49,7 @@ dependencies {
 
     implementation libs.jettyServer, libs.jettyServlet
 
-    testImplementation libs.commonsIo
+    testImplementation libs.commonsIo, libs.junit, libs.mockito
     compileOnly libs.autoValueAnnotations
     annotationProcessor libs.autoValue
 }

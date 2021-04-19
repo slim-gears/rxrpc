@@ -42,6 +42,7 @@ dependencies {
     implementation libs.slimGuiceUtils
     implementation libs.slimAptUtils
     testImplementation libs.slimAptTestUtils
+    testImplementation libs.junit
 
     if (Jvm.current().javaVersion.java8) {
         testImplementation files(Jvm.current().getToolsJar())

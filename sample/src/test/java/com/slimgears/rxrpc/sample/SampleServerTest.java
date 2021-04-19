@@ -8,6 +8,7 @@ import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketRxTransport;
 import com.slimgears.util.generic.ServiceResolver;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.http.HttpStatus;
+import org.hamcrest.MatcherAssert;
 import org.junit.*;
 
 import java.io.IOException;
@@ -37,7 +38,9 @@ public class SampleServerTest {
     public void setUp() throws Exception {
         server = new SampleServer(port);
         server.start();
-        RxClient rxClient = RxClient.forClient(JettyWebSocketRxTransport.builder().buildClient());
+        RxClient rxClient = RxClient.forClient(JettyWebSocketRxTransport
+                .builder()
+                .buildClient());
         clientResolver = rxClient.connect(uri).blockingGet();
     }
 
@@ -153,7 +156,7 @@ public class SampleServerTest {
 
     @Test
     public void testStaticContentRetrieval() throws IOException {
-        Assert.assertThat(invokeHttpGet(""), containsString("<app-root></app-root>"));
+        MatcherAssert.assertThat(invokeHttpGet(""), containsString("<app-root></app-root>"));
     }
 
     private void testObservableMethod(SampleEndpoint client, int count) {

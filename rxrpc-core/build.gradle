@@ -16,5 +16,5 @@ dependencies {
     annotationProcessor libs.autoService
     testImplementation libs.logbackClassic
     testImplementation libs.logbackCore
-    testImplementation libs.mockito
+    testImplementation libs.junit, libs.mockito
 }
