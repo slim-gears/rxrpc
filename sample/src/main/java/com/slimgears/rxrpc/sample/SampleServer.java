@@ -6,14 +6,16 @@ import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketRxTransport;
 import com.slimgears.rxrpc.server.EndpointRouters;
 import com.slimgears.rxrpc.server.RxServer;
 import com.slimgears.util.generic.ServiceResolvers;
+import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.http.HttpStatus;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.http.HttpVersion;
+import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -22,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URL;
-import java.util.EventListener;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,11 +35,15 @@ public class SampleServer<T extends RxTransport.Server & Servlet> {
     private final T transportServer;
 
     public static SampleServer<JettyWebSocketRxTransport.Server> forWebSocket(int port) {
-        return forTransport(port, JettyWebSocketRxTransport.builder().buildServer(), "ws");
+        return forTransport(port, JettyWebSocketRxTransport.builder().buildServer(), HttpScheme.WS.asString());
     }
 
     public static SampleServer<JettyHttpRxTransportServer.Server> forHttp(int port) {
-        return forTransport(port, JettyHttpRxTransportServer.builder().buildServer(), "http");
+        return forTransport(port, JettyHttpRxTransportServer.builder().buildServer(), HttpScheme.HTTP.asString());
+    }
+
+    public static SampleServer<JettyHttpRxTransportServer.Server> forHttps(int port) {
+        return forTransport(port, JettyHttpRxTransportServer.builder().buildServer(), HttpScheme.HTTPS.asString());
     }
 
     public static <T extends RxTransport.Server & Servlet> SampleServer<T> forTransport(int port, T transport, String transportType) {
@@ -46,6 +52,7 @@ public class SampleServer<T extends RxTransport.Server & Servlet> {
 
     private SampleServer(int port, T transportServer, String transportType) {
         this.transportServer = transportServer;
+        this.transportType = transportType;
         this.jetty = createJetty(port);
         this.rxServer = RxServer.configBuilder()
                 .server(transportServer) // Use jetty [WebSocket | Http]-servlet based transport
@@ -59,7 +66,6 @@ public class SampleServer<T extends RxTransport.Server & Servlet> {
                         .bind(RepetitionSayHelloEndpoint.class).to(RepetitionSayHelloEndpointImpl.class)
                         .build())
                 .createServer();
-        this.transportType = transportType;
     }
 
     public void start() throws Exception {
@@ -73,7 +79,8 @@ public class SampleServer<T extends RxTransport.Server & Servlet> {
     }
 
     private Server createJetty(int port) {
-        Server jetty = new Server(port);
+        Server jetty = new Server();
+
         ServletContextHandler context = new ServletContextHandler();
         context.setContextPath("/");
         context.addServlet(new ServletHolder(transportServer), "/api/*");
@@ -96,8 +103,49 @@ public class SampleServer<T extends RxTransport.Server & Servlet> {
         };
 
         responseWrapper.setHandler(context);
-
         jetty.setHandler(responseWrapper);
+
+        // HTTP Configuration
+        HttpConfiguration http = new HttpConfiguration();
+        http.addCustomizer(new SecureRequestCustomizer());
+
+        ServerConnector connector;
+
+        if (transportType.equals(HttpScheme.HTTPS.asString())) {
+            final String keystoreResource = "keystore.jks";
+            final String keystorePassword = "123456";
+            final String keyManagerPassword = "123456";
+
+            // HTTPS configuration
+            HttpConfiguration https = new HttpConfiguration(http);
+            https.addCustomizer(new SecureRequestCustomizer());
+
+            // Configuring SSL
+            SslContextFactory sslContextFactory = new SslContextFactory.Server.Server();
+
+            // Defining keystore path and passwords
+            String keyStorePath = Optional.ofNullable(getClass().getClassLoader().getResource(keystoreResource))
+                    .map(URL::toExternalForm)
+                    .orElseThrow(() -> new RuntimeException("Unable to find " + keystoreResource));
+            sslContextFactory.setKeyStorePath(keyStorePath);
+            sslContextFactory.setKeyStorePassword(keystorePassword);
+            sslContextFactory.setKeyManagerPassword(keyManagerPassword);
+
+            // Configuring the connector
+            connector = new ServerConnector(jetty,
+                    new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.toString()),
+                    new HttpConnectionFactory(https));
+        } else {
+            connector = new ServerConnector(jetty);
+            connector.addConnectionFactory(new HttpConnectionFactory(http));
+        }
+
+        // Setting port
+        connector.setPort(port);
+
+        // Setting HTTP and HTTPS connectors
+        jetty.setConnectors(new Connector[] { connector });
+
         return jetty;
     }
 
@@ -107,12 +155,20 @@ public class SampleServer<T extends RxTransport.Server & Servlet> {
         int port = 8000;
         SampleServer<?> httpServer = SampleServer.forHttp(port);
         SampleServer<?> wsServer = SampleServer.forWebSocket(port + 1);
+        SampleServer<?> httpsServer = SampleServer.forHttps(port + 2);
         try {
             httpServer.start();
+            httpsServer.start();
             wsServer.start();
-            System.out.printf("Server started and listening at: http://localhost:%d\nPress <Enter> to stop.%n", port);
+            System.out.printf("Server started and listening at:\n" +
+                            "http://localhost:%d\n" +
+                            "https://localhost:%d\n" +
+                            "http://localhost:%d (WebSocket)\n" +
+                            "Press <Enter> to stop.%n",
+                            port, port +2, port +1);
             System.in.read();
             httpServer.stop();
+            httpsServer.stop();
             wsServer.stop();
         } catch (Exception e) {
             e.printStackTrace();

@@ -9,6 +9,7 @@ import {environment} from "../environments/environment";
 
 const transports = {
   http: RxRpcHttpTransport,
+  https: RxRpcHttpTransport,
   ws: RxRpcReconnectableTransport
 }
 
@@ -25,8 +26,12 @@ function getCookie(name: string): string {
     })[0] || null;
 }
 
+function getTransportType() {
+  return getCookie("RxRpcTransport") || environment.transport;
+}
+
 function getTransportToken() {
-  const transport = getCookie("RxRpcTransport") || environment.transport;
+  const transport = getTransportType();
   return transports[transport];
 }
 
@@ -41,7 +46,7 @@ function getTransportToken() {
   providers: [
     {provide: RxRpcWebSocketTransport, useFactory: () => new RxRpcWebSocketTransport(`ws://${location.host}/api/`)},
     {provide: RxRpcReconnectableTransport, useFactory: (transport) => RxRpcReconnectableTransport.of(transport), deps: [RxRpcWebSocketTransport]},
-    {provide: RxRpcHttpTransport, useFactory: () => new RxRpcHttpTransport(`http://${location.host}/api`)},
+    {provide: RxRpcHttpTransport, useFactory: () => new RxRpcHttpTransport(getTransportType() + `://${location.host}/api`)},
     {provide: APP_BASE_HREF, useValue: '/'}
   ],
   bootstrap: [AppComponent]

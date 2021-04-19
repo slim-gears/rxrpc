@@ -29,35 +29,10 @@ task yarnCleanCache(type: YarnTask) {
 
 clean.dependsOn(yarnCleanCache)
 
-task yarnInstallRxRpcJs(type: YarnTask, dependsOn: yarn) {
-    def rxrpcJsProj = project.project(':rxrpc-js')
-    inputs.file rxrpcJsProj.packageFile
-    outputs.dir "$node.nodeModulesDir/node_modules/rxrpc-js"
-    dependsOn(rxrpcJsProj.yarnPack)
-    args = ['add', "file:$rxrpcJsProj.packageFile"]
-
-    doFirst {
-        copy {
-            from ("${node.nodeModulesDir}/yarn.lock", "${node.nodeModulesDir}/package.json")
-            into "${node.nodeModulesDir}"
-            rename { name -> "${name}.tmp" }
-        }
-    }
-
-    doLast {
-        copy {
-            from ("${node.nodeModulesDir}/yarn.lock.tmp", "${node.nodeModulesDir}/package.json.tmp")
-            into "${node.nodeModulesDir}"
-            rename { name -> name.replace(".tmp", "") }
-        }
-        delete {
-            delete "${node.nodeModulesDir}/yarn.lock.tmp", "${node.nodeModulesDir}/package.json.tmp"
-        }
-    }
-}
+yarn.dependsOn(project(':rxrpc-js').yarnPack)
 
 yarnBuild {
-    dependsOn(yarnInstallRxRpcJs, yarn, syncBackendApi)
+    dependsOn(yarn, syncBackendApi)
     inputs.file file("$node.nodeModulesDir/angular.json")
     inputs.files fileTree("$node.nodeModulesDir/src")
     outputs.files fileTree("$buildDir/resources/main/web")

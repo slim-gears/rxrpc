@@ -12,6 +12,7 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.util.StringContentProvider;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,8 +94,12 @@ public class JettyHttpRxTransportClient implements RxTransport {
 
     public static class Builder {
 
+        public Client buildClient(SslContextFactory contextFactory) {
+            return new Client(contextFactory);
+        }
+
         public Client buildClient() {
-            return new Client();
+            return buildClient(new SslContextFactory.Client());
         }
     }
 
@@ -103,7 +108,11 @@ public class JettyHttpRxTransportClient implements RxTransport {
     }
 
     public static class Client implements RxTransport.Client {
-        private final HttpClient httpClient = new HttpClient();
+        private final HttpClient httpClient;
+
+        public Client(SslContextFactory sslContextFactory) {
+            this.httpClient = new HttpClient(sslContextFactory);
+        }
 
         @Override
         public Single<RxTransport> connect(URI uri) {

@@ -2,12 +2,9 @@ package com.slimgears.rxrpc.sample;
 
 import com.slimgears.rxrpc.core.RxTransport;
 import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketRxTransport;
+import org.eclipse.jetty.http.HttpScheme;
 
 public class WebSocketServerTest extends AbstractServerTest<JettyWebSocketRxTransport.Server> {
-    @Override
-    protected String getUriScheme() {
-        return "ws://";
-    }
 
     @Override
     protected RxTransport.Client createClient() {
@@ -21,6 +18,6 @@ public class WebSocketServerTest extends AbstractServerTest<JettyWebSocketRxTran
 
     @Override
     protected String getTransportType() {
-        return "ws";
+        return HttpScheme.WS.asString();
     }
 }

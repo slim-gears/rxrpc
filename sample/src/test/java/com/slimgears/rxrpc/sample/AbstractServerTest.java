@@ -49,14 +49,18 @@ public abstract class AbstractServerTest<T extends RxTransport.Server & Servlet>
         server.stop();
     }
 
+    protected abstract RxTransport.Client createClient();
+    protected abstract T createServer();
+    protected abstract String getTransportType();
+
+    protected String getUriScheme() {
+        return getTransportType() + "://";
+    }
+
     protected URI getUri() {
         return URI.create(getUriScheme() + "localhost:" + port + "/api/");
     }
 
-    protected abstract String getUriScheme();
-    protected abstract RxTransport.Client createClient();
-    protected abstract T createServer();
-    protected abstract String getTransportType();
 
     @Test
     public void testSayHello() {
