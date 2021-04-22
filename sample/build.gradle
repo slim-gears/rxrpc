@@ -14,6 +14,10 @@ compileJava.options.compilerArgs = [
         '-Arxrpc.ts.ngmodule.name=BackendApiModule'
 ]
 
+yarn {
+    it.args.addAll provider {["--network-timeout", "600000"]}
+}
+
 task syncBackendApi(type: Sync) {
     dependsOn(compileJava)
     from fileTree(dir: "$project.buildDir/generated/source/apt/main/typescript", include: '*.ts')
@@ -30,7 +34,7 @@ yarn.dependsOn project(':rxrpc-js').tasks.yarnPack
 
 yarnBuild {
     it.dependsOn(yarn, syncBackendApi)
-    it.inputs.file file("$nodeProjectDir/angular.json")
+    it.inputs.files file("$nodeProjectDir/angular.json"), file("$nodeProjectDir/package.json")
     it.inputs.files fileTree("$nodeProjectDir/src")
     it.outputs.files fileTree("$buildDir/resources/main/web")
 }
