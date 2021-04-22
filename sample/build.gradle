@@ -14,7 +14,33 @@ compileJava.options.compilerArgs = [
         '-Arxrpc.ts.ngmodule.name=BackendApiModule'
 ]
 
+task uninstallRxRpcJs(type: YarnTask, dependsOn: project(':rxrpc-js').tasks.yarnPack) {
+    onlyIf { file("$nodeProjectDir/yarn.lock").exists() }
+    inputs.files project(':rxrpc-js').tasks.yarnPack.outputs.files
+    args = ["remove", "rxrpc-js"]
+
+    doFirst {
+        copy {
+            from ("$nodeProjectDir/package.json")
+            into "$nodeProjectDir"
+            rename { name -> "${name}.tmp" }
+        }
+    }
+
+    doLast {
+        copy {
+            from ("$nodeProjectDir/package.json.tmp")
+            into "$nodeProjectDir"
+            rename { name -> name.replace(".tmp", "") }
+        }
+        delete {
+            delete "$nodeProjectDir/package.json.tmp"
+        }
+    }
+}
+
 yarn {
+    it.dependsOn tasks.uninstallRxRpcJs
     it.args.addAll provider {["--network-timeout", "600000"]}
 }
 
