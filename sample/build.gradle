@@ -14,33 +14,28 @@ compileJava.options.compilerArgs = [
         '-Arxrpc.ts.ngmodule.name=BackendApiModule'
 ]
 
-task uninstallRxRpcJs(type: YarnTask, dependsOn: project(':rxrpc-js').tasks.yarnPack) {
-    onlyIf { file("$nodeProjectDir/yarn.lock").exists() }
-    inputs.files project(':rxrpc-js').tasks.yarnPack.outputs.files
-    args = ["remove", "rxrpc-js"]
+import groovy.json.JsonSlurper
 
-    doFirst {
-        copy {
-            from ("$nodeProjectDir/package.json")
-            into "$nodeProjectDir"
-            rename { name -> "${name}.tmp" }
+task reinstallRxRpcJs(group: 'yarn') {
+    task removeRxRpcJs(type: YarnTask, group: 'yarn') {
+        onlyIf {
+            def packageJson = new JsonSlurper().parse file("$nodeProjectDir/package.json")
+            return packageJson.dependencies.hasProperty('rxrpc-js')
         }
+        args = ["remove", "rxrpc-js"]
     }
-
-    doLast {
-        copy {
-            from ("$nodeProjectDir/package.json.tmp")
-            into "$nodeProjectDir"
-            rename { name -> name.replace(".tmp", "") }
-        }
-        delete {
-            delete "$nodeProjectDir/package.json.tmp"
-        }
+    task cleanRxRpcCache(type: YarnTask, group: 'yarn', dependsOn: tasks.removeRxRpcJs) {
+        args = ["cache", "clean", "rxrpc-js"]
     }
+    task installRxRpcJs(type: YarnTask, dependsOn: project(':rxrpc-js').tasks.yarnPack, group: 'yarn') {
+        inputs.files project(':rxrpc-js').tasks.yarnPack.outputs.files
+        args = ["add", "--force", "../../rxrpc-js/build/rxrpc-js.tgz"]
+    }
+    dependsOn tasks.cleanRxRpcCache, tasks.installRxRpcJs
 }
 
 yarn {
-    it.dependsOn tasks.uninstallRxRpcJs
+    it.dependsOn tasks.reinstallRxRpcJs
     it.args.addAll provider {["--network-timeout", "600000"]}
 }
 
