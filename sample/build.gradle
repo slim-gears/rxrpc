@@ -20,16 +20,22 @@ task reinstallRxRpcJs(group: 'yarn') {
     task removeRxRpcJs(type: YarnTask, group: 'yarn') {
         onlyIf {
             def packageJson = new JsonSlurper().parse file("$nodeProjectDir/package.json")
-            return packageJson.dependencies.hasProperty('rxrpc-js')
+            return !project(':rxrpc-js').tasks.yarnPack.state.upToDate && packageJson.dependencies.hasProperty('rxrpc-js')
         }
         args = ["remove", "rxrpc-js"]
     }
     task cleanRxRpcCache(type: YarnTask, group: 'yarn', dependsOn: tasks.removeRxRpcJs) {
+        onlyIf {
+            !project(':rxrpc-js').tasks.yarnPack.state.upToDate
+        }
         args = ["cache", "clean", "rxrpc-js"]
     }
     task installRxRpcJs(type: YarnTask, dependsOn: project(':rxrpc-js').tasks.yarnPack, group: 'yarn') {
+        onlyIf {
+            !project(':rxrpc-js').tasks.yarnPack.state.upToDate
+        }
         inputs.files project(':rxrpc-js').tasks.yarnPack.outputs.files
-        args = ["add", "--force", "../../rxrpc-js/build/rxrpc-js.tgz"]
+        args = ["add", "../../rxrpc-js/build/rxrpc-js.tgz"]
     }
     dependsOn tasks.cleanRxRpcCache, tasks.installRxRpcJs
 }

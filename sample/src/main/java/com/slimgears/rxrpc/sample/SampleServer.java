@@ -35,7 +35,7 @@ public class SampleServer<T extends RxTransport.Server & Servlet> {
     private final T transportServer;
 
     public static SampleServer<JettyWebSocketRxTransport.Server> forWebSocket(int port) {
-        return forTransport(port, JettyWebSocketRxTransport.builder().buildServer(), HttpScheme.WS.asString());
+        return forTransport(port, JettyWebSocketRxTransport.serverBuilder().build(), HttpScheme.WS.asString());
     }
 
     public static SampleServer<JettyHttpRxTransportServer.Server> forHttp(int port) {

@@ -159,39 +159,71 @@ public class JettyWebSocketRxTransport implements RxTransport, WebSocketListener
         return subscriber;
     }
 
-    public static class Builder {
-        private final AtomicReference<Consumer<WebSocketPolicy>> policyConfigurator = new AtomicReference<>(p -> {});
+    public static class Builder<B extends Builder<B>> {
+        protected final AtomicReference<Consumer<WebSocketPolicy>> policyConfigurator = new AtomicReference<>(p -> {});
 
-        public Builder idleTimeout(Duration idleTimeout) {
+        @SuppressWarnings("unchecked")
+        protected B self() {
+            return (B)this;
+        }
+
+        public B idleTimeout(Duration idleTimeout) {
             return addPolicyConfig(p -> p.setIdleTimeout(idleTimeout.toMillis()));
         }
 
-        public Builder inputBufferSize(int bytes) {
+        public B inputBufferSize(int bytes) {
             return addPolicyConfig(p -> p.setInputBufferSize(bytes));
         }
 
-        public Builder outputBufferSize(int bytes) {
+        public B outputBufferSize(int bytes) {
             return addPolicyConfig(
                     p -> p.setMaxTextMessageBufferSize(bytes),
                     p -> p.setMaxTextMessageSize(bytes));
         }
 
-        public Server buildServer() {
+        @SafeVarargs
+        private final B addPolicyConfig(Consumer<WebSocketPolicy>... config) {
+            policyConfigurator.updateAndGet(pc -> Stream.concat(Stream.of(pc), Stream.of(config)).reduce(Consumer::andThen).orElse(p -> {}));
+            return self();
+        }
+    }
+
+    public static class ServerBuilder extends Builder<ServerBuilder> {
+        public Server build() {
             return new Server(policyConfigurator.get());
         }
+    }
 
-        public Client buildClient() {
-            return buildClient(() -> new HttpClient(new SslContextFactory.Client(true)));
-        }
+    public static class ClientBuilder extends Builder<ClientBuilder> {
+        private Supplier<SslContextFactory> sslContextFactorySupplier = SslContextFactory.Client::new;
+        private Supplier<HttpClient> httpClientSupplier = () -> new HttpClient(sslContextFactorySupplier.get());
+        private Consumer<ClientUpgradeRequest> requestConfigurator = request -> {};
 
-        public Client buildClient(Supplier<HttpClient> httpClientFactory) {
-            return new Client(httpClientFactory, policyConfigurator.get());
-        }
-
-        @SafeVarargs
-        private final Builder addPolicyConfig(Consumer<WebSocketPolicy>... config) {
-            policyConfigurator.updateAndGet(pc -> Stream.concat(Stream.of(pc), Stream.of(config)).reduce(Consumer::andThen).orElse(p -> {}));
+        public ClientBuilder configureRequest(Consumer<ClientUpgradeRequest> requestConfigurator) {
+            this.requestConfigurator = this.requestConfigurator.andThen(requestConfigurator);
             return this;
+        }
+
+        public ClientBuilder sslContextFactory(Supplier<SslContextFactory> contextFactorySupplier) {
+            this.sslContextFactorySupplier = contextFactorySupplier;
+            return this;
+        }
+
+        public ClientBuilder sslContextFactory(SslContextFactory contextFactory) {
+            return sslContextFactory(() -> contextFactory);
+        }
+
+        public ClientBuilder httpClient(Supplier<HttpClient> httpClientSupplier) {
+            this.httpClientSupplier = httpClientSupplier;
+            return this;
+        }
+
+        public ClientBuilder httpClient(HttpClient httpClient) {
+            return httpClient(() -> httpClient);
+        }
+
+        public Client build() {
+            return new Client(httpClientSupplier, policyConfigurator.get(), requestConfigurator);
         }
     }
 
@@ -219,17 +251,25 @@ public class JettyWebSocketRxTransport implements RxTransport, WebSocketListener
         }
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static ClientBuilder clientBuilder() {
+        return new ClientBuilder();
+    }
+
+    public static ServerBuilder serverBuilder() {
+        return new ServerBuilder();
     }
 
     public static class Client implements RxTransport.Client {
         private final Supplier<HttpClient> httpClientFactory;
         private final Consumer<WebSocketPolicy> policyConfigurator;
+        private final Consumer<ClientUpgradeRequest> requestConfigurator;
 
-        private Client(Supplier<HttpClient> httpClientFactory, Consumer<WebSocketPolicy> policyConfigurator) {
+        private Client(Supplier<HttpClient> httpClientFactory,
+                       Consumer<WebSocketPolicy> policyConfigurator,
+                       Consumer<ClientUpgradeRequest> requestConfigurator) {
             this.policyConfigurator = policyConfigurator;
             this.httpClientFactory = httpClientFactory;
+            this.requestConfigurator = requestConfigurator;
         }
 
         @Override
@@ -247,6 +287,7 @@ public class JettyWebSocketRxTransport implements RxTransport, WebSocketListener
                 WebSocketUpgradeRequest webSocketUpgradeRequest = new WebSocketUpgradeRequest(webSocketClient, httpClient, uri, transport);
                 ClientUpgradeRequest request = new ClientUpgradeRequest(webSocketUpgradeRequest);
                 request.getCookies().addAll(httpClient.getCookieStore().getCookies());
+                requestConfigurator.accept(request);
                 webSocketClient.connect(transport, uri, request);
                 transport.incoming()
                         .doFinally(() -> {
