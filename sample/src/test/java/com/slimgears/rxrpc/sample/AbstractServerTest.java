@@ -8,6 +8,7 @@ import com.slimgears.rxrpc.core.data.RxRpcRemoteException;
 import com.slimgears.util.generic.ServiceResolver;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.http.HttpStatus;
+import org.hamcrest.MatcherAssert;
 import org.junit.*;
 
 import javax.servlet.Servlet;
@@ -169,7 +170,7 @@ public abstract class AbstractServerTest<T extends RxTransport.Server & Servlet>
 
     @Test
     public void testStaticContentRetrieval() throws IOException {
-        Assert.assertThat(invokeHttpGet(""), containsString("<app-root></app-root>"));
+        MatcherAssert.assertThat(invokeHttpGet(""), containsString("<app-root></app-root>"));
     }
 
     private void testObservableMethod(SampleEndpoint client, int count) {

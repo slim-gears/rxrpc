@@ -50,4 +50,5 @@ Thumbs.db
 /ng.cmd
 /yarn
 /yarn.cmd
+/yarn.lock
 *.tmp

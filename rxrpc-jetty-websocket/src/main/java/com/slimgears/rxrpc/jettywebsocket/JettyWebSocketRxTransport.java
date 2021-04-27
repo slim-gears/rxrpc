@@ -8,29 +8,27 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
-import io.reactivex.internal.functions.Functions;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.CompletableSubject;
 import io.reactivex.subjects.Subject;
 import io.reactivex.subscribers.DisposableSubscriber;
+import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.StatusCode;
-import org.eclipse.jetty.websocket.api.WebSocketListener;
-import org.eclipse.jetty.websocket.api.WebSocketPolicy;
-import org.eclipse.jetty.websocket.api.WriteCallback;
+import org.eclipse.jetty.websocket.api.*;
+import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
+import org.eclipse.jetty.websocket.client.WebSocketUpgradeRequest;
 import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class JettyWebSocketRxTransport implements RxTransport, WebSocketListener {
@@ -161,35 +159,71 @@ public class JettyWebSocketRxTransport implements RxTransport, WebSocketListener
         return subscriber;
     }
 
-    public static class Builder {
-        private AtomicReference<Consumer<WebSocketPolicy>> policyConfigurator = new AtomicReference<>(p -> {});
+    public static class Builder<B extends Builder<B>> {
+        protected final AtomicReference<Consumer<WebSocketPolicy>> policyConfigurator = new AtomicReference<>(p -> {});
 
-        public Builder idleTimeout(Duration idleTimeout) {
+        @SuppressWarnings("unchecked")
+        protected B self() {
+            return (B)this;
+        }
+
+        public B idleTimeout(Duration idleTimeout) {
             return addPolicyConfig(p -> p.setIdleTimeout(idleTimeout.toMillis()));
         }
 
-        public Builder inputBufferSize(int bytes) {
+        public B inputBufferSize(int bytes) {
             return addPolicyConfig(p -> p.setInputBufferSize(bytes));
         }
 
-        public Builder outputBufferSize(int bytes) {
+        public B outputBufferSize(int bytes) {
             return addPolicyConfig(
                     p -> p.setMaxTextMessageBufferSize(bytes),
                     p -> p.setMaxTextMessageSize(bytes));
         }
 
-        public Server buildServer() {
+        @SafeVarargs
+        private final B addPolicyConfig(Consumer<WebSocketPolicy>... config) {
+            policyConfigurator.updateAndGet(pc -> Stream.concat(Stream.of(pc), Stream.of(config)).reduce(Consumer::andThen).orElse(p -> {}));
+            return self();
+        }
+    }
+
+    public static class ServerBuilder extends Builder<ServerBuilder> {
+        public Server build() {
             return new Server(policyConfigurator.get());
         }
+    }
 
-        public Client buildClient() {
-            return new Client(policyConfigurator.get());
+    public static class ClientBuilder extends Builder<ClientBuilder> {
+        private Supplier<SslContextFactory> sslContextFactorySupplier = SslContextFactory.Client::new;
+        private Supplier<HttpClient> httpClientSupplier = () -> new HttpClient(sslContextFactorySupplier.get());
+        private Consumer<ClientUpgradeRequest> requestConfigurator = request -> {};
+
+        public ClientBuilder configureRequest(Consumer<ClientUpgradeRequest> requestConfigurator) {
+            this.requestConfigurator = this.requestConfigurator.andThen(requestConfigurator);
+            return this;
         }
 
-        @SafeVarargs
-        private final Builder addPolicyConfig(Consumer<WebSocketPolicy>... config) {
-            policyConfigurator.updateAndGet(pc -> Stream.concat(Stream.of(pc), Stream.of(config)).reduce(Consumer::andThen).orElse(p -> {}));
+        public ClientBuilder sslContextFactory(Supplier<SslContextFactory> contextFactorySupplier) {
+            this.sslContextFactorySupplier = contextFactorySupplier;
             return this;
+        }
+
+        public ClientBuilder sslContextFactory(SslContextFactory contextFactory) {
+            return sslContextFactory(() -> contextFactory);
+        }
+
+        public ClientBuilder httpClient(Supplier<HttpClient> httpClientSupplier) {
+            this.httpClientSupplier = httpClientSupplier;
+            return this;
+        }
+
+        public ClientBuilder httpClient(HttpClient httpClient) {
+            return httpClient(() -> httpClient);
+        }
+
+        public Client build() {
+            return new Client(httpClientSupplier, policyConfigurator.get(), requestConfigurator);
         }
     }
 
@@ -217,27 +251,52 @@ public class JettyWebSocketRxTransport implements RxTransport, WebSocketListener
         }
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static ClientBuilder clientBuilder() {
+        return new ClientBuilder();
+    }
+
+    public static ServerBuilder serverBuilder() {
+        return new ServerBuilder();
     }
 
     public static class Client implements RxTransport.Client {
-        private final SslContextFactory sslContextFactory = new SslContextFactory(true);
-        private final WebSocketClient webSocketClient = new WebSocketClient(sslContextFactory);
+        private final Supplier<HttpClient> httpClientFactory;
         private final Consumer<WebSocketPolicy> policyConfigurator;
+        private final Consumer<ClientUpgradeRequest> requestConfigurator;
 
-        private Client(Consumer<WebSocketPolicy> policyConfigurator) {
+        private Client(Supplier<HttpClient> httpClientFactory,
+                       Consumer<WebSocketPolicy> policyConfigurator,
+                       Consumer<ClientUpgradeRequest> requestConfigurator) {
             this.policyConfigurator = policyConfigurator;
+            this.httpClientFactory = httpClientFactory;
+            this.requestConfigurator = requestConfigurator;
         }
 
         @Override
         public Single<RxTransport> connect(URI uri) {
             try {
+                HttpClient httpClient = httpClientFactory.get();
+                boolean isStarted = httpClient.isStarted();
+                if (!isStarted) {
+                    httpClient.start();
+                }
+                WebSocketClient webSocketClient = new WebSocketClient(httpClient);
                 policyConfigurator.accept(webSocketClient.getPolicy());
                 webSocketClient.start();
                 JettyWebSocketRxTransport transport = new JettyWebSocketRxTransport();
-                webSocketClient.connect(transport, uri);
-                transport.incoming().subscribe(Functions.emptyConsumer(), e -> webSocketClient.stop(), webSocketClient::stop);
+                WebSocketUpgradeRequest webSocketUpgradeRequest = new WebSocketUpgradeRequest(webSocketClient, httpClient, uri, transport);
+                ClientUpgradeRequest request = new ClientUpgradeRequest(webSocketUpgradeRequest);
+                request.getCookies().addAll(httpClient.getCookieStore().getCookies());
+                requestConfigurator.accept(request);
+                webSocketClient.connect(transport, uri, request);
+                transport.incoming()
+                        .doFinally(() -> {
+                            webSocketClient.stop();
+                            if (!isStarted) {
+                                httpClient.stop();
+                            }
+                        })
+                        .subscribe();
                 return transport.connected.toSingle(() -> transport);
             } catch (Exception e) {
                 log.error("Could not connect to: " + uri, e);

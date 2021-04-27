@@ -18,4 +18,5 @@ dependencies {
 
     testImplementation libs.autoService
     testImplementation libs.slimAptTestUtils
+    testImplementation libs.junit, libs.mockito
 }

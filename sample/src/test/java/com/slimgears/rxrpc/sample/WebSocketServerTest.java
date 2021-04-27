@@ -8,12 +8,12 @@ public class WebSocketServerTest extends AbstractServerTest<JettyWebSocketRxTran
 
     @Override
     protected RxTransport.Client createClient() {
-        return JettyWebSocketRxTransport.builder().buildClient();
+        return JettyWebSocketRxTransport.clientBuilder().build();
     }
 
     @Override
     protected JettyWebSocketRxTransport.Server createServer() {
-        return JettyWebSocketRxTransport.builder().buildServer();
+        return JettyWebSocketRxTransport.serverBuilder().build();
     }
 
     @Override

@@ -3,8 +3,9 @@ import java.util.concurrent.Callable
 apply from: "$scriptsDir/java.gradle"
 apply from: "$scriptsDir/nodejs.gradle"
 
+def nodeProjectDir = project.file("$project.projectDir/frontend")
 node {
-    nodeModulesDir = project.file("$project.projectDir/frontend")
+    it.nodeProjectDir = nodeProjectDir
 }
 
 compileJava.options.compilerArgs = [
@@ -13,14 +14,41 @@ compileJava.options.compilerArgs = [
         '-Arxrpc.ts.ngmodule.name=BackendApiModule'
 ]
 
+import groovy.json.JsonSlurper
+
+task reinstallRxRpcJs(group: 'yarn') {
+    task removeRxRpcJs(type: YarnTask, group: 'yarn') {
+        onlyIf {
+            def packageJson = new JsonSlurper().parse file("$nodeProjectDir/package.json")
+            return !project(':rxrpc-js').tasks.yarnPack.state.upToDate && packageJson.dependencies.hasProperty('rxrpc-js')
+        }
+        args = ["remove", "rxrpc-js"]
+    }
+    task cleanRxRpcCache(type: YarnTask, group: 'yarn', dependsOn: tasks.removeRxRpcJs) {
+        onlyIf {
+            !project(':rxrpc-js').tasks.yarnPack.state.upToDate
+        }
+        args = ["cache", "clean", "rxrpc-js"]
+    }
+    task installRxRpcJs(type: YarnTask, dependsOn: project(':rxrpc-js').tasks.yarnPack, group: 'yarn') {
+        onlyIf {
+            !project(':rxrpc-js').tasks.yarnPack.state.upToDate
+        }
+        inputs.files project(':rxrpc-js').tasks.yarnPack.outputs.files
+        args = ["add", "../../rxrpc-js/build/rxrpc-js.tgz"]
+    }
+    dependsOn tasks.cleanRxRpcCache, tasks.installRxRpcJs
+}
+
 yarn {
-    args += ["--network-timeout", 600_000]
+    it.dependsOn tasks.reinstallRxRpcJs
+    it.args.addAll provider {["--network-timeout", "600000"]}
 }
 
 task syncBackendApi(type: Sync) {
     dependsOn(compileJava)
     from fileTree(dir: "$project.buildDir/generated/source/apt/main/typescript", include: '*.ts')
-    into file("$node.nodeModulesDir/src/backend-api")
+    into file("$nodeProjectDir/src/backend-api")
 }
 
 task yarnCleanCache(type: YarnTask) {
@@ -29,13 +57,13 @@ task yarnCleanCache(type: YarnTask) {
 
 clean.dependsOn(yarnCleanCache)
 
-yarn.dependsOn(project(':rxrpc-js').yarnPack)
+yarn.dependsOn project(':rxrpc-js').tasks.yarnPack
 
 yarnBuild {
-    dependsOn(yarn, syncBackendApi)
-    inputs.file file("$node.nodeModulesDir/angular.json")
-    inputs.files fileTree("$node.nodeModulesDir/src")
-    outputs.files fileTree("$buildDir/resources/main/web")
+    it.dependsOn(yarn, syncBackendApi)
+    it.inputs.files file("$nodeProjectDir/angular.json"), file("$nodeProjectDir/package.json")
+    it.inputs.files fileTree("$nodeProjectDir/src")
+    it.outputs.files fileTree("$buildDir/resources/main/web")
 }
 
 dependencies {
@@ -52,7 +80,7 @@ dependencies {
 
     implementation libs.jettyServer, libs.jettyServlet
 
-    testImplementation libs.commonsIo
+    testImplementation libs.commonsIo, libs.junit, libs.mockito
     compileOnly libs.autoValueAnnotations
     annotationProcessor libs.autoValue
 }

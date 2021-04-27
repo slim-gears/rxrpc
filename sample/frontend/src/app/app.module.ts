@@ -11,7 +11,7 @@ const transports = {
   http: RxRpcHttpTransport,
   https: RxRpcHttpTransport,
   ws: RxRpcReconnectableTransport
-}
+};
 
 function getCookie(name: string): string {
   const nameLenPlus = (name.length + 1);
