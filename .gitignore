@@ -33,3 +33,5 @@ tmp/
 coverage/
 nodejs/
 /rxrpc.iml
+/*.gpg
+
