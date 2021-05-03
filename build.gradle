@@ -6,7 +6,7 @@ apply from: "$projectDir/gradle/root.gradle"
 
 rootProject.applyScripts(
         ["$scriptsDir/java.gradle",
-         "$scriptsDir/bintray.gradle"],
+         "$scriptsDir/sonatype.gradle"],
         [':rxrpc-apt',
          ':rxrpc-apt-java',
          ':rxrpc-apt-typescript',
