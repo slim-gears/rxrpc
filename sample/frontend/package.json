@@ -19,8 +19,9 @@
     "@angular/platform-browser": "~8.0.3",
     "@angular/platform-browser-dynamic": "~8.0.3",
     "@angular/router": "~8.0.3",
+    "add": "^2.0.6",
     "rxjs": "~6.4.0",
-    "rxrpc-js": "../../rxrpc-js/build/rxrpc-js.tgz",
+    "rxrpc-js": "file:../../rxrpc-js/build/rxrpc-js.tgz",
     "tslib": "^2.2.0",
     "zone.js": "~0.9.1"
   },

@@ -1,5 +1,7 @@
 package com.slimgears.rxrpc.jettyhttp;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.slimgears.rxrpc.core.RxTransport;
 import com.slimgears.rxrpc.core.util.Emitters;
 import com.slimgears.util.rx.Completables;
@@ -11,12 +13,14 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.api.Response;
 import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
@@ -24,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 
 public class JettyHttpRxTransportClient implements RxTransport {
     private final static Logger log = LoggerFactory.getLogger(JettyHttpRxTransportClient.class);
-    private final static Duration pollingPeriod = JettyHttpAttributes.ClientPollingPeriod;
     private final Subject<String> incoming = BehaviorSubject.create();
     private final Subject<String> outgoingSubject = BehaviorSubject.create();
     private final Emitter<String> outgoingEmitter = Emitters.fromObserver(outgoingSubject);
@@ -34,7 +37,13 @@ public class JettyHttpRxTransportClient implements RxTransport {
     private final URI uri;
     private final String clientId;
 
-    public JettyHttpRxTransportClient(HttpClient httpClient, URI uri, String clientId) {
+    public JettyHttpRxTransportClient(
+            HttpClient httpClient,
+            URI uri,
+            String clientId,
+            int pollingRetryCount,
+            Duration pollingRetryInitialDelay,
+            Duration pollingPeriod) {
         this.httpClient = httpClient;
         this.uri = uri;
         this.clientId = clientId;
@@ -44,8 +53,8 @@ public class JettyHttpRxTransportClient implements RxTransport {
         pollingSubscription = Observable.interval(pollingPeriod.toMillis(), TimeUnit.MILLISECONDS)
                 .flatMapCompletable(i -> poll())
                 .compose(Completables.backOffDelayRetry(e -> true,
-                        JettyHttpAttributes.ClientPollingRetryInitialDelay,
-                        JettyHttpAttributes.ClientPollingRetryCount))
+                        pollingRetryInitialDelay,
+                        pollingRetryCount))
                 .subscribe(incoming::onComplete, incoming::onError);
     }
 
@@ -53,6 +62,7 @@ public class JettyHttpRxTransportClient implements RxTransport {
         httpClient.POST(URI.create(uri + "/message"))
                 .header(JettyHttpAttributes.ClientIdAttribute, clientId)
                 .content(new StringContentProvider(message), "text/plain")
+                .onResponseContent(this::onContent)
                 .send(result -> {
                     if (result.isFailed()) {
                         outgoingEmitter.onError(result.getFailure());
@@ -80,9 +90,7 @@ public class JettyHttpRxTransportClient implements RxTransport {
     private Completable poll() {
         return Completable.create(emitter -> httpClient.POST(URI.create(uri + "/polling"))
                 .header(JettyHttpAttributes.ClientIdAttribute, clientId)
-                .onResponseContent((response, content) ->
-                        Arrays.stream(StandardCharsets.UTF_8.decode(content).toString().split("\n"))
-                                .forEach(incoming::onNext))
+                .onResponseContent(this::onContent)
                 .send(result -> {
                     if (result.isSucceeded()) {
                         emitter.onComplete();
@@ -92,14 +100,37 @@ public class JettyHttpRxTransportClient implements RxTransport {
                 }));
     }
 
-    public static class Builder {
+    private void onContent(Response response, ByteBuffer content) {
+        Arrays.stream(new Gson().fromJson(StandardCharsets.UTF_8.decode(content).toString(), JsonObject[].class))
+                .forEach(o -> incoming().onNext(o.toString()));
+    }
 
-        public Client buildClient(SslContextFactory contextFactory) {
-            return new Client(contextFactory);
+    public static class Builder {
+        private int pollingRetryCount = JettyHttpAttributes.ClientPollingRetryCount;
+        private Duration pollingRetryInitialDelay = JettyHttpAttributes.ClientPollingRetryInitialDelay;
+        private Duration pollingPeriod = JettyHttpAttributes.ClientPollingPeriod;
+
+        public Builder pollingRetryCount(int pollingRetryCount) {
+            this.pollingRetryCount = pollingRetryCount;
+            return this;
         }
 
-        public Client buildClient() {
-            return buildClient(new SslContextFactory.Client());
+        public Builder pollingRetryInitialDelay(Duration pollingRetryInitialDelay) {
+            this.pollingRetryInitialDelay = pollingRetryInitialDelay;
+            return this;
+        }
+
+        public Builder pollingPeriod(Duration pollingPeriod) {
+            this.pollingPeriod = pollingPeriod;
+            return this;
+        }
+
+        public Client build(SslContextFactory contextFactory) {
+            return new Client(contextFactory, pollingRetryCount, pollingRetryInitialDelay, pollingPeriod);
+        }
+
+        public Client build() {
+            return build(new SslContextFactory.Client());
         }
     }
 
@@ -109,9 +140,18 @@ public class JettyHttpRxTransportClient implements RxTransport {
 
     public static class Client implements RxTransport.Client {
         private final HttpClient httpClient;
+        private final int pollingRetryCount;
+        private final Duration pollingRetryInitialDelay;
+        private final Duration pollingPeriod;
 
-        public Client(SslContextFactory sslContextFactory) {
-            this.httpClient = new HttpClient(sslContextFactory);
+        public Client(SslContextFactory contextFactory,
+                      int pollingRetryCount,
+                      Duration pollingRetryInitialDelay,
+                      Duration pollingPeriod) {
+            this.pollingRetryCount = pollingRetryCount;
+            this.pollingRetryInitialDelay = pollingRetryInitialDelay;
+            this.pollingPeriod = pollingPeriod;
+            this.httpClient = new HttpClient(contextFactory);
         }
 
         @Override
@@ -123,7 +163,13 @@ public class JettyHttpRxTransportClient implements RxTransport {
                             .onResponseHeader((response, field) -> {
                                 if (field.getName().equals(JettyHttpAttributes.ClientIdAttribute)) {
                                     String clientId = field.getValue();
-                                    emitter.onSuccess(new JettyHttpRxTransportClient(httpClient, uri, clientId));
+                                    emitter.onSuccess(new JettyHttpRxTransportClient(
+                                            httpClient,
+                                            uri,
+                                            clientId,
+                                            pollingRetryCount,
+                                            pollingRetryInitialDelay,
+                                            pollingPeriod));
                                 }
                                 return true;
                             })
