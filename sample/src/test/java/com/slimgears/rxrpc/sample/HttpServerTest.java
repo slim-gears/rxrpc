@@ -8,7 +8,7 @@ public class HttpServerTest extends AbstractHttpServerTest{
 
     @Override
     protected RxTransport.Client createClient() {
-        return JettyHttpRxTransportClient.builder().buildClient();
+        return JettyHttpRxTransportClient.builder().build();
     }
 
     @Override

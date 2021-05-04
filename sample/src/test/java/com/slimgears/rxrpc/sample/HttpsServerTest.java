@@ -11,7 +11,7 @@ public class HttpsServerTest extends AbstractHttpServerTest{
     @Override
     protected RxTransport.Client createClient() {
         return JettyHttpRxTransportClient.builder()
-                .buildClient(new SslContextFactory.Client(true));
+                .build(new SslContextFactory.Client(true));
     }
 
     @Override

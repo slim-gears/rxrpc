@@ -18,10 +18,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 
 public class JettyHttpRxTransportServer implements RxTransport {
@@ -31,11 +33,13 @@ public class JettyHttpRxTransportServer implements RxTransport {
     private final AtomicReference<Queue<String>> messageQueue = new AtomicReference<>(new LinkedList<>());
     private final Disposable outgoingSubscription;
     private final AtomicReference<Disposable> disconnectSubscription = new AtomicReference<>(Disposables.empty());
+    private final Duration keepAliveTimeout;
 
-    public JettyHttpRxTransportServer() {
+    public JettyHttpRxTransportServer(Duration keepAliveTimeout) {
         this.outgoingSubscription = outgoingSubject
                 .subscribe(this::onMessage,
                         incoming::onError);
+        this.keepAliveTimeout = keepAliveTimeout;
     }
 
     private void onMessage(String message) {
@@ -44,7 +48,7 @@ public class JettyHttpRxTransportServer implements RxTransport {
 
     public Iterable<String> dequePendingMessages() {
         Disposable previousSubscription = disconnectSubscription.getAndSet(Completable
-                .timer(JettyHttpAttributes.ServerKeepAliveTimeout.toMillis(), TimeUnit.MILLISECONDS)
+                .timer(keepAliveTimeout.toMillis(), TimeUnit.MILLISECONDS)
                 .subscribe(this::close));
         previousSubscription.dispose();
 
@@ -72,9 +76,15 @@ public class JettyHttpRxTransportServer implements RxTransport {
     }
 
     public static class Builder {
+        private Duration keepAliveTimeout = JettyHttpAttributes.ServerKeepAliveTimeout;
 
-        public Server buildServer() {
-            return new Server();
+        public Builder keepAliveTimeout(Duration keepAliveTimeout) {
+            this.keepAliveTimeout = keepAliveTimeout;
+            return this;
+        }
+
+        public Server build() {
+            return new Server(keepAliveTimeout);
         }
     }
 
@@ -85,8 +95,11 @@ public class JettyHttpRxTransportServer implements RxTransport {
     public static class Server extends HttpServlet implements RxTransport.Server {
         private final Subject<RxTransport> connections = BehaviorSubject.create();
         private final Map<String, JettyHttpRxTransportServer> transportMap = new ConcurrentHashMap<>();
+        private final Duration keepAliveTimeout;
 
-        private Server(){ }
+        private Server(Duration keepAliveTimeout){
+            this.keepAliveTimeout = keepAliveTimeout;
+        }
 
         @Override
         protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -103,7 +116,7 @@ public class JettyHttpRxTransportServer implements RxTransport {
                     doDisconnect(clientId, resp);
                     break;
                 case "message":
-                    doMessage(clientId, message);
+                    doMessage(clientId, message, resp);
                     break;
                 case "polling":
                     doPoll(clientId, resp);
@@ -120,19 +133,17 @@ public class JettyHttpRxTransportServer implements RxTransport {
 
         private void doPoll(String clientId, HttpServletResponse response) {
             Iterable<String> messages = transportById(clientId).dequePendingMessages();
-            Streams.fromIterable(messages)
-                    .forEach(msg -> {
-                        try {
-                            response.getWriter().write(msg + "\n");
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
+            try {
+                String body = Streams.fromIterable(messages).collect(Collectors.joining(",\n", "[", "]"));
+                response.getWriter().write(body);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         private void doConnect(HttpServletResponse response) {
             String id = new BigInteger(128, new SecureRandom()).toString(64);
-            JettyHttpRxTransportServer transport = new JettyHttpRxTransportServer();
+            JettyHttpRxTransportServer transport = new JettyHttpRxTransportServer(keepAliveTimeout);
             transportMap.put(id, transport);
             connections.onNext(transport);
             response.addHeader(JettyHttpAttributes.ClientIdAttribute, id);
@@ -147,8 +158,9 @@ public class JettyHttpRxTransportServer implements RxTransport {
             }
         }
 
-        private void doMessage(String clientId, String message) {
+        private void doMessage(String clientId, String message, HttpServletResponse response) {
             transportById(clientId).incoming().onNext(message);
+            doPoll(clientId, response);
         }
 
         @Override

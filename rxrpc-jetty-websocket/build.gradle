@@ -4,6 +4,7 @@ dependencies {
     implementation libs.rxJava
     implementation libs.slimStreamUtils
     implementation libs.slimRxUtils
+    implementation libs.gson
     bundledImplementation libs.jettyWebSocketServer
     bundledImplementation libs.jettyWebSocketClient
     testImplementation libs.logbackClassic, libs.logbackCore

@@ -15,7 +15,7 @@ public abstract class AbstractHttpServerTest extends AbstractServerTest<JettyHtt
 
     @Override
     protected JettyHttpRxTransportServer.Server createServer() {
-        return JettyHttpRxTransportServer.builder().buildServer();
+        return JettyHttpRxTransportServer.builder().build();
     }
 
     @Test

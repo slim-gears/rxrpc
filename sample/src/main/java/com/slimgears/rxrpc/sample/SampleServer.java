@@ -39,11 +39,11 @@ public class SampleServer<T extends RxTransport.Server & Servlet> {
     }
 
     public static SampleServer<JettyHttpRxTransportServer.Server> forHttp(int port) {
-        return forTransport(port, JettyHttpRxTransportServer.builder().buildServer(), HttpScheme.HTTP.asString());
+        return forTransport(port, JettyHttpRxTransportServer.builder().build(), HttpScheme.HTTP.asString());
     }
 
     public static SampleServer<JettyHttpRxTransportServer.Server> forHttps(int port) {
-        return forTransport(port, JettyHttpRxTransportServer.builder().buildServer(), HttpScheme.HTTPS.asString());
+        return forTransport(port, JettyHttpRxTransportServer.builder().build(), HttpScheme.HTTPS.asString());
     }
 
     public static <T extends RxTransport.Server & Servlet> SampleServer<T> forTransport(int port, T transport, String transportType) {
@@ -152,10 +152,10 @@ public class SampleServer<T extends RxTransport.Server & Servlet> {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void main(String... args) {
         Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).setLevel(Level.WARNING);
-        int port = 8000;
-        SampleServer<?> httpServer = SampleServer.forHttp(port);
-        SampleServer<?> wsServer = SampleServer.forWebSocket(port + 1);
-        SampleServer<?> httpsServer = SampleServer.forHttps(port + 2);
+        int httpPort = 8000, wsPort = 8001, httpsPort = 8002;
+        SampleServer<?> httpServer = SampleServer.forHttp(httpPort);
+        SampleServer<?> wsServer = SampleServer.forWebSocket(wsPort);
+        SampleServer<?> httpsServer = SampleServer.forHttps(httpsPort);
         try {
             httpServer.start();
             httpsServer.start();
@@ -165,7 +165,7 @@ public class SampleServer<T extends RxTransport.Server & Servlet> {
                             "https://localhost:%d\n" +
                             "http://localhost:%d (WebSocket)\n" +
                             "Press <Enter> to stop.%n",
-                            port, port +2, port +1);
+                    httpPort, httpsPort, wsPort);
             System.in.read();
             httpServer.stop();
             httpsServer.stop();
