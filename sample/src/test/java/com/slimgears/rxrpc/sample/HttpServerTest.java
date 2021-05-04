@@ -1,7 +1,7 @@
 package com.slimgears.rxrpc.sample;
 
 import com.slimgears.rxrpc.core.RxTransport;
-import com.slimgears.rxrpc.jettyhttp.JettyHttpRxTransportClient;
+import com.slimgears.rxrpc.jetty.http.JettyHttpRxTransportClient;
 import org.eclipse.jetty.http.HttpScheme;
 
 public class HttpServerTest extends AbstractHttpServerTest{

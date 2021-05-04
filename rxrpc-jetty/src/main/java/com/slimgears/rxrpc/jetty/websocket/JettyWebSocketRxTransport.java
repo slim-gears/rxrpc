@@ -1,7 +1,8 @@
-package com.slimgears.rxrpc.jettywebsocket;
+package com.slimgears.rxrpc.jetty.websocket;
 
 import com.slimgears.rxrpc.core.RxTransport;
 import com.slimgears.rxrpc.core.util.Emitters;
+import com.slimgears.rxrpc.jetty.common.HttpClients;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Emitter;
 import io.reactivex.Observable;
@@ -275,11 +276,8 @@ public class JettyWebSocketRxTransport implements RxTransport, WebSocketListener
         @Override
         public Single<RxTransport> connect(URI uri) {
             try {
-                HttpClient httpClient = httpClientFactory.get();
-                boolean isStarted = httpClient.isStarted();
-                if (!isStarted) {
-                    httpClient.start();
-                }
+                HttpClients.Provider httpClientProvider = HttpClients.fromSupplier(httpClientFactory);
+                HttpClient httpClient = httpClientProvider.get();
                 WebSocketClient webSocketClient = new WebSocketClient(httpClient);
                 policyConfigurator.accept(webSocketClient.getPolicy());
                 webSocketClient.start();
@@ -292,9 +290,7 @@ public class JettyWebSocketRxTransport implements RxTransport, WebSocketListener
                 transport.incoming()
                         .doFinally(() -> {
                             webSocketClient.stop();
-                            if (!isStarted) {
-                                httpClient.stop();
-                            }
+                            httpClientProvider.close();
                         })
                         .subscribe();
                 return transport.connected.toSingle(() -> transport);

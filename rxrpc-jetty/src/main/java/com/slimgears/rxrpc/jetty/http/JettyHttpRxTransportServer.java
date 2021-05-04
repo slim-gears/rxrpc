@@ -1,4 +1,4 @@
-package com.slimgears.rxrpc.jettyhttp;
+package com.slimgears.rxrpc.jetty.http;
 
 import com.slimgears.rxrpc.core.RxTransport;
 import com.slimgears.rxrpc.core.util.Emitters;

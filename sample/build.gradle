@@ -35,7 +35,7 @@ task reinstallRxRpcJs(group: 'yarn') {
             return !project(':rxrpc-js').tasks.yarnPack.state.upToDate
         }
         inputs.files project(':rxrpc-js').tasks.yarnPack.outputs.files
-        args = ["add", "../../rxrpc-js/build/rxrpc-js.tgz", "--network-timeout", "600000"]
+        args = ["add", "file:../../rxrpc-js/build/rxrpc-js.tgz", "--network-timeout", "600000"]
     }
     dependsOn tasks.cleanRxRpcCache, tasks.installRxRpcJs
 }
@@ -70,7 +70,7 @@ dependencies {
     annotationProcessor project(':rxrpc-apt-typescript')
     annotationProcessor project(':rxrpc-apt-java')
     implementation project(':rxrpc-core')
-    implementation project(':rxrpc-jetty-websocket')
+    implementation project(':rxrpc-jetty')
 
     implementation libs.rxJava
     implementation libs.jacksonCore

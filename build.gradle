@@ -11,4 +11,4 @@ rootProject.applyScripts(
          ':rxrpc-apt-java',
          ':rxrpc-apt-typescript',
          ':rxrpc-core',
-         ':rxrpc-jetty-websocket'])
+         ':rxrpc-jetty'])

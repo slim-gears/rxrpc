@@ -1,7 +1,7 @@
 package com.slimgears.rxrpc.sample;
 
 import com.slimgears.rxrpc.client.RxClient;
-import com.slimgears.rxrpc.jettyhttp.JettyHttpRxTransportServer;
+import com.slimgears.rxrpc.jetty.http.JettyHttpRxTransportServer;
 import com.slimgears.util.generic.ServiceResolver;
 import io.reactivex.observers.BaseTestConsumer;
 import io.reactivex.observers.TestObserver;

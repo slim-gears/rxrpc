@@ -1,9 +1,11 @@
-package com.slimgears.rxrpc.jettyhttp;
+package com.slimgears.rxrpc.jetty.http;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.slimgears.rxrpc.core.RxTransport;
 import com.slimgears.rxrpc.core.util.Emitters;
+import com.slimgears.rxrpc.jetty.common.HttpClients;
+import com.slimgears.rxrpc.jetty.websocket.JettyWebSocketRxTransport;
 import com.slimgears.util.rx.Completables;
 import io.reactivex.Completable;
 import io.reactivex.Emitter;
@@ -25,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 public class JettyHttpRxTransportClient implements RxTransport {
     private final static Logger log = LoggerFactory.getLogger(JettyHttpRxTransportClient.class);
@@ -33,18 +36,18 @@ public class JettyHttpRxTransportClient implements RxTransport {
     private final Emitter<String> outgoingEmitter = Emitters.fromObserver(outgoingSubject);
     private final Disposable outgoingSubscription;
     private final Disposable pollingSubscription;
-    private final HttpClient httpClient;
+    private final HttpClients.Provider httpClientProvider;
     private final URI uri;
     private final String clientId;
 
     public JettyHttpRxTransportClient(
-            HttpClient httpClient,
+            HttpClients.Provider httpClientProvider,
             URI uri,
             String clientId,
             int pollingRetryCount,
             Duration pollingRetryInitialDelay,
             Duration pollingPeriod) {
-        this.httpClient = httpClient;
+        this.httpClientProvider = httpClientProvider;
         this.uri = uri;
         this.clientId = clientId;
         outgoingSubscription = outgoingSubject.subscribe(
@@ -59,7 +62,7 @@ public class JettyHttpRxTransportClient implements RxTransport {
     }
 
     private void sendMessage(String message) {
-        httpClient.POST(URI.create(uri + "/message"))
+        httpClientProvider.get().POST(URI.create(uri + "/message"))
                 .header(JettyHttpAttributes.ClientIdAttribute, clientId)
                 .content(new StringContentProvider(message), "text/plain")
                 .onResponseContent(this::onContent)
@@ -85,10 +88,15 @@ public class JettyHttpRxTransportClient implements RxTransport {
         outgoingSubscription.dispose();
         pollingSubscription.dispose();
         incoming().onComplete();
+        try {
+            httpClientProvider.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Completable poll() {
-        return Completable.create(emitter -> httpClient.POST(URI.create(uri + "/polling"))
+        return Completable.create(emitter -> httpClientProvider.get().POST(URI.create(uri + "/polling"))
                 .header(JettyHttpAttributes.ClientIdAttribute, clientId)
                 .onResponseContent(this::onContent)
                 .send(result -> {
@@ -109,6 +117,8 @@ public class JettyHttpRxTransportClient implements RxTransport {
         private int pollingRetryCount = JettyHttpAttributes.ClientPollingRetryCount;
         private Duration pollingRetryInitialDelay = JettyHttpAttributes.ClientPollingRetryInitialDelay;
         private Duration pollingPeriod = JettyHttpAttributes.ClientPollingPeriod;
+        private Supplier<SslContextFactory> sslContextFactorySupplier = SslContextFactory.Client::new;
+        private Supplier<HttpClient> httpClientSupplier = () -> new HttpClient(sslContextFactorySupplier.get());
 
         public Builder pollingRetryCount(int pollingRetryCount) {
             this.pollingRetryCount = pollingRetryCount;
@@ -125,12 +135,26 @@ public class JettyHttpRxTransportClient implements RxTransport {
             return this;
         }
 
-        public Client build(SslContextFactory contextFactory) {
-            return new Client(contextFactory, pollingRetryCount, pollingRetryInitialDelay, pollingPeriod);
+        public Builder sslContextFactory(Supplier<SslContextFactory> contextFactorySupplier) {
+            this.sslContextFactorySupplier = contextFactorySupplier;
+            return this;
+        }
+
+        public Builder sslContextFactory(SslContextFactory contextFactory) {
+            return sslContextFactory(() -> contextFactory);
+        }
+
+        public Builder httpClient(Supplier<HttpClient> httpClientSupplier) {
+            this.httpClientSupplier = httpClientSupplier;
+            return this;
+        }
+
+        public Builder httpClient(HttpClient httpClient) {
+            return httpClient(() -> httpClient);
         }
 
         public Client build() {
-            return build(new SslContextFactory.Client());
+            return new Client(httpClientSupplier, pollingRetryCount, pollingRetryInitialDelay, pollingPeriod);
         }
     }
 
@@ -139,32 +163,33 @@ public class JettyHttpRxTransportClient implements RxTransport {
     }
 
     public static class Client implements RxTransport.Client {
-        private final HttpClient httpClient;
+        private final Supplier<HttpClient> httpClientSupplier;
         private final int pollingRetryCount;
         private final Duration pollingRetryInitialDelay;
         private final Duration pollingPeriod;
 
-        public Client(SslContextFactory contextFactory,
+        public Client(Supplier<HttpClient> httpClientSupplier,
                       int pollingRetryCount,
                       Duration pollingRetryInitialDelay,
                       Duration pollingPeriod) {
             this.pollingRetryCount = pollingRetryCount;
             this.pollingRetryInitialDelay = pollingRetryInitialDelay;
             this.pollingPeriod = pollingPeriod;
-            this.httpClient = new HttpClient(contextFactory);
+            this.httpClientSupplier = httpClientSupplier;
         }
 
         @Override
         public Single<RxTransport> connect(URI uri) {
             return Single.create(emitter -> {
+                HttpClients.Provider httpClientProvider = HttpClients.fromSupplier(httpClientSupplier);
                 try {
-                    httpClient.start();
+                    HttpClient httpClient = httpClientProvider.get();
                     httpClient.POST(URI.create(uri + "/connect"))
                             .onResponseHeader((response, field) -> {
                                 if (field.getName().equals(JettyHttpAttributes.ClientIdAttribute)) {
                                     String clientId = field.getValue();
                                     emitter.onSuccess(new JettyHttpRxTransportClient(
-                                            httpClient,
+                                            httpClientProvider,
                                             uri,
                                             clientId,
                                             pollingRetryCount,
@@ -182,6 +207,7 @@ public class JettyHttpRxTransportClient implements RxTransport {
                 } catch (Exception e) {
                     log.error("Could not start the httpClient", e);
                     emitter.onError(e);
+                    httpClientProvider.close();
                 }
             });
         }

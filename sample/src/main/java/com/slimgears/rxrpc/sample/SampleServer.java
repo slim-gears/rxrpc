@@ -1,8 +1,8 @@
 package com.slimgears.rxrpc.sample;
 
 import com.slimgears.rxrpc.core.RxTransport;
-import com.slimgears.rxrpc.jettyhttp.JettyHttpRxTransportServer;
-import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketRxTransport;
+import com.slimgears.rxrpc.jetty.http.JettyHttpRxTransportServer;
+import com.slimgears.rxrpc.jetty.websocket.JettyWebSocketRxTransport;
 import com.slimgears.rxrpc.server.EndpointRouters;
 import com.slimgears.rxrpc.server.RxServer;
 import com.slimgears.util.generic.ServiceResolvers;

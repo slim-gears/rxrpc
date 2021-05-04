@@ -1,7 +1,7 @@
 package com.slimgears.rxrpc.sample;
 
 import com.slimgears.rxrpc.core.RxTransport;
-import com.slimgears.rxrpc.jettywebsocket.JettyWebSocketRxTransport;
+import com.slimgears.rxrpc.jetty.websocket.JettyWebSocketRxTransport;
 import org.eclipse.jetty.http.HttpScheme;
 
 public class WebSocketServerTest extends AbstractServerTest<JettyWebSocketRxTransport.Server> {

@@ -1,7 +1,7 @@
 package com.slimgears.rxrpc.sample;
 
 import com.slimgears.rxrpc.core.RxTransport;
-import com.slimgears.rxrpc.jettyhttp.JettyHttpRxTransportClient;
+import com.slimgears.rxrpc.jetty.http.JettyHttpRxTransportClient;
 import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.junit.Test;
@@ -11,7 +11,8 @@ public class HttpsServerTest extends AbstractHttpServerTest{
     @Override
     protected RxTransport.Client createClient() {
         return JettyHttpRxTransportClient.builder()
-                .build(new SslContextFactory.Client(true));
+                .sslContextFactory(new SslContextFactory.Client(true))
+                .build();
     }
 
     @Override

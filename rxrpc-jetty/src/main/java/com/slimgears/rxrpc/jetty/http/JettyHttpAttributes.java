@@ -1,4 +1,4 @@
-package com.slimgears.rxrpc.jettyhttp;
+package com.slimgears.rxrpc.jetty.http;
 
 import java.time.Duration;
 
