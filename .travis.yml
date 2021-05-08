@@ -1,5 +1,5 @@
 language: java
-jdk: openjdk8
+jdk: openjdk11
 env:
   global:
   - secure: RVAunGLaxPqAB9GYbN9auoKOHhU0LJHG2Z9BsN0gIP5oXPc11CrCLPnJYjfpPEKP04Jenl11OxB2fHvjYWIHcSIPl7U0VW5aoorwjLP0HmywO8AWmNvttRIm1JCYKyGfN4LPjBArXXXsS962DHaNosP6lteCew/SrwvWlCetEFEzXcEFMtxMTvu8sRryMOUFVW7yWPnns2NlNHNh+JEmMgZYLnXwsiKYgMLf/chxXaRbE9uctn9czFVlFMEwIQ7fIFtd7stMPUWzODO/4RSzXSwtzrnKiO3a5W3M1C0lULKQHsRr4/f9kOxHdjKfHvwgN65RSiDB5A1W9K8mnRIGUisOuVjv3uKB78b6baFqJo6dXA25M+RJUpmhihvjTCWH6R8TCfp60x9JGEKHJsAyrJOI/F/c4CIUkzhwtLusZchtpMCoyKxqxk5nL9UVQzkVeKOTams+VFc7K9EecMPZK7CcOXXvI8XuSJTUEE63a5QSJVIXLG8pO3KWvaR/10ST3IxROUGKaqOPVpaTP0mep/vosTlRcrVA+S9sY3/HoulQILygXomemZRimuHD8mRS4ZU1cQSikkVWEjs8wnFcitIzFkUgFi+GqRSW2aUA3gwH/hftGVBixvuZ2Apb13tFDelmKa+K8BLuXz31MlTnVaxoYfgzVaOKKV99ctX4MhY=
@@ -15,7 +15,13 @@ cache:
   - "$HOME/.gradle/wrapper/"
 deploy:
   provider: script
-  script: "./gradlew publish -Dsigning.keyId=$SIGNING_KEY_ID -Dsigning.secretKeyRingFile=$SIGNING_SECRET_KEY_FILE"
+  script: ./gradlew publishAndRelease
+    -PprojectVersion=$TRAVIS_TAG
+    -Psigning.keyId=$SIGNING_KEY_ID
+    -Psigning.password=
+    -Psigning.secretKeyRingFile=key.gpg
+    -Psonatype.username=$SONATYPE_USERNAME
+    -Psonatype.password=$SONATYPE_PASSWORD
   skip_cleanup: true
   on:
     tags: true
