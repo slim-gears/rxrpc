@@ -2,10 +2,20 @@ package com.slimgears.rxrpc.sample;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.reflect.TypeToken;
+import com.slimgears.rxrpc.client.AbstractClient;
 import com.slimgears.rxrpc.client.RxClient;
 import com.slimgears.rxrpc.core.RxTransport;
 import com.slimgears.rxrpc.core.data.RxRpcRemoteException;
+import com.slimgears.rxrpc.server.EndpointRouter;
+import com.slimgears.rxrpc.server.EndpointRouters;
 import com.slimgears.util.generic.ServiceResolver;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Observable;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.subjects.ReplaySubject;
+import io.reactivex.subjects.Subject;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.hamcrest.MatcherAssert;
@@ -18,17 +28,21 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import static org.hamcrest.CoreMatchers.containsString;
 
 public abstract class AbstractServerTest<T extends RxTransport.Server & Servlet> {
     protected final static int port = 11001;
-    private SampleServer<T> server;
+    SampleServer<T> server;
     ServiceResolver clientResolver;
 
     @BeforeClass
@@ -62,6 +76,39 @@ public abstract class AbstractServerTest<T extends RxTransport.Server & Servlet>
         return URI.create(getUriScheme() + "localhost:" + port + "/api/");
     }
 
+    @Test
+    public void testStressServer() throws InterruptedException {
+        final int clientCount = 150;
+        final int messageCount = 10;
+        final int periodMillis = 100;
+        final int completeWaitMillis = messageCount * periodMillis * 2;
+
+        Collection<ServiceResolver> clientResolvers = new LinkedList<>();
+        Collection<TestObserver<String>> clientTestObservers = new LinkedList<>();
+
+        for (int i = 0; i < clientCount; i++) {
+            ServiceResolver clientResolver = RxClient
+                    .forClient(createClient())
+                    .connect(getUri())
+                    .timeout(1000, TimeUnit.MILLISECONDS)
+                    .blockingGet();
+            clientResolvers.add(clientResolver);
+        }
+
+        clientResolvers.forEach(clientResolver -> {
+            TestObserver<String> clientObserver = clientResolver.resolve(RepetitionSayHelloEndpoint_RxClient.class)
+                    .sayHello("Bob", periodMillis, messageCount).test();
+            clientTestObservers.add(clientObserver);
+        });
+
+        clientTestObservers.forEach(clientObserver -> {
+            clientObserver.awaitDone(completeWaitMillis, TimeUnit.MILLISECONDS)
+                    .assertValueCount(messageCount);
+        });
+
+        clientResolvers.forEach(ServiceResolver::close);
+        Thread.sleep(5000);
+    }
 
     @Test
     public void testSayHello() {
