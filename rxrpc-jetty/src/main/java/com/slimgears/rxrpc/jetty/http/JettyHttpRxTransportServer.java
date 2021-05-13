@@ -30,16 +30,19 @@ public class JettyHttpRxTransportServer implements RxTransport {
     private final Subject<String> outgoingSubject = BehaviorSubject.create();
     private final Emitter<String> outgoing = Emitters.fromObserver(outgoingSubject);
     private final Subject<String> incoming = BehaviorSubject.create();
+    private final Subject<String> removeSubject = BehaviorSubject.create();
     private final AtomicReference<Queue<String>> messageQueue = new AtomicReference<>(new LinkedList<>());
     private final Disposable outgoingSubscription;
     private final AtomicReference<Disposable> disconnectSubscription = new AtomicReference<>(Disposables.empty());
     private final Duration keepAliveTimeout;
+    private final String clientId;
 
-    public JettyHttpRxTransportServer(Duration keepAliveTimeout) {
+    public JettyHttpRxTransportServer(Duration keepAliveTimeout, String clientId) {
         this.outgoingSubscription = outgoingSubject
                 .subscribe(this::onMessage,
                         incoming::onError);
         this.keepAliveTimeout = keepAliveTimeout;
+        this.clientId = clientId;
     }
 
     private void onMessage(String message) {
@@ -58,6 +61,10 @@ public class JettyHttpRxTransportServer implements RxTransport {
         return messageQueue.getAndSet(new LinkedList<>());
     }
 
+    public Subject<String> getRemoveSubject() {
+        return removeSubject;
+    }
+
     @Override
     public Emitter<String> outgoing() {
         return outgoing;
@@ -73,6 +80,7 @@ public class JettyHttpRxTransportServer implements RxTransport {
         this.disconnectSubscription.get().dispose();
         this.outgoingSubscription.dispose();
         incoming().onComplete();
+        removeSubject.onNext(clientId);
     }
 
     public static class Builder {
@@ -143,14 +151,19 @@ public class JettyHttpRxTransportServer implements RxTransport {
 
         private void doConnect(HttpServletResponse response) {
             String id = new BigInteger(128, new SecureRandom()).toString(64);
-            JettyHttpRxTransportServer transport = new JettyHttpRxTransportServer(keepAliveTimeout);
+            JettyHttpRxTransportServer transport = new JettyHttpRxTransportServer(keepAliveTimeout, id);
+            transport.getRemoveSubject().take(1).subscribe(this::removeTransport);
             transportMap.put(id, transport);
             connections.onNext(transport);
             response.addHeader(JettyHttpAttributes.ClientIdAttribute, id);
         }
 
+        private JettyHttpRxTransportServer removeTransport(String clientId) {
+            return transportMap.remove(clientId);
+        }
+
         private void doDisconnect(String clientId, HttpServletResponse response) {
-            JettyHttpRxTransportServer transport = transportMap.remove(clientId);
+            JettyHttpRxTransportServer transport = removeTransport(clientId);
             if ( transport == null) {
                 response.setStatus(HttpStatus.BAD_REQUEST_400);
             } else {

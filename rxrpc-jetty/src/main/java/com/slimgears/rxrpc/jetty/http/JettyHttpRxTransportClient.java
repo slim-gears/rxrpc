@@ -16,7 +16,10 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.Response;
+import org.eclipse.jetty.client.api.Result;
+import org.eclipse.jetty.client.util.InputStreamResponseListener;
 import org.eclipse.jetty.client.util.StringContentProvider;
+import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +68,11 @@ public class JettyHttpRxTransportClient implements RxTransport {
         httpClientProvider.get().POST(URI.create(uri + "/message"))
                 .header(JettyHttpAttributes.ClientIdAttribute, clientId)
                 .content(new StringContentProvider(message), "text/plain")
-                .onResponseContent(this::onContent)
+                .onResponseContent((response, content) -> {
+                    if (response.getStatus() == HttpStatus.OK_200) {
+                        onContent(content);
+                    }
+                })
                 .send(result -> {
                     if (result.isFailed()) {
                         outgoingEmitter.onError(result.getFailure());
@@ -98,7 +105,11 @@ public class JettyHttpRxTransportClient implements RxTransport {
     private Completable poll() {
         return Completable.create(emitter -> httpClientProvider.get().POST(URI.create(uri + "/polling"))
                 .header(JettyHttpAttributes.ClientIdAttribute, clientId)
-                .onResponseContent(this::onContent)
+                .onResponseContent((response, content) -> {
+                    if (response.getStatus() == HttpStatus.OK_200) {
+                        onContent(content);
+                    }
+                })
                 .send(result -> {
                     if (result.isSucceeded()) {
                         emitter.onComplete();
@@ -108,7 +119,7 @@ public class JettyHttpRxTransportClient implements RxTransport {
                 }));
     }
 
-    private void onContent(Response response, ByteBuffer content) {
+    private void onContent(ByteBuffer content) {
         Arrays.stream(new Gson().fromJson(StandardCharsets.UTF_8.decode(content).toString(), JsonObject[].class))
                 .forEach(o -> incoming().onNext(o.toString()));
     }

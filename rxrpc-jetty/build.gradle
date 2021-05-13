@@ -3,9 +3,12 @@ dependencies {
     implementation libs.slf4j
     implementation libs.rxJava
     implementation libs.slimStreamUtils
+    implementation libs.slimGenericUtils
     implementation libs.slimRxUtils
     implementation libs.gson
+    implementation libs.jacksonGuava
     bundledImplementation libs.jettyWebSocketServer
     bundledImplementation libs.jettyWebSocketClient
+    testImplementation libs.junit
     testImplementation libs.logbackClassic, libs.logbackCore
 }
