@@ -8,6 +8,7 @@ import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.Schedulers;
 import org.junit.Test;
 
+import java.net.ConnectException;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
@@ -46,5 +47,16 @@ public abstract class AbstractHttpServerTest extends AbstractServerTest<JettyHtt
                 .assertValueSet(Collections.nCopies(count, "Hello, Alice"));
 
         clientResolverTwo.close();
+    }
+
+    @Test
+    public void testServerDisconnection() throws Exception {
+        SayHelloEndpoint sayHelloClient = clientResolver.resolve(SayHelloEndpoint_RxClient.class);
+        server.stop();
+        sayHelloClient
+                .sayHello("Alice")
+                .test()
+                .await()
+                .assertError(ConnectException.class);
     }
 }
