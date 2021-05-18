@@ -20,7 +20,9 @@ public class $simpleClassName implements $[com.slimgears.rxrpc.server.EndpointRo
     #set ($returnType = $m.returnType())##
     #set ($elementType = $utils.elementType($returnType))
     private final static $[com.slimgears.rxrpc.server.internal.MethodDispatcher]<$[$sourceClassName], $[$elementType.asBoxed()]> $methodName = (resolver, target, args) ->
-        $[com.slimgears.rxrpc.server.internal.Publishers].toPublisher(target.$methodName(##
+        $[com.slimgears.rxrpc.server.internal.Publishers].toPublisher(##
+        #if ($elementType == "void")() -> #end ##
+        target.$methodName(##
     #foreach ($p in $m.params())##
 
             args.get("$p.name()", #classLiteral($p.type()))##

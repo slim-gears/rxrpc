@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
-import {SampleEndpointClient} from "../backend-api";
-import {Observable} from "rxjs";
+import {SampleEndpointClient} from '../backend-api';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-root',

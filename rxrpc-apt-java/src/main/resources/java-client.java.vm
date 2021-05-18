@@ -50,7 +50,11 @@ public class $simpleClassName extends $[com.slimgears.rxrpc.client.AbstractClien
 ##
     #end
     public $[$m.returnType()] $m.name()(#params($m)) {
+        #if ($m.returnType() != "void")
         return #invoke($m);
+        #else
+        #invoke($m);
+        #end
     }
 
 #end

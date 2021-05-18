@@ -6,6 +6,7 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.functions.Action;
 import org.reactivestreams.Publisher;
 
 import java.util.concurrent.Future;
@@ -41,5 +42,9 @@ public class Publishers {
 
     public static <T> Publisher<T> toPublisher(T value) {
         return toPublisher(Single.just(value));
+    }
+
+    public static Publisher<Void> toPublisher(Action action) {
+        return toPublisher(Completable.fromAction(action));
     }
 }
