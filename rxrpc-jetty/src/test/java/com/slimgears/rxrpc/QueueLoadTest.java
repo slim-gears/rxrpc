@@ -4,14 +4,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
 import com.slimgears.rxrpc.client.AbstractClient;
 import com.slimgears.rxrpc.client.RxClient;
-import com.slimgears.rxrpc.jetty.http.JettyHttpAttributes;
 import com.slimgears.rxrpc.server.EndpointRouter;
 import com.slimgears.rxrpc.server.EndpointRouters;
 import com.slimgears.rxrpc.server.RxServer;
-import com.slimgears.util.rx.Completables;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subjects.ReplaySubject;
 import io.reactivex.subjects.Subject;
@@ -30,7 +27,6 @@ public class QueueLoadTest {
     private RxServer rxServer;
     private Subject<String> serverSubject;
     private MockHttpTransport mockHttpTransport;
-    private Disposable pollingSubscription;
 
     public static class EndpointClient extends AbstractClient {
         public EndpointClient(RxClient.Session session) {
@@ -62,25 +58,17 @@ public class QueueLoadTest {
         mockHttpTransport = new MockHttpTransport();
         rxServer = RxServer
                 .configBuilder()
-                .server(mockHttpTransport)
+                .server(mockHttpTransport.getServerTransport())
                 .router(router)
                 .createServer();
 
-        rxClient = RxClient.forClient(mockHttpTransport);
+        rxClient = RxClient.forClient(mockHttpTransport.getClientTransport());
 
         rxServer.start();
-
-        pollingSubscription = Observable.interval(JettyHttpAttributes.ClientPollingPeriod.toMillis(), TimeUnit.MILLISECONDS)
-                .flatMapCompletable(i -> mockHttpTransport.doPoll())
-                .compose(Completables.backOffDelayRetry(e -> true,
-                        JettyHttpAttributes.ClientPollingRetryInitialDelay,
-                        JettyHttpAttributes.ClientPollingRetryCount))
-                .subscribe();
     }
 
     @After
     public void tearDown() {
-        pollingSubscription.dispose();
         rxServer.stop();
     }
 

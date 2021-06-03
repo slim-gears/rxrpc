@@ -68,11 +68,7 @@ public class JettyHttpRxTransportClient implements RxTransport {
         httpClientProvider.get().POST(URI.create(uri + "/message"))
                 .header(JettyHttpAttributes.ClientIdAttribute, clientId)
                 .content(new StringContentProvider(message), "text/plain")
-                .onResponseContent((response, content) -> {
-                    if (response.getStatus() == HttpStatus.OK_200) {
-                        onContent(content);
-                    }
-                })
+                .onResponseContent(this::handleResponseContent)
                 .send(result -> {
                     if (result.isFailed()) {
                         outgoingEmitter.onError(result.getFailure());
@@ -105,11 +101,7 @@ public class JettyHttpRxTransportClient implements RxTransport {
     private Completable poll() {
         return Completable.create(emitter -> httpClientProvider.get().POST(URI.create(uri + "/polling"))
                 .header(JettyHttpAttributes.ClientIdAttribute, clientId)
-                .onResponseContent((response, content) -> {
-                    if (response.getStatus() == HttpStatus.OK_200) {
-                        onContent(content);
-                    }
-                })
+                .onResponseContent(this::handleResponseContent)
                 .send(result -> {
                     if (result.isSucceeded()) {
                         emitter.onComplete();
@@ -122,6 +114,12 @@ public class JettyHttpRxTransportClient implements RxTransport {
     private void onContent(ByteBuffer content) {
         Arrays.stream(new Gson().fromJson(StandardCharsets.UTF_8.decode(content).toString(), JsonObject[].class))
                 .forEach(o -> incoming().onNext(o.toString()));
+    }
+
+    private void handleResponseContent(Response response, ByteBuffer content) {
+        if (response.getStatus() == HttpStatus.OK_200) {
+            onContent(content);
+        }
     }
 
     public static class Builder {

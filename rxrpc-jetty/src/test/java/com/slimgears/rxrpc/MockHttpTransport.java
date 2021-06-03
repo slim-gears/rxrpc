@@ -2,92 +2,199 @@ package com.slimgears.rxrpc;
 
 import com.slimgears.rxrpc.core.RxTransport;
 import com.slimgears.rxrpc.core.util.Emitters;
+import com.slimgears.rxrpc.jetty.common.HttpClients;
 import com.slimgears.rxrpc.jetty.http.JettyHttpAttributes;
-import io.reactivex.*;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.disposables.Disposables;
+import com.slimgears.rxrpc.jetty.http.JettyHttpRxTransportClient;
+import com.slimgears.rxrpc.jetty.http.JettyHttpRxTransportServer;
+import io.reactivex.Emitter;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
+import java.time.Duration;
+import java.util.function.Supplier;
 
-class MockHttpTransport implements RxTransport.Server, RxTransport.Client {
-    private final Subject<RxTransport> connections = BehaviorSubject.create();
-    private final AtomicReference<RxTransport> clientTransport = new AtomicReference<>();
-    private final AtomicReference<RxTransport> serverTransport = new AtomicReference<>();
-    private final AtomicReference<Queue<String>> messageQueue = new AtomicReference<>(new LinkedList<>());
-    private final AtomicReference<Disposable> disconnectSubscription = new AtomicReference<>(Disposables.empty());
-    private final Subject<String> ServerOutgoing = BehaviorSubject.create();
-    Subject<String> clientIncoming = PublishSubject.create();
-    private final Disposable outgoingSubscription;
+class MockHttpTransport {
+    private static final Subject<String> clientIncoming = PublishSubject.create();
+    private static final Subject<String> serverIncoming = PublishSubject.create();
+    private static final serverTransport.Server server = createServer();
+    private final clientTransport.Client client = createClient();
 
-    public MockHttpTransport() {
-        this.outgoingSubscription = ServerOutgoing
-                .subscribe(this::onMessage);
+    protected clientTransport.Client getClientTransport() {
+        return client;
     }
 
-    public void close() {
-        disconnectSubscription.get().dispose();
-        outgoingSubscription.dispose();
+    protected serverTransport.Server getServerTransport() {
+        return server;
     }
 
-    @Override
-    public Observable<RxTransport> connections() {
-        return connections;
+    protected clientTransport.Client createClient() {
+        return clientTransport.builder()
+                .incoming(clientIncoming)
+                .outgoing(serverIncoming)
+                .build();
     }
 
-    @Override
-    public Single<RxTransport> connect(URI uri) {
-        Subject<String> serverIncoming = PublishSubject.create();
-
-        this.clientTransport.set(transportFor(clientIncoming, serverIncoming));
-        this.serverTransport.set(transportFor(serverIncoming, ServerOutgoing));
-
-        connections.onNext(serverTransport.get());
-        return Single.just(clientTransport.get());
+    protected static serverTransport.Server createServer() {
+        return serverTransport.builder()
+                .incoming(serverIncoming)
+                .outgoing(clientIncoming)
+                .build();
     }
 
-    private RxTransport transportFor(Observable<String> incoming, Observer<String> outgoing) {
-        return new RxTransport() {
-            @Override
-            public Emitter<String> outgoing() {
-                return Emitters.fromObserver(outgoing);
-            }
+    static class clientTransport extends JettyHttpRxTransportClient {
 
-            @Override
-            public Observable<String> incoming() {
-                return incoming;
-            }
-        };
-    }
+        Subject<String> incoming;
+        Observer<String> outgoing;
 
-    private void onMessage(String message) {
-        messageQueue.get().add(message);
-    }
-
-    private Iterable<String> dequePendingMessages() {
-        Disposable previousSubscription = disconnectSubscription.getAndSet(Completable
-                .timer(JettyHttpAttributes.ServerKeepAliveTimeout.toMillis(), TimeUnit.MILLISECONDS)
-                .subscribe(this::close));
-        previousSubscription.dispose();
-
-        if (messageQueue.get().isEmpty()) {
-            return Collections.emptyList();
+        public clientTransport(HttpClients.Provider httpClientProvider, URI uri, String clientId, int pollingRetryCount,
+                               Duration pollingRetryInitialDelay, Duration pollingPeriod,
+                               Subject<String> incoming, Observer<String> outgoing) {
+            super(httpClientProvider, uri, clientId, pollingRetryCount, pollingRetryInitialDelay, pollingPeriod);
+            this.incoming = incoming;
+            this.outgoing = outgoing;
         }
-        return messageQueue.getAndSet(new LinkedList<>());
+
+        @Override
+        public Emitter<String> outgoing() {
+            return Emitters.fromObserver(outgoing);
+        }
+
+        @Override
+        public Subject<String> incoming() {
+            return incoming;
+        }
+
+        public static class Client extends JettyHttpRxTransportClient.Client {
+            private final int pollingRetryCount;
+            private final Duration pollingRetryInitialDelay;
+            private final Duration pollingPeriod;
+            Supplier<HttpClient> httpClientSupplier;
+            Subject<String> incoming;
+            Observer<String> outgoing;
+
+            public Client(Supplier<HttpClient> httpClientSupplier, int pollingRetryCount, Duration pollingRetryInitialDelay,
+                          Duration pollingPeriod, Subject<String> incoming, Observer<String> outgoing) {
+                super(httpClientSupplier, pollingRetryCount, pollingRetryInitialDelay, pollingPeriod);
+                this.httpClientSupplier = httpClientSupplier;
+                this.pollingPeriod = pollingPeriod;
+                this.pollingRetryInitialDelay = pollingRetryInitialDelay;
+                this.pollingRetryCount = pollingRetryCount;
+                this.incoming = incoming;
+                this.outgoing = outgoing;
+            }
+
+            @Override
+            public Single<RxTransport> connect(URI uri) {
+                server.connect();
+                return Single.just(new clientTransport(HttpClients.fromSupplier(httpClientSupplier),
+                        uri, "123", pollingRetryCount, pollingRetryInitialDelay, pollingPeriod, incoming, outgoing));
+            }
+        }
+
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        public static class Builder extends JettyHttpRxTransportClient.Builder {
+            Subject<String> incoming;
+            Observer<String> outgoing;
+
+            public Builder incoming(Subject<String> incoming) {
+                this.incoming = incoming;
+                return this;
+            }
+
+            public Builder outgoing(Observer<String> outgoing) {
+                this.outgoing = outgoing;
+                return this;
+            }
+
+            @Override
+            public Client build() {
+                return new Client(() -> new HttpClient(new SslContextFactory.Client(true)),
+                        JettyHttpAttributes.ClientPollingRetryCount,
+                        JettyHttpAttributes.ClientPollingRetryInitialDelay,
+                        JettyHttpAttributes.ClientPollingPeriod,
+                        incoming,
+                        outgoing);
+            }
+        }
     }
 
-    public Completable doPoll() {
-        return Completable.create(emitter -> {
-            Iterable<String> messages = dequePendingMessages();
-            messages.forEach(clientIncoming::onNext);
-            emitter.onComplete();
-        });
+
+    static class serverTransport extends JettyHttpRxTransportServer {
+
+        Subject<String> incoming;
+        Observer<String> outgoing;
+
+        public serverTransport(Duration keepAliveTimeout, String clientId, Subject<String> incoming, Observer<String> outgoing) {
+            super(keepAliveTimeout, clientId);
+            this.incoming = incoming;
+            this.outgoing = outgoing;
+        }
+
+        @Override
+        public Emitter<String> outgoing() {
+            return Emitters.fromObserver(outgoing);
+        }
+
+        @Override
+        public Subject<String> incoming() {
+            return incoming;
+        }
+
+        public static class Server extends JettyHttpRxTransportServer.Server {
+            public final Subject<RxTransport> connections = BehaviorSubject.create();
+            private final Duration keepAliveTimeout;
+            Subject<String> incoming;
+            Observer<String> outgoing;
+
+            public Server(Duration keepAliveTimeout, Subject<String> incoming, Observer<String> outgoing) {
+                super(keepAliveTimeout);
+                this.incoming = incoming;
+                this.outgoing = outgoing;
+                this.keepAliveTimeout = keepAliveTimeout;
+            }
+
+            public void connect() {
+                connections.onNext(new serverTransport(keepAliveTimeout, "123", incoming, outgoing));
+            }
+
+            @Override
+            public Observable<RxTransport> connections() {
+                return connections;
+            }
+        }
+
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        public static class Builder extends JettyHttpRxTransportServer.Builder {
+            Subject<String> incoming;
+            Observer<String> outgoing;
+
+            public Builder incoming(Subject<String> incoming) {
+                this.incoming = incoming;
+                return this;
+            }
+
+            public Builder outgoing(Observer<String> outgoing) {
+                this.outgoing = outgoing;
+                return this;
+            }
+
+            @Override
+            public Server build() {
+                return new Server(JettyHttpAttributes.ServerKeepAliveTimeout, incoming, outgoing);
+            }
+        }
     }
 }

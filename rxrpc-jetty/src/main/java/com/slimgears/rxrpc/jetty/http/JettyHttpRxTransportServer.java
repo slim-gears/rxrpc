@@ -105,7 +105,7 @@ public class JettyHttpRxTransportServer implements RxTransport {
         private final Map<String, JettyHttpRxTransportServer> transportMap = new ConcurrentHashMap<>();
         private final Duration keepAliveTimeout;
 
-        private Server(Duration keepAliveTimeout){
+        public Server(Duration keepAliveTimeout){
             this.keepAliveTimeout = keepAliveTimeout;
         }
 
