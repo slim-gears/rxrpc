@@ -5,10 +5,11 @@ buildscript {
 apply from: "$projectDir/gradle/root.gradle"
 
 rootProject.applyScripts(
-        ["$scriptsDir/java.gradle",
-         "$scriptsDir/sonatype.gradle"],
+        ["$scriptsDir/java.gradle"],
         [':rxrpc-apt',
          ':rxrpc-apt-java',
          ':rxrpc-apt-typescript',
          ':rxrpc-core',
-         ':rxrpc-jetty-websocket'])
+         ':rxrpc-jetty'])
+
+apply from: "$scriptsDir/sonatype.gradle"
