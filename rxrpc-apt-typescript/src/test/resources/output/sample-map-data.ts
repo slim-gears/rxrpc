@@ -1,4 +1,5 @@
 import { SampleData } from './sample-data';
+import { SampleEnum } from './sample-enum';
 import { StringKeyMap } from 'rxrpc-js';
 
 /**
@@ -7,4 +8,5 @@ import { StringKeyMap } from 'rxrpc-js';
 export class SampleMapData {
     sampleMap: StringKeyMap<SampleData>;
     sampleImmutableMap: StringKeyMap<SampleData>;
+    sampleEnumMap: Map<SampleEnum, SampleEnum[]>;
 }

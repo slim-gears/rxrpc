@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 
 public class JettyHttpRxTransportServer implements RxTransport {
+    private final static SecureRandom random = new SecureRandom();
     private final Subject<String> outgoingSubject = BehaviorSubject.create();
     private final Emitter<String> outgoing = Emitters.fromObserver(outgoingSubject);
     private final Subject<String> incoming = BehaviorSubject.create();
@@ -127,8 +128,7 @@ public class JettyHttpRxTransportServer implements RxTransport {
         }
 
         private JettyHttpRxTransportServer transportById(String clientId) {
-            return Optional.ofNullable(transportMap.get(clientId))
-                    .orElseThrow(() -> new RuntimeException("Could not find client " + clientId));
+            return transportMap.computeIfAbsent(clientId, id -> createTransport());
         }
 
         private void doPoll(String clientId, HttpServletResponse response) {
@@ -141,11 +141,15 @@ public class JettyHttpRxTransportServer implements RxTransport {
             }
         }
 
-        private void doConnect(HttpServletResponse response) {
-            String id = new BigInteger(128, new SecureRandom()).toString(64);
+        private JettyHttpRxTransportServer createTransport() {
             JettyHttpRxTransportServer transport = new JettyHttpRxTransportServer(keepAliveTimeout);
-            transportMap.put(id, transport);
             connections.onNext(transport);
+            return transport;
+        }
+
+        private void doConnect(HttpServletResponse response) {
+            String id = new BigInteger(128, random).toString(64);
+            transportMap.put(id, createTransport());
             response.addHeader(JettyHttpAttributes.ClientIdAttribute, id);
         }
 
