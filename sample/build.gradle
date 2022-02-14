@@ -37,7 +37,7 @@ def isRxRpcJsInstalled = packageJson.dependencies.'rxrpc-js' != null
 task removeRxRpcJs(type: YarnTask, group: 'yarn', dependsOn: rxRpcJsPackTask) {
     onlyIf { isRxRpcJsInstalled && rxRpcJsPackTask.didWork }
     inputs.file rxRpcJsPackage
-    args = ["remove", "rxrpc-js", "--offline", "--mode=skip-build"]
+    args = ["remove", "rxrpc-js"]
 }
 
 task cleanRxRpcCache(type: YarnTask, group: 'yarn', dependsOn: tasks.removeRxRpcJs) {
