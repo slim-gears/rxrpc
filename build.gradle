@@ -2,6 +2,10 @@ buildscript {
     apply from: "$projectDir/gradle/buildscript.gradle", to: it
 }
 
+project.ext {
+    sourceCompatibility = JavaVersion.VERSION_11
+}
+
 apply from: "$projectDir/gradle/root.gradle"
 
 rootProject.applyScripts(

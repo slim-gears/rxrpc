@@ -16,6 +16,7 @@ import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import sun.misc.Signal;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -25,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,25 +37,25 @@ public class SampleServer<T extends RxTransport.Server & Servlet> {
     private final T transportServer;
 
     public static SampleServer<JettyWebSocketRxTransport.Server> forWebSocket(int port) {
-        return forTransport(port, JettyWebSocketRxTransport.serverBuilder().build(), HttpScheme.WS.asString());
+        return forTransport(port, JettyWebSocketRxTransport.serverBuilder().build(), HttpScheme.WS.asString(), "/api/ws");
     }
 
     public static SampleServer<JettyHttpRxTransportServer.Server> forHttp(int port) {
-        return forTransport(port, JettyHttpRxTransportServer.builder().build(), HttpScheme.HTTP.asString());
+        return forTransport(port, JettyHttpRxTransportServer.builder().build(), HttpScheme.HTTP.asString(), "/api/http");
     }
 
     public static SampleServer<JettyHttpRxTransportServer.Server> forHttps(int port) {
-        return forTransport(port, JettyHttpRxTransportServer.builder().build(), HttpScheme.HTTPS.asString());
+        return forTransport(port, JettyHttpRxTransportServer.builder().build(), HttpScheme.HTTPS.asString(), "/api/http");
     }
 
-    public static <T extends RxTransport.Server & Servlet> SampleServer<T> forTransport(int port, T transport, String transportType) {
-        return new SampleServer<>(port, transport, transportType);
+    public static <T extends RxTransport.Server & Servlet> SampleServer<T> forTransport(int port, T transport, String transportType, String apiPath) {
+        return new SampleServer<>(port, transport, transportType, apiPath);
     }
 
-    private SampleServer(int port, T transportServer, String transportType) {
+    private SampleServer(int port, T transportServer, String transportType, String apiPath) {
         this.transportServer = transportServer;
         this.transportType = transportType;
-        this.jetty = createJetty(port);
+        this.jetty = createJetty(port, apiPath);
         this.rxServer = RxServer.configBuilder()
                 .server(transportServer) // Use jetty [WebSocket | Http]-servlet based transport
                 .modules(
@@ -78,12 +80,12 @@ public class SampleServer<T extends RxTransport.Server & Servlet> {
         this.jetty.stop();
     }
 
-    private Server createJetty(int port) {
+    private Server createJetty(int port, String apiPath) {
         Server jetty = new Server();
 
         ServletContextHandler context = new ServletContextHandler();
         context.setContextPath("/");
-        context.addServlet(new ServletHolder(transportServer), "/api/*");
+        context.addServlet(new ServletHolder(transportServer), apiPath + "/*");
         context.addServlet(new ServletHolder(new DefaultServlet()), "/*");
         URL webResourceUrl = getClass().getResource("/web");
         String resourceBasePath = webResourceUrl.toExternalForm();
@@ -156,6 +158,10 @@ public class SampleServer<T extends RxTransport.Server & Servlet> {
         SampleServer<?> httpServer = SampleServer.forHttp(httpPort);
         SampleServer<?> wsServer = SampleServer.forWebSocket(wsPort);
         SampleServer<?> httpsServer = SampleServer.forHttps(httpsPort);
+
+        AtomicBoolean interrupted = new AtomicBoolean(false);
+        Signal.handle(new Signal("INT"), signal -> interrupted.set(true));
+
         try {
             httpServer.start();
             httpsServer.start();
@@ -164,9 +170,10 @@ public class SampleServer<T extends RxTransport.Server & Servlet> {
                             "http://localhost:%d\n" +
                             "https://localhost:%d\n" +
                             "http://localhost:%d (WebSocket)\n" +
-                            "Press <Enter> to stop.%n",
+                            "Press <Ctrl+C> to stop.%n",
                     httpPort, httpsPort, wsPort);
-            System.in.read();
+
+            while (!interrupted.get()) Thread.sleep(200);
             httpServer.stop();
             httpsServer.stop();
             wsServer.stop();

@@ -27,32 +27,32 @@ compileJava.options.compilerArgs = [
 
 import groovy.json.JsonSlurper
 
-task reinstallRxRpcJs(group: 'yarn') {
-    task removeRxRpcJs(type: YarnTask, group: 'yarn') {
-        onlyIf {
-            def packageJson = new JsonSlurper().parse file("$nodeProjectDir/package.json")
-            return !project(':rxrpc-js').tasks.yarnPack.state.upToDate && packageJson.dependencies.hasProperty('rxrpc-js')
-        }
-        args = ["remove", "rxrpc-js", "--offline"]
-    }
-    task cleanRxRpcCache(type: YarnTask, group: 'yarn', dependsOn: tasks.removeRxRpcJs) {
-        onlyIf {
-            return !project(':rxrpc-js').tasks.yarnPack.state.upToDate
-        }
-        args = ["cache", "clean", "--pattern", "rxrpc-js.*"]
-    }
-    task installRxRpcJs(type: YarnTask, dependsOn: project(':rxrpc-js').tasks.yarnPack, group: 'yarn') {
-        onlyIf {
-            return !project(':rxrpc-js').tasks.yarnPack.state.upToDate
-        }
-        inputs.files project(':rxrpc-js').tasks.yarnPack.outputs.files
-        args = ["add", "file:../../rxrpc-js/build/rxrpc-js.tgz", "--network-timeout", "600000"]
-    }
-    dependsOn tasks.cleanRxRpcCache, tasks.installRxRpcJs
+
+
+def rxRpcJsPackTask = project(':rxrpc-js').tasks.yarnPack
+def rxRpcJsPackage = rxRpcJsPackTask.outputs.files.first()
+def packageJson = new JsonSlurper().parse file("$nodeProjectDir/package.json")
+def isRxRpcJsInstalled = packageJson.dependencies.'rxrpc-js' != null
+
+task removeRxRpcJs(type: YarnTask, group: 'yarn', dependsOn: rxRpcJsPackTask) {
+    onlyIf { isRxRpcJsInstalled && rxRpcJsPackTask.didWork }
+    inputs.file rxRpcJsPackage
+    args = ["remove", "rxrpc-js", "--offline", "--mode=skip-build"]
+}
+task cleanRxRpcCache(type: YarnTask, group: 'yarn', dependsOn: tasks.removeRxRpcJs) {
+    onlyIf { isRxRpcJsInstalled && rxRpcJsPackTask.didWork }
+    inputs.file rxRpcJsPackage
+    args = ["cache", "clean", "--pattern", "rxrpc-js.*"]
+}
+task installRxRpcJs(type: YarnTask, dependsOn: tasks.yarn, group: 'yarn') {
+    inputs.file rxRpcJsPackage
+    onlyIf { rxRpcJsPackTask.didWork }
+    def relativePath = project.file('frontend').relativePath(rxRpcJsPackage as File)
+    args = ["add", "file:$relativePath", "--network-timeout", "600000"]
 }
 
 yarn {
-    it.dependsOn tasks.reinstallRxRpcJs
+    dependsOn rxRpcJsPackTask
     it.args.addAll provider {["--network-timeout", "600000"]}
 }
 
@@ -68,10 +68,8 @@ task yarnCleanCache(type: YarnTask) {
 
 clean.dependsOn(yarnCleanCache)
 
-yarn.dependsOn project(':rxrpc-js').tasks.yarnPack
-
 yarnBuild {
-    it.dependsOn(yarn, syncBackendApi)
+    it.dependsOn(cleanRxRpcCache, yarn, installRxRpcJs, syncBackendApi)
     it.inputs.files file("$nodeProjectDir/angular.json"), file("$nodeProjectDir/package.json")
     it.inputs.files fileTree("$nodeProjectDir/src")
     it.outputs.files fileTree("$buildDir/resources/main/web")
@@ -94,4 +92,6 @@ dependencies {
     testImplementation libs.commonsIo, libs.junit, libs.mockito
     compileOnly libs.autoValueAnnotations
     annotationProcessor libs.autoValue
+
+    implementation libs.slf4jSimple
 }

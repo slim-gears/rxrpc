@@ -71,18 +71,21 @@ public class JettyWebSocketRxTransport implements RxTransport, WebSocketListener
 
     @Override
     public synchronized void onWebSocketConnect(Session session) {
+        System.out.println("Web socket connected");
         disposable.getAndSet(subscribeOutgoing(session));
         completeIfNotTerminated(connected);
     }
 
     @Override
     public void onWebSocketError(Throwable cause) {
+        System.out.println("Web socket error: " + cause);
         errorIfNotTerminated(connected, cause);
         errorIfNotTerminated(incoming, cause);
     }
 
     @Override
     public void close() {
+        System.out.println("Closing web socket");
         outgoing().onComplete();
         incoming().onComplete();
     }

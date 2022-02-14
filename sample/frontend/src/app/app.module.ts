@@ -1,11 +1,12 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import {BrowserModule} from '@angular/platform-browser';
+import {NgModule} from '@angular/core';
 
-import { AppComponent } from './app.component';
+import {AppComponent} from './app.component';
 import {BackendApiModule} from "../backend-api";
-import {RxRpcHttpTransport, RxRpcWebSocketTransport, RxRpcReconnectableTransport} from "rxrpc-js";
+import {RxRpcHttpTransport, RxRpcReconnectableTransport, RxRpcWebSocketTransport} from "rxrpc-js";
 import {APP_BASE_HREF} from "@angular/common";
 import {environment} from "../environments/environment";
+import * as log from "loglevel"
 
 const transports = {
   http: RxRpcHttpTransport,
@@ -32,6 +33,7 @@ function getTransportType() {
 
 function getTransportToken() {
   const transport = getTransportType();
+  log.info('Selected transport: ', transport)
   return transports[transport];
 }
 
@@ -44,9 +46,9 @@ function getTransportToken() {
     BackendApiModule.withTransport(getTransportToken())
   ],
   providers: [
-    {provide: RxRpcWebSocketTransport, useFactory: () => new RxRpcWebSocketTransport(`ws://${location.host}/api/`)},
+    {provide: RxRpcWebSocketTransport, useFactory: () => new RxRpcWebSocketTransport(`ws://${location.host}/api/ws`)},
     {provide: RxRpcReconnectableTransport, useFactory: (transport) => RxRpcReconnectableTransport.of(transport), deps: [RxRpcWebSocketTransport]},
-    {provide: RxRpcHttpTransport, useFactory: () => new RxRpcHttpTransport(getTransportType() + `://${location.host}/api`)},
+    {provide: RxRpcHttpTransport, useFactory: () => new RxRpcHttpTransport(getTransportType() + `://${location.host}/api/http`, {observeEnabled: true, interceptors: []})},
     {provide: APP_BASE_HREF, useValue: '/'}
   ],
   bootstrap: [AppComponent]

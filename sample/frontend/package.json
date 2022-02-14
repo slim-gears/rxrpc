@@ -20,8 +20,8 @@
     "@angular/platform-browser-dynamic": "~8.2.14",
     "@angular/router": "~8.2.14",
     "add": "^2.0.6",
-    "rxjs": "~6.6.7",
-    "rxrpc-js": "file:../../rxrpc-js/build/rxrpc-js.tgz",
+    "loglevel": "^1.8.0",
+    "rxjs": "^6.6.7",
     "tslib": "^2.2.0",
     "zone.js": "~0.9.1"
   },

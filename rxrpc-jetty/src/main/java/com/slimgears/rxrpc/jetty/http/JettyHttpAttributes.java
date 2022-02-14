@@ -7,5 +7,6 @@ public class JettyHttpAttributes {
     public static final Duration ClientPollingPeriod = Duration.ofMillis(1000);
     public static final Duration ClientPollingRetryInitialDelay = Duration.ofMillis(1000);
     public static final int ClientPollingRetryCount = 10;
-    public static final Duration ServerKeepAliveTimeout = Duration.ofSeconds(5);
+    public static final Duration ServerKeepAliveTimeout = Duration.ofSeconds(60);
+    public static final Duration LongPollingDuration = Duration.ofSeconds(10);
 }

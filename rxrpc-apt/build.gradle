@@ -32,7 +32,7 @@ dependencies {
     implementation libs.guava
     implementation libs.jacksonAnnotations
     implementation libs.jacksonDataBind
-    implementation libs.slf4j
+    implementation libs.slf4jApi
     implementation libs.logbackClassic
     implementation libs.logbackCore
     implementation libs.javaxAnnotationApi

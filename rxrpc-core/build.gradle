@@ -6,7 +6,7 @@ dependencies {
     implementation libs.jacksonAnnotations
     implementation libs.jacksonDataBind
 
-    implementation libs.slf4j
+    implementation libs.slf4jApi
     compileOnly libs.autoValueAnnotations
     annotationProcessor libs.autoValue
     implementation libs.jsr305
