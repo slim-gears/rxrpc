@@ -39,11 +39,13 @@ task removeRxRpcJs(type: YarnTask, group: 'yarn', dependsOn: rxRpcJsPackTask) {
     inputs.file rxRpcJsPackage
     args = ["remove", "rxrpc-js", "--offline", "--mode=skip-build"]
 }
+
 task cleanRxRpcCache(type: YarnTask, group: 'yarn', dependsOn: tasks.removeRxRpcJs) {
     onlyIf { isRxRpcJsInstalled && rxRpcJsPackTask.didWork }
     inputs.file rxRpcJsPackage
     args = ["cache", "clean", "--pattern", "rxrpc-js.*"]
 }
+
 task installRxRpcJs(type: YarnTask, dependsOn: tasks.yarn, group: 'yarn') {
     inputs.file rxRpcJsPackage
     onlyIf { rxRpcJsPackTask.didWork }
@@ -56,8 +58,7 @@ yarn {
     it.args.addAll provider {["--network-timeout", "600000"]}
 }
 
-task syncBackendApi(type: Sync) {
-    dependsOn(compileJava)
+task syncBackendApi(type: Sync, dependsOn: compileJava) {
     from fileTree(dir: "$project.buildDir/generated/source/apt/main/typescript", include: '*.ts')
     into file("$nodeProjectDir/src/backend-api")
 }

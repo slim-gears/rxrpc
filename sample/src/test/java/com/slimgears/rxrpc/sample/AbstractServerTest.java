@@ -38,7 +38,7 @@ public abstract class AbstractServerTest<T extends RxTransport.Server & Servlet>
 
     @Before
     public void setUp() throws Exception {
-        server = SampleServer.forTransport(port, createServer(), getTransportType());
+        server = SampleServer.forTransport(port, createServer(), getTransportType(), "/api");
         server.start();
         RxClient rxClient = RxClient.forClient(createClient());
         clientResolver = rxClient.connect(getUri()).timeout(1000, TimeUnit.MILLISECONDS).blockingGet();
