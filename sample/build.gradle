@@ -59,7 +59,7 @@ yarn {
 }
 
 task syncBackendApi(type: Sync, dependsOn: compileJava) {
-    from fileTree(dir: "$project.buildDir/generated/source/apt/main/typescript", include: '*.ts')
+    from fileTree(dir: "$project.buildDir/generated/sources/annotationProcessor/java/main/typescript", include: '*.ts')
     into file("$nodeProjectDir/src/backend-api")
 }
 
