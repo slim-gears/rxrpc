@@ -14,15 +14,10 @@ describe('AppComponent', () => {
       ],
       providers: [
         { provide: BackendApiModule.RxRpcInvoker, useValue: <RxRpcInvoker> {
-            invoke: () => {
-              return of();
-            },
-            invokeShared<T>() {
-              return concat(of("Test response"), NEVER)
-            },
-            observeConnected() {
-              return concat(of(true), NEVER);
-            }
+            invoke: () => of(),
+            invokeShared: () => concat(of("Test response"), NEVER),
+            observeConnected: () => concat(of(true), NEVER),
+            close: () => {}
           }
         }
       ]
