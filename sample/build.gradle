@@ -48,7 +48,7 @@ task cleanRxRpcCache(type: YarnTask, group: 'yarn', dependsOn: tasks.removeRxRpc
 
 task installRxRpcJs(type: YarnTask, dependsOn: tasks.yarn, group: 'yarn') {
     inputs.file rxRpcJsPackage
-    onlyIf { rxRpcJsPackTask.didWork }
+    onlyIf { rxRpcJsPackTask.didWork || !isRxRpcJsInstalled }
     def relativePath = project.file('frontend').relativePath(rxRpcJsPackage as File)
     args = ["add", "file:$relativePath", "--network-timeout", "600000"]
 }

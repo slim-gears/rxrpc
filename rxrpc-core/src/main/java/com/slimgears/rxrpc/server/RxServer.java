@@ -5,21 +5,20 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.reflect.TypeToken;
 import com.slimgears.rxrpc.core.RxTransport;
 import com.slimgears.rxrpc.core.data.Invocation;
 import com.slimgears.rxrpc.core.data.Response;
 import com.slimgears.rxrpc.core.util.HasObjectMapper;
-import com.slimgears.rxrpc.core.util.MoreDisposables;
 import com.slimgears.rxrpc.core.util.ObjectMappers;
 import com.slimgears.rxrpc.server.internal.InvocationArguments;
 import com.slimgears.rxrpc.server.internal.ScopedResolver;
 import com.slimgears.util.generic.ServiceResolver;
 import com.slimgears.util.generic.ServiceResolvers;
-import com.google.common.reflect.TypeToken;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
-import io.reactivex.internal.functions.Functions;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +31,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import static com.slimgears.rxrpc.core.util.ObjectMappers.toReference;
 
@@ -128,6 +128,13 @@ public class RxServer implements AutoCloseable {
         private final ServiceResolver resolver = ScopedResolver.of(config.resolver());
         private final Disposable disposable;
         private final RxTransport transport;
+        private final Map<Invocation.Type, Consumer<Invocation>> invocationHandlers = ImmutableMap
+                .<Invocation.Type, Consumer<Invocation>>builder()
+                .put(Invocation.Type.Subscription, this::handleSubscription)
+                .put(Invocation.Type.Unsubscription, this::handleUnsubscription)
+                .put(Invocation.Type.KeepAlive, this::handleKeepAlive)
+                .put(Invocation.Type.Aggregation, this::handleAggregation)
+                .build();
 
         Session(RxTransport transport) {
             this.transport = transport;
@@ -138,11 +145,16 @@ public class RxServer implements AutoCloseable {
                     .doOnError(e -> transport.outgoing().onError(e))
                     .share();
 
-            this.disposable = MoreDisposables.ofAll(
-                    invocations.subscribe(Functions.emptyConsumer(), this::onError, this::close),
-                    invocations.filter(Invocation::isSubscription).subscribe(this::handleSubscription),
-                    invocations.filter(Invocation::isUnsubscription).subscribe(this::handleUnsubscription),
-                    invocations.filter(Invocation::isKeepAlive).subscribe(this::handleKeepAlive));
+            this.disposable = invocations.subscribe(this::handleInvocation, this::onError, this::close);
+        }
+
+        private void handleAggregation(Invocation invocation) {
+            Optional.ofNullable(invocation.invocations())
+                    .ifPresent(invocations -> invocations.forEach(this::handleInvocation));
+        }
+
+        private void handleInvocation(Invocation invocation) {
+            invocationHandlers.get(invocation.type()).accept(invocation);
         }
 
         private <T> void onDataResponse(Invocation invocation, T response) {
