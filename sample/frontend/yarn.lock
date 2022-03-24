@@ -7862,7 +7862,7 @@ rxjs@^6.4.0, rxjs@^6.6.7:
 
 "rxrpc-js@file:../../rxrpc-js/build/rxrpc-js.tgz":
   version "0.0.0"
-  resolved "file:../../rxrpc-js/build/rxrpc-js.tgz#1f53b7471ac9482556727d4e5cfb1ea2fb9088f0"
+  resolved "file:../../rxrpc-js/build/rxrpc-js.tgz#821064a529ca53bfda9f393e01f7b2d9d4395a33"
   dependencies:
     loglevel "^1.8.0"
 

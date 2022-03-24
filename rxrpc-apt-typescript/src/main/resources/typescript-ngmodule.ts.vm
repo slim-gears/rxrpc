@@ -1,5 +1,5 @@
 import {InjectionToken, ModuleWithProviders, NgModule, Type} from '@angular/core';
-import {RxRpcClient, RxRpcInvoker, RxRpcTransport} from 'rxrpc-js';
+import {RxRpcClient, RxRpcInvoker, RxRpcTransport, RxRpcClientOptions} from 'rxrpc-js';
 #foreach($c in $classes)
 import { $c.name() } from './$utils.camelCaseToDash($c.name())';
 #end
@@ -15,18 +15,18 @@ import { $c.name() } from './$utils.camelCaseToDash($c.name())';
 export class $ngModuleName {
     public static readonly RxRpcInvoker = new InjectionToken<RxRpcInvoker>('${ngModuleName}.RxRpcInvoker');
 
-    public static withTransport(transportToken: Type<RxRpcTransport>|InjectionToken<RxRpcTransport>): ModuleWithProviders<$ngModuleName> {
+    public static withTransport(transportToken: Type<RxRpcTransport>|InjectionToken<RxRpcTransport>, options?: RxRpcClientOptions): ModuleWithProviders<$ngModuleName> {
         return {
             ngModule: $ngModuleName,
             providers: [{
                 provide: ${ngModuleName}.RxRpcInvoker,
-                useFactory: ${ngModuleName}.invokerFactory,
+                useFactory: transport => ${ngModuleName}.invokerFactory(transport, options),
                 deps: [transportToken]
             }]
         };
     }
 
-    public static invokerFactory(transport: RxRpcTransport) {
-        return new RxRpcClient(transport);
+    public static invokerFactory(transport: RxRpcTransport, options?: RxRpcClientOptions) {
+        return new RxRpcClient(transport, options);
     }
 }
