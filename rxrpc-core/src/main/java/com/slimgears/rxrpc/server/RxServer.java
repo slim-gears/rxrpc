@@ -19,6 +19,7 @@ import com.slimgears.util.generic.ServiceResolvers;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
+import io.reactivex.schedulers.Schedulers;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,11 +151,20 @@ public class RxServer implements AutoCloseable {
 
         private void handleAggregation(Invocation invocation) {
             Optional.ofNullable(invocation.invocations())
-                    .ifPresent(invocations -> invocations.forEach(this::handleInvocation));
+                    .map(invocations -> Observable
+                            .fromIterable(invocations)
+                            .observeOn(Schedulers.computation()))
+                    .orElseGet(Observable::empty)
+                    .doOnNext(this::handleInvocation)
+                    .subscribe();
         }
 
         private void handleInvocation(Invocation invocation) {
-            invocationHandlers.get(invocation.type()).accept(invocation);
+            try {
+                invocationHandlers.get(invocation.type()).accept(invocation);
+            } catch (Throwable e) {
+                onErrorResponse(invocation, e);
+            }
         }
 
         private <T> void onDataResponse(Invocation invocation, T response) {
