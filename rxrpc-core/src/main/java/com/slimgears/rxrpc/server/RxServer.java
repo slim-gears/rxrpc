@@ -25,14 +25,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static com.slimgears.rxrpc.core.util.ObjectMappers.toReference;
 
@@ -151,12 +149,9 @@ public class RxServer implements AutoCloseable {
 
         private void handleAggregation(Invocation invocation) {
             Optional.ofNullable(invocation.invocations())
-                    .map(invocations -> Observable
-                            .fromIterable(invocations)
-                            .observeOn(Schedulers.computation()))
-                    .orElseGet(Observable::empty)
-                    .doOnNext(this::handleInvocation)
-                    .subscribe();
+                    .stream()
+                    .flatMap(Collection::stream)
+                    .forEach(this::handleInvocation);
         }
 
         private void handleInvocation(Invocation invocation) {
