@@ -64,7 +64,7 @@ public class ClientServerTest {
                 .builder(Object.class)
                 .method("testMethod", (resolver, target, args) -> serverSubject
                         .map(s -> args.get("prefix", TypeToken.of(String.class)) + ":" + s)
-                        .toFlowable(BackpressureStrategy.BUFFER), String.class)
+                        .toFlowable(BackpressureStrategy.BUFFER))
                 .build();
 
         mockTransport = new MockTransport();

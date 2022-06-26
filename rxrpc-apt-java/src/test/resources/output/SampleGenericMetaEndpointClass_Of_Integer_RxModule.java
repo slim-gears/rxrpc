@@ -15,12 +15,12 @@ import javax.annotation.Generated;
 @Generated("com.slimgears.rxrpc.apt.RxRpcEndpointAnnotationProcessor")
 public class SampleGenericMetaEndpointClass_Of_Integer_RxModule implements Module {
     private final static MethodDispatcher<SampleGenericMetaEndpointClass_Of_Integer, Integer> genericMethod = (resolver, target, args) ->
-        Publishers.toPublisher(target.genericMethod(
+        Publishers.toPublisher( target.genericMethod(
             args.get("data", TypeToken.of(Integer.class))));
 
     private final static EndpointRouter router = EndpointRouters
         .builder(SampleGenericMetaEndpointClass_Of_Integer.class)
-        .method("genericMethod", genericMethod, Integer.class)
+        .method("genericMethod", genericMethod)
         .build();
 
     @Override

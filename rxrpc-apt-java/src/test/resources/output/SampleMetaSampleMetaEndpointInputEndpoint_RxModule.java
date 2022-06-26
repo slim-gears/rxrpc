@@ -16,12 +16,12 @@ import javax.annotation.Generated;
 @Generated("com.slimgears.rxrpc.apt.RxRpcEndpointAnnotationProcessor")
 public class SampleMetaSampleMetaEndpointInputEndpoint_RxModule implements Module {
     private final static MethodDispatcher<SampleMetaSampleMetaEndpointInputEndpoint, List<SampleMetaEndpointInput>> data = (resolver, target, args) ->
-        Publishers.toPublisher(target.data(
+        Publishers.toPublisher( target.data(
             args.get("data", TypeToken.of(String.class))));
 
     private final static EndpointRouter router = EndpointRouters
         .builder(SampleMetaSampleMetaEndpointInputEndpoint.class)
-        .method("data", data, String.class)
+        .method("data", data)
         .build();
 
     @Override

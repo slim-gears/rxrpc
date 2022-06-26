@@ -17,22 +17,22 @@ import javax.annotation.Generated;
 @Generated("com.slimgears.rxrpc.apt.RxRpcEndpointAnnotationProcessor")
 public class SampleGenericMetaEndpoint_Of_Integer_RxModule implements Module {
     private final static MethodDispatcher<SampleGenericMetaEndpoint_Of_Integer, Integer> genericMethod = (resolver, target, args) ->
-        Publishers.toPublisher(target.genericMethod(
+        Publishers.toPublisher( target.genericMethod(
             args.get("data", TypeToken.of(Integer.class))));
 
     private final static MethodDispatcher<SampleGenericMetaEndpoint_Of_Integer, SampleGenericData<Integer>> genericDataMethod = (resolver, target, args) ->
-        Publishers.toPublisher(target.genericDataMethod(
+        Publishers.toPublisher( target.genericDataMethod(
             args.get("request", TypeToken.of(String.class))));
 
     private final static MethodDispatcher<SampleGenericMetaEndpoint_Of_Integer, Void> genericInputDataMethod = (resolver, target, args) ->
-        Publishers.toPublisher(target.genericInputDataMethod(
+        Publishers.toPublisher( target.genericInputDataMethod(
             args.get("data", new TypeToken<SampleGenericData<Integer>>(){})));
 
     private final static EndpointRouter router = EndpointRouters
         .builder(SampleGenericMetaEndpoint_Of_Integer.class)
-        .method("genericMethod", genericMethod, Integer.class)
-        .method("genericDataMethod", genericDataMethod, String.class)
-        .method("genericInputDataMethod", genericInputDataMethod, SampleGenericData.class)
+        .method("genericMethod", genericMethod)
+        .method("genericDataMethod", genericDataMethod)
+        .method("genericInputDataMethod", genericInputDataMethod)
         .build();
 
     @Override

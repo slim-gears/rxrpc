@@ -14,7 +14,7 @@ import javax.annotation.Generated;
 @Generated("com.slimgears.rxrpc.apt.RxRpcEndpointAnnotationProcessor")
 public class SampleDefaultNameEndpoint_RxModule implements Module {
     private final static MethodDispatcher<SampleDefaultNameEndpoint, Integer> method = (resolver, target, args) ->
-        Publishers.toPublisher(target.method());
+        Publishers.toPublisher( target.method());
 
     private final static EndpointRouter router = EndpointRouters
         .builder(SampleDefaultNameEndpoint.class)

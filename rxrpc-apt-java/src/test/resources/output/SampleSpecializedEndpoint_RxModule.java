@@ -16,29 +16,29 @@ import javax.annotation.Generated;
 @Generated("com.slimgears.rxrpc.apt.RxRpcEndpointAnnotationProcessor")
 public class SampleSpecializedEndpoint_RxModule implements Module {
     private final static MethodDispatcher<SampleSpecializedEndpoint, String> genericMethod = (resolver, target, args) ->
-        Publishers.toPublisher(target.genericMethod(
+        Publishers.toPublisher( target.genericMethod(
             args.get("data", TypeToken.of(String.class))));
 
     private final static MethodDispatcher<SampleSpecializedEndpoint, SampleGenericData<String>> genericDataMethod = (resolver, target, args) ->
-        Publishers.toPublisher(target.genericDataMethod(
+        Publishers.toPublisher( target.genericDataMethod(
             args.get("request", TypeToken.of(String.class))));
 
     private final static MethodDispatcher<SampleSpecializedEndpoint, SampleGenericList<String>> genericListMethod = (resolver, target, args) ->
-        Publishers.toPublisher(target.genericListMethod());
+        Publishers.toPublisher( target.genericListMethod());
 
     private final static MethodDispatcher<SampleSpecializedEndpoint, Void> genericInputDataMethod = (resolver, target, args) ->
-        Publishers.toPublisher(target.genericInputDataMethod(
+        Publishers.toPublisher( target.genericInputDataMethod(
             args.get("data", new TypeToken<SampleGenericData<String>>(){})));
 
     private final static MethodDispatcher<SampleSpecializedEndpoint, SampleSpecializedData> data = (resolver, target, args) ->
-        Publishers.toPublisher(target.data());
+        Publishers.toPublisher( target.data());
 
     private final static EndpointRouter router = EndpointRouters
         .builder(SampleSpecializedEndpoint.class)
-        .method("genericMethod", genericMethod, String.class)
-        .method("genericDataMethod", genericDataMethod, String.class)
+        .method("genericMethod", genericMethod)
+        .method("genericDataMethod", genericDataMethod)
         .method("genericListMethod", genericListMethod)
-        .method("genericInputDataMethod", genericInputDataMethod, SampleGenericData.class)
+        .method("genericInputDataMethod", genericInputDataMethod)
         .method("data", data)
         .build();
 

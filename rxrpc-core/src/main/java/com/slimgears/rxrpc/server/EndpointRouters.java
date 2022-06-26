@@ -1,35 +1,27 @@
 package com.slimgears.rxrpc.server;
 
+import com.google.common.reflect.TypeToken;
 import com.slimgears.rxrpc.core.RxDecorator;
 import com.slimgears.rxrpc.core.RxRpcDecorator;
 import com.slimgears.rxrpc.server.internal.CompositeEndpointRouter;
 import com.slimgears.rxrpc.server.internal.InvocationArguments;
 import com.slimgears.rxrpc.server.internal.MethodDispatcher;
 import com.slimgears.util.generic.ServiceResolver;
-import com.google.common.reflect.TypeToken;
+import com.slimgears.util.reflect.ReflectUtils;
+import com.slimgears.util.stream.Lazy;
 import com.slimgears.util.stream.Safe;
 import com.slimgears.util.stream.Streams;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.ServiceLoader;
+import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.slimgears.util.stream.Streams.ofType;
@@ -97,29 +89,48 @@ public class EndpointRouters {
     }
 
     public static class Builder<T> {
+        private final Lazy<Map<String, List<Method>>> methodsCache;
         private final Map<String, MethodDispatcher<T, ?>> methodDispatcherMap = new HashMap<>();
         private final Map<String, MethodDispatcher.Decorator> methodDecoratorMap = new HashMap<>();
         private final TypeToken<T> endpointType;
 
         private Builder(TypeToken<T> endpointType) {
             this.endpointType = endpointType;
+            this.methodsCache = Lazy.of(() -> ReflectUtils.classHierarchy(endpointType.getRawType())
+                    .flatMap(c -> Arrays.stream(c.getDeclaredMethods()))
+                    .collect(Collectors.groupingBy(Method::getName)));
         }
 
         public static <T> Builder<T> create(TypeToken<T> endpointType) {
             return new Builder<>(endpointType);
         }
 
-        public <R> Builder<T> method(String name, MethodDispatcher<T, R> dispatcher, Class... args) {
-            MethodDispatcher.Decorator decorator = DecoratorBuilder
-                    .create(endpointType)
-                    .method(name, args)
-                    .build();
-
-            methodDecoratorMap.put(name, decorator);
+        public <R> Builder<T> method(String name, MethodDispatcher<T, R> dispatcher) {
+            methodDecoratorMap.put(name, decorate(name));
             methodDispatcherMap.put(name, dispatcher);
             return this;
         }
 
+        private MethodDispatcher.Decorator decorate(String name) {
+            var methods = methodsCache.get().getOrDefault(name, Collections.emptyList());
+            return methods.stream()
+                    .flatMap(m -> Arrays.stream(m.getAnnotations()))
+                    .flatMap(a -> Optional
+                            .ofNullable(a.annotationType().getAnnotation(RxRpcDecorator.class))
+                            .map(da -> buildDecorator(da.value(), a)).stream())
+                    .reduce(EndpointRouters::combineDecorators)
+                    .orElse(emptyDecorator);
+        }
+
+        private <A extends Annotation> MethodDispatcher.Decorator buildDecorator(Class<? extends RxDecorator<? extends Annotation>> decoratorClass, A annotation) {
+            return new MethodDispatcher.Decorator() {
+                @Override
+                public <R> Publisher<R> decorate(Supplier<Publisher<R>> publisher, ServiceResolver resolver) {
+                    @SuppressWarnings("unchecked") RxDecorator<A> decorator = (RxDecorator<A>) resolver.resolve(decoratorClass);
+                    return decorator.decorate(annotation, publisher);
+                }
+            };
+        }
         public EndpointRouter build() {
             return Builder.this::dispatch;
         }
@@ -164,67 +175,6 @@ public class EndpointRouters {
         @Override
         public void addRouter(String path, EndpointRouter router) {
             add(path, router);
-        }
-    }
-
-    static class DecorationItem<A extends Annotation> {
-        final Class<? extends RxDecorator<A>> decorator;
-        final A annotation;
-
-        private DecorationItem(Class<? extends RxDecorator<A>> decorator, A annotation) {
-            this.decorator = decorator;
-            this.annotation = annotation;
-        }
-
-        @SuppressWarnings("unchecked")
-        static <A extends Annotation> DecorationItem<A> create(Class<? extends RxDecorator<? extends Annotation>> decoratorClass, Annotation annotation) {
-            return new DecorationItem<>((Class<? extends RxDecorator<A>>)decoratorClass, (A)annotation);
-        }
-    }
-
-    public static class DecoratorBuilder<T> {
-        private final TypeToken<T> endpointType;
-        private final List<DecorationItem<? extends Annotation>> decorationItems = new ArrayList<>();
-
-        private DecoratorBuilder(TypeToken<T> endpointType) {
-            this.endpointType = endpointType;
-        }
-
-        public static <T> DecoratorBuilder<T> create(TypeToken<T> endpointType) {
-            return new DecoratorBuilder<>(endpointType);
-        }
-
-        public DecoratorBuilder<T> method(String name, Class... args) {
-            try {
-                Method method = endpointType.getRawType().getMethod(name, args);
-                Arrays.stream(method.getAnnotations())
-                        .flatMap(a -> Optional
-                                .ofNullable(a.annotationType().getAnnotation(RxRpcDecorator.class))
-                                .map(da -> DecorationItem.create(da.value(), a))
-                                .map(Stream::of)
-                                .orElseGet(Stream::empty))
-                        .forEach(decorationItems::add);
-                return this;
-            } catch (NoSuchMethodException e) {
-                return this;
-            }
-        }
-
-        public MethodDispatcher.Decorator build() {
-            return decorationItems.stream()
-                    .map(this::buildDecorator)
-                    .reduce(EndpointRouters::combineDecorators)
-                    .orElse(emptyDecorator);
-        }
-
-        private <A extends Annotation> MethodDispatcher.Decorator buildDecorator(DecorationItem<A> item) {
-            return new MethodDispatcher.Decorator() {
-                @Override
-                public <R> Publisher<R> decorate(Supplier<Publisher<R>> publisher, ServiceResolver resolver) {
-                    RxDecorator<A> decorator = resolver.resolve(item.decorator);
-                    return decorator.decorate(item.annotation, publisher);
-                }
-            };
         }
     }
 

@@ -34,7 +34,7 @@ public class $simpleClassName implements $[com.slimgears.rxrpc.server.EndpointRo
     private final static $[com.slimgears.rxrpc.server.EndpointRouter] router = $[com.slimgears.rxrpc.server.EndpointRouters]
         .builder($[$sourceClassName].class)
 #foreach($m in $methods)
-        .method("$m.name()", $m.name()#foreach ($p in $m.params()), $[$p.type().erasureName()].class#end)
+        .method("$m.name()", $m.name())
 #end
         .build();
 
