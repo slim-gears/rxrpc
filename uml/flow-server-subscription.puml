@@ -1,6 +1,6 @@
 @startuml
 
-!includeurl "https://raw.githubusercontent.com/slim-gears/rxrpc/dev/uml/flow-lifelines.puml"
+!includeurl https://raw.githubusercontent.com/slim-gears/rxrpc/master/uml/flow-lifelines.puml
 
 RxClient -> RxTransport: send(msg)
 

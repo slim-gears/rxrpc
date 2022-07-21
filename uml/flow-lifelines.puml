@@ -1,6 +1,6 @@
 @startuml
 
-!includeurl "https://raw.githubusercontent.com/slim-gears/rxrpc/dev/uml/skin.puml"
+!includeurl https://raw.githubusercontent.com/slim-gears/rxrpc/dev/uml/skin.puml
 
 box "Client" #ffe8c0
 	participant UserComponent
