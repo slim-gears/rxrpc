@@ -1,5 +1,6 @@
 package com.slimgears.rxrpc.apt.typescript;
 
+import com.google.common.collect.ImmutableMap;
 import com.slimgears.apt.data.Environment;
 import com.slimgears.apt.data.TypeInfo;
 import com.slimgears.util.generic.MoreStrings;
@@ -14,6 +15,8 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import java.time.Instant;
 import java.time.LocalDateTime;
+
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TypeScriptTypeConverterTest {
@@ -44,6 +47,14 @@ public class TypeScriptTypeConverterTest {
                 "rxrpcJs.StringKeyMap<SampleData>");
         assertConversion("java.util.Map<java.lang.Float, com.slimgears.rxrpc.sample.SampleData>",
                 "rxrpcJs.NumberKeyMap<SampleData>");
+    }
+
+    @Test
+    public void testTypeMapOverride() {
+        var options = ImmutableMap.of("rxrpc.ts.typemaps", "$/override-typemap.properties");
+        when(processingEnvironment.getOptions()).thenReturn(options);
+        assertConversion("test.input", "test.output"); // sanity check, ensuring that "override-typemap.properties" was loaded
+        assertConversion("java.util.Date", "string");
     }
 
     private void assertConversion(TypeInfo source, TypeInfo expected) {

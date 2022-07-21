@@ -57,6 +57,7 @@ public class RxRpcEndpointAnnotationProcessor extends AbstractAnnotationProcesso
         moduleGenerators = ServiceProviders.loadServices(ModuleGenerator.class);
     }
 
+    @Override
     protected boolean processType(TypeElement annotationType, TypeElement typeElement) {
         log.info("Processing type: {}", typeElement.getQualifiedName());
         try (Environment ignored = Environment.instance()

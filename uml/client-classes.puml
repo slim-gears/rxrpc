@@ -1,7 +1,5 @@
 @startuml
 
-!includeurl "https://raw.githubusercontent.com/slim-gears/rxrpc/dev/uml/skin.puml"
-
 interface RxTransport {
     +outgoing: Emitter<String>
     +incoming: Observable<String>

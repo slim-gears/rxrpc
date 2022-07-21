@@ -23,8 +23,8 @@ public class TypeScriptUtils extends TemplateUtils {
     private final static Logger log = LoggerFactory.getLogger(TypeScriptUtils.class);
 
     private final TypeConverter configuredTypeConverter = TypeConverters.ofMultiple(
-            TypeConverters.fromPropertiesResource("/types.properties"),
-            TypeConverters.fromEnvironmentMaps("rxrpc.ts.typemaps"));
+            TypeConverters.fromEnvironmentMaps("rxrpc.ts.typemaps"),
+            TypeConverters.fromPropertiesResource("/types.properties"));
     private final TypeConverter typeConverter;
 
     private TypeScriptUtils() {
